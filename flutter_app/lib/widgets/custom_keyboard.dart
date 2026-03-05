@@ -9,6 +9,7 @@ class CustomKeyboard extends StatelessWidget {
   final VoidCallback onMinus;
   final VoidCallback onEqual;
   final bool isCalculatorMode;
+  final DateTime selectedDate;
 
   const CustomKeyboard({
     Key? key,
@@ -20,7 +21,12 @@ class CustomKeyboard extends StatelessWidget {
     required this.onMinus,
     required this.onEqual,
     required this.isCalculatorMode,
+    required this.selectedDate,
   }) : super(key: key);
+
+  bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 
   Widget buildButton(String text, {Color? color, VoidCallback? onTap}) {
     return GestureDetector(
@@ -34,7 +40,8 @@ class CustomKeyboard extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           text,
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: text.length > 6 ? 16 : 18, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -54,7 +61,12 @@ class CustomKeyboard extends StatelessWidget {
           buildButton("1"),
           buildButton("2"),
           buildButton("3"),
-          buildButton("时间", color: Color(0xFFFF5A5A), onTap: onTime),
+          buildButton(
+              isSameDay(selectedDate, DateTime.now())
+                  ? "今天"
+                  : "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+              color: Color(0xFFFF5A5A),
+              onTap: onTime),
 
           // 第二排
           buildButton("4"),
