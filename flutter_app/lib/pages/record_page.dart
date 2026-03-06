@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../utils/app_state.dart';
+import 'package:provider/provider.dart';
+import 'package:my_bookkeeping/utils/NetUtils.dart';
 
 import '../widgets/custom_expense_category.dart';
 import '../widgets/custom_keyboard.dart';
@@ -20,16 +22,41 @@ class _RecordPageState extends State<RecordPage> {
 
   InputMode _mode = InputMode.normal;
 
+  Future<void> fetchTransactions() async {
+    try {
+      final res = await NetService().httpPost('list', {});
+      final data = json.decode(res.body);
+      Provider.of<AppState>(context, listen: false)
+          .setTransactions(data['transactions'] ?? []);
+    } catch (e) {
+      print('fetch error: $e');
+    }
+  }
+
   Future<void> addTransaction() async {
     final amount = double.tryParse(_amountCtrl.text) ?? 0.0;
     final note = _noteCtrl.text;
     try {
-      await http.post(Uri.parse('http://10.0.2.2:8000/api.php?action=add'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({'amount': amount, 'note': note, 'date': _date}));
+      final res = await NetService().httpPost('add', {
+        'amount': amount,
+        'note': note,
+        'date': _date.millisecondsSinceEpoch,
+        'id':
+            '${Provider.of<AppState>(context, listen: false).userId}${DateTime.now().millisecondsSinceEpoch}'
+      });
+
+      final data = json.decode(res.body);
+
+      if (data['ok'] != true) {
+        print("添加失败: ${data['error']}");
+        return;
+      }
+
       _amountCtrl.clear();
       _noteCtrl.clear();
-      // fetchTransactions();
+      fetchTransactions();
+
+      Navigator.pop(context);
     } catch (e) {
       print('post error: $e');
     }
