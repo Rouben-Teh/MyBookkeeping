@@ -18,7 +18,8 @@ $db->exec("
 CREATE TABLE IF NOT EXISTS transactions (
     id TEXT NOT NULL PRIMARY KEY,
     user_id INTEGER NOT NULL,
-    amount REAL NOT NULL,
+    category TEXT NOT NULL,
+    amount REAL NOT NULL,  
     note TEXT,
     datetime TEXT DEFAULT (datetime('now','localtime')),
     FOREIGN KEY(user_id) REFERENCES accounts(id)

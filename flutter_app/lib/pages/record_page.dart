@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/service/api_service.dart';
 import 'dart:convert';
 import '../utils/app_state.dart';
 import 'package:provider/provider.dart';
@@ -15,52 +16,13 @@ class RecordPage extends StatefulWidget {
 }
 
 class _RecordPageState extends State<RecordPage> {
+  final _categoryCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
 
   DateTime _date = DateTime.now();
 
   InputMode _mode = InputMode.normal;
-
-  Future<void> fetchTransactions() async {
-    try {
-      final res = await NetService().httpPost('list', {});
-      final data = json.decode(res.body);
-      Provider.of<AppState>(context, listen: false)
-          .setTransactions(data['transactions'] ?? []);
-    } catch (e) {
-      print('fetch error: $e');
-    }
-  }
-
-  Future<void> addTransaction() async {
-    final amount = double.tryParse(_amountCtrl.text) ?? 0.0;
-    final note = _noteCtrl.text;
-    try {
-      final res = await NetService().httpPost('add', {
-        'amount': amount,
-        'note': note,
-        'date': _date.millisecondsSinceEpoch,
-        'id':
-            '${Provider.of<AppState>(context, listen: false).userId}${DateTime.now().millisecondsSinceEpoch}'
-      });
-
-      final data = json.decode(res.body);
-
-      if (data['ok'] != true) {
-        print("添加失败: ${data['error']}");
-        return;
-      }
-
-      _amountCtrl.clear();
-      _noteCtrl.clear();
-      fetchTransactions();
-
-      Navigator.pop(context);
-    } catch (e) {
-      print('post error: $e');
-    }
-  }
 
   void openTimePicker() {
     showModalBottomSheet(
@@ -95,93 +57,110 @@ class _RecordPageState extends State<RecordPage> {
         children: [
           Expanded(
             child: CategoryPage(
+              selectedCategory: _categoryCtrl.text,
               onKeyTap: (categoryName) {
                 print('Selected category: $categoryName');
-                _noteCtrl.text = categoryName; // 将选中的类别名称设置到备注输入框
+                setState(() {
+                  _categoryCtrl.text = categoryName; // 将选中的类别名称设置到备注输入框
+                });
               },
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 3,
-                child: TextField(
-                    controller: _noteCtrl,
-                    decoration: InputDecoration(labelText: '备注')),
-              ),
-              Expanded(
-                flex: 1,
-                child: TextField(
-                    readOnly: true,
-                    controller: _amountCtrl,
-                    keyboardType: TextInputType.none,
-                    decoration: InputDecoration(labelText: '金额')),
-              )
-            ],
-          ),
+          _categoryCtrl.text.isEmpty
+              ? SizedBox.shrink()
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(width: 12),
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                          controller: _noteCtrl,
+                          decoration: InputDecoration(labelText: '备注')),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                          readOnly: true,
+                          controller: _amountCtrl,
+                          keyboardType: TextInputType.none,
+                          decoration: InputDecoration(labelText: '金额')),
+                    ),
+                    SizedBox(width: 12),
+                  ],
+                ),
           SizedBox(height: 8),
-          SizedBox(
-            height: 390, // 固定高度
-            child: CustomKeyboard(
-              onKeyTap: (key) {
-                _amountCtrl.text += key;
-              },
-              onDelete: () {
-                if (_amountCtrl.text.isNotEmpty) {
-                  _amountCtrl.text = _amountCtrl.text
-                      .substring(0, _amountCtrl.text.length - 1);
+          _categoryCtrl.text.isEmpty
+              ? SizedBox.shrink()
+              : SizedBox(
+                  height: 390, // 固定高度
+                  child: CustomKeyboard(
+                    onKeyTap: (key) {
+                      _amountCtrl.text += key;
+                    },
+                    onDelete: () {
+                      if (_amountCtrl.text.isNotEmpty) {
+                        _amountCtrl.text = _amountCtrl.text
+                            .substring(0, _amountCtrl.text.length - 1);
 
-                  if (_mode == InputMode.operator) {
-                    setState(() {
-                      _mode = InputMode.normal; // 删除后回到普通输入模式
-                    });
-                  }
-                }
-              },
-              onAdd: () {
-                addTransaction();
-              },
-              onTime: () {
-                openTimePicker();
-              },
-              onPlus: () {
-                if (_mode == InputMode.operator) {
-                  _amountCtrl.text = _amountCtrl.text
-                      .substring(0, _amountCtrl.text.length - 1);
-                }
-                _amountCtrl.text += "+";
-                setState(() {
-                  _mode = InputMode.operator; // 进入计算器模式
-                });
-              },
-              onMinus: () {
-                if (_mode == InputMode.operator) {
-                  _amountCtrl.text = _amountCtrl.text
-                      .substring(0, _amountCtrl.text.length - 1);
-                }
-                _amountCtrl.text += "-";
-                setState(() {
-                  _mode = InputMode.operator; // 进入计算器模式
-                });
-              },
-              onEqual: () {
-                if (_mode == InputMode.operator) {
-                  try {
-                    final result = evaluateExpression(_amountCtrl.text);
-                    _amountCtrl.text = result.toString();
-                    setState(() {
-                      _mode = InputMode.normal; // 删除后回到普通输入模式
-                    });
-                  } catch (e) {
-                    print('计算错误: $e');
-                  }
-                }
-              },
-              isCalculatorMode: _mode == InputMode.operator,
-              selectedDate: _date,
-            ),
-          )
+                        if (_mode == InputMode.operator) {
+                          setState(() {
+                            _mode = InputMode.normal; // 删除后回到普通输入模式
+                          });
+                        }
+                      }
+                    },
+                    onAdd: () {
+                      APIService().addTransaction(_categoryCtrl.text,
+                          _amountCtrl.text, _noteCtrl.text, _date, (data) {
+                        _categoryCtrl.clear();
+                        _amountCtrl.clear();
+                        _noteCtrl.clear();
+                        Navigator.pop(context);
+                      });
+                      ;
+                    },
+                    onTime: () {
+                      openTimePicker();
+                    },
+                    onPlus: () {
+                      if (_mode == InputMode.operator) {
+                        _amountCtrl.text = _amountCtrl.text
+                            .substring(0, _amountCtrl.text.length - 1);
+                      }
+                      _amountCtrl.text += "+";
+                      setState(() {
+                        _mode = InputMode.operator; // 进入计算器模式
+                      });
+                    },
+                    onMinus: () {
+                      if (_mode == InputMode.operator) {
+                        _amountCtrl.text = _amountCtrl.text
+                            .substring(0, _amountCtrl.text.length - 1);
+                      }
+                      _amountCtrl.text += "-";
+                      setState(() {
+                        _mode = InputMode.operator; // 进入计算器模式
+                      });
+                    },
+                    onEqual: () {
+                      if (_mode == InputMode.operator) {
+                        try {
+                          final result = evaluateExpression(_amountCtrl.text);
+                          _amountCtrl.text = result.toString();
+                          setState(() {
+                            _mode = InputMode.normal; // 删除后回到普通输入模式
+                          });
+                        } catch (e) {
+                          print('计算错误: $e');
+                        }
+                      }
+                    },
+                    isCalculatorMode: _mode == InputMode.operator,
+                    selectedDate: _date,
+                  ),
+                )
         ],
       ),
     );

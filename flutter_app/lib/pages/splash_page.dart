@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
+import 'package:my_bookkeeping/pages/login_page.dart';
 import 'package:provider/provider.dart';
 import 'home_page.dart';
 import '../utils/app_state.dart';
 import '../utils/NetUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../service/api_service.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -16,23 +17,6 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     checkLogin();
-  }
-
-  Future<void> fetchTransactions() async {
-    try {
-      final res = await NetService().httpPost('list', {});
-      final data = json.decode(res.body);
-
-      if (data['transactions'] == null) {
-        print("获取交易记录失败: ${data['error']}");
-        return;
-      }
-
-      setState(() => Provider.of<AppState>(context, listen: false)
-          .setTransactions(data['transactions'] ?? []));
-    } catch (e) {
-      print('fetch error: $e');
-    }
   }
 
   Future<void> checkLogin() async {
@@ -49,15 +33,22 @@ class _SplashPageState extends State<SplashPage> {
 
       NetService().setToken(token);
 
+      APIService().fetchTransactions();
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => HomePage()),
+      );
+
       print("已登录，Token: $token");
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => LoginPage()),
+      );
+
+      print("未登录");
     }
-
-    fetchTransactions();
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => HomePage()),
-    );
   }
 
   @override

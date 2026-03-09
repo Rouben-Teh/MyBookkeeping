@@ -25,11 +25,11 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
           children: [
             Expanded(
               child: ListView.builder(
-                itemCount: Provider.of<AppState>(context, listen: false)
+                itemCount: Provider.of<AppState>(context, listen: true)
                     .transactions
                     .length,
                 itemBuilder: (context, i) {
-                  final t = Provider.of<AppState>(context, listen: false)
+                  final t = Provider.of<AppState>(context, listen: true)
                       .transactions[i];
                   return ListTile(
                     title: Text('¥${t['amount']}'),

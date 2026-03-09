@@ -1,10 +1,8 @@
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'app_state.dart';
 
 class NetService {
-  static String? token;
+  static String token = "";
 
   void setToken(String t) {
     token = t;

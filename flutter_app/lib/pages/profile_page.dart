@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/pages/login_page.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../utils/NetUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_state.dart';
-import 'register_page.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -17,47 +17,10 @@ class _ProfilePageState extends State<ProfilePage> {
   final emailCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
 
-  bool isLoggedIn = false;
-
   @override
   void initState() {
     super.initState();
-    isLoggedIn = Provider.of<AppState>(context, listen: false).isLoggedIn;
     emailCtrl.text = Provider.of<AppState>(context, listen: false).email;
-  }
-
-  Future<void> login() async {
-    try {
-      String email = emailCtrl.text;
-      String password = passwordCtrl.text;
-
-      final res = await NetService()
-          .httpPost("login", {"email": email, "password": password});
-
-      final data = json.decode(res.body);
-
-      if (data['token'] == null) {
-        print("登录失败: ${data['error']}");
-        return;
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', data['token']);
-      await prefs.setString('userId', data['id'].toString());
-      await prefs.setString('email', email);
-
-      setState(() {
-        isLoggedIn = true;
-        Provider.of<AppState>(context, listen: false)
-            .login(data['token'], data['id'].toString(), email);
-
-        NetService().setToken(data['token']);
-      });
-
-      print("登录: $email $password");
-    } catch (e) {
-      print('post error: $e');
-    }
   }
 
   Future<void> logout() async {
@@ -82,10 +45,14 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         emailCtrl.clear();
         passwordCtrl.clear();
-        isLoggedIn = false;
         Provider.of<AppState>(context, listen: false).logout();
         NetService().setToken("");
       });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => LoginPage()),
+      );
     } catch (e) {
       print('logout error: $e');
     }
@@ -129,26 +96,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
-        ],
-      ),
-    );
-  }
 
-  Widget loginWidget(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
-          TextField(
-            controller: emailCtrl,
-            decoration: InputDecoration(labelText: "Email"),
-          ),
-          TextField(
-            controller: passwordCtrl,
-            obscureText: true,
-            decoration: InputDecoration(labelText: "Password"),
-          ),
-          SizedBox(height: 20),
+          // Bug check button (临时)
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -156,20 +105,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 backgroundColor: Colors.red,
                 padding: EdgeInsets.symmetric(vertical: 15),
               ),
-              onPressed: login,
-              child: Text("登录",
+              onPressed: () {
+                Provider.of<AppState>(context, listen: false).checkVariables();
+              },
+              child: Text("Check",
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => RegisterPage()),
-              );
-            },
-            child: Text("没有账号？注册"),
-          )
         ],
       ),
     );
@@ -186,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 fontWeight: FontWeight.bold)), // 设置标题文字加粗
         backgroundColor: Color(0xFFFF5A5A), // 设置AppBar背景颜色
       ),
-      body: isLoggedIn ? profileWidget(context) : loginWidget(context),
+      body: profileWidget(context),
     );
   }
 }

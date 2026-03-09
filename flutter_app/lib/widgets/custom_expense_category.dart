@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 class CategoryPage extends StatelessWidget {
+  final String selectedCategory;
   final Function(String) onKeyTap;
 
   CategoryPage({
     Key? key,
+    required this.selectedCategory,
     required this.onKeyTap,
   }) : super(key: key);
 
@@ -31,7 +33,6 @@ class CategoryPage extends StatelessWidget {
     {"name": "数码", "icon": Icons.devices},
     {"name": "宠物", "icon": Icons.pets},
     {"name": "礼物", "icon": Icons.card_giftcard},
-    {"name": "其他", "icon": Icons.category},
     {"name": "水电", "icon": Icons.flash_on},
     {"name": "房租", "icon": Icons.apartment},
     {"name": "工资", "icon": Icons.attach_money},
@@ -47,20 +48,33 @@ class CategoryPage extends StatelessWidget {
     {"name": "奖金", "icon": Icons.card_membership},
     {"name": "补贴", "icon": Icons.support},
     {"name": "罚款", "icon": Icons.warning},
-    {"name": "红包", "icon": Icons.money_off},
-    {"name": "彩票", "icon": Icons.confirmation_number},
-    {"name": "维修", "icon": Icons.build},
-    {"name": "学费", "icon": Icons.school},
   ];
 
   @override
   Widget build(BuildContext context) {
+    final List<GlobalKey> itemKeys =
+        List.generate(categories.length, (_) => GlobalKey());
+
+    void _scrollToItem(int index) {
+      final context = itemKeys[index].currentContext;
+      if (context != null) {
+        print(
+            "Scrolling to item: ${categories[index]['name']} at index $index");
+
+        Scrollable.ensureVisible(
+          context,
+          duration: Duration(milliseconds: 1000),
+          alignment: 0.95,
+        );
+      }
+    }
+
     return Container(
       padding: EdgeInsets.all(12),
       child: GridView.builder(
         itemCount: categories.length,
-        shrinkWrap:
-            true, // 👈 allow the grid to size itself inside another scrollable
+        // shrinkWrap:
+        //     true, // 👈 allow the grid to size itself inside another scrollable
         // physics:
         //     NeverScrollableScrollPhysics(), // 👈 prevent nested scrolling conflicts
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -73,9 +87,12 @@ class CategoryPage extends StatelessWidget {
           final item = categories[index];
 
           return GestureDetector(
+            key: itemKeys[index],
             onTap: () {
               // 👈 return selected category name to parent
               onKeyTap(item["name"] as String);
+
+              _scrollToItem(index);
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -84,7 +101,9 @@ class CategoryPage extends StatelessWidget {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 255, 103, 103),
+                    color: selectedCategory == item["name"]
+                        ? const Color.fromARGB(255, 255, 103, 103)
+                        : const Color.fromARGB(255, 255, 195, 195),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

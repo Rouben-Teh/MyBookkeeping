@@ -14,7 +14,7 @@ class AppState extends ChangeNotifier {
     email = _email;
     isLoggedIn = true;
     notifyListeners();
-    print("用户登录状态已更新: $isLoggedIn");
+    print("用户登录状态已更新: $userId $email $isLoggedIn");
   }
 
   void logout() {
@@ -28,6 +28,12 @@ class AppState extends ChangeNotifier {
 
   void setTransactions(List data) {
     transactions = data;
+    print("交易记录已更新: ${transactions}");
     notifyListeners(); // 通知所有UI刷新
+  }
+
+  void checkVariables() {
+    print(
+        "当前用户状态: isLoggedIn=$isLoggedIn, token=$token, userId=$userId, email=$email, transactions=${transactions.length} 条, 数据: ${transactions}");
   }
 }
