@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS transactions (
     category TEXT NOT NULL,
     amount REAL NOT NULL,  
     note TEXT,
-    datetime TEXT DEFAULT (datetime('now','localtime')),
+    datetime TEXT DEFAULT ((strftime('%s','now') * 1000, 'unixepoch', 'localtime')),
+    created_at TEXT DEFAULT (datetime('now','localtime')),
     FOREIGN KEY(user_id) REFERENCES accounts(id)
 )
 ");

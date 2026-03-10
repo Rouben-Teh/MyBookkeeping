@@ -129,8 +129,10 @@ if ($action === 'add') {
     
     $body = json_decode(file_get_contents('php://input'), true);
     $id = $body['id'] ?? '';
+    $category = $body['category'] ?? '';
     $amount = isset($body['amount']) ? (float)$body['amount'] : 0.0;
     $note = $body['note'] ?? '';
+    $datetime = $body['datetime'] ?? null;
     
     if (!$id) {
         http_response_code(400);
@@ -138,8 +140,8 @@ if ($action === 'add') {
         exit;
     }
     
-    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note) VALUES (:id, :user_id, :category, :amount, :note)');
-    $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note]);
+    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, datetime) VALUES (:id, :user_id, :category, :amount, :note, :datetime)');
+    $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note, ':datetime' => $datetime]);
     
     // 返回更新后的交易列表
     $listStmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY datetime DESC');

@@ -23,7 +23,7 @@ class APIService {
   }
 
   Future<void> addTransaction(String _category, String _amount, String _note,
-      DateTime date, void Function(dynamic data)? callback) async {
+      int date, void Function(dynamic data)? callback) async {
     final category = _category;
     final amount = double.tryParse(_amount) ?? 0.0;
     final note = _note;
@@ -32,7 +32,7 @@ class APIService {
         'category': category,
         'amount': amount,
         'note': note,
-        'date': date.millisecondsSinceEpoch,
+        'datetime': date,
         'id':
             '${Global.appState.userId}${DateTime.now().millisecondsSinceEpoch}'
       });

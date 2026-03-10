@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/enum/enum.dart';
 
 class CategoryPage extends StatelessWidget {
+  final ScrollController scrollController;
   final String selectedCategory;
-  final Function(String) onKeyTap;
+  final Function(int, String) onKeyTap;
 
   CategoryPage({
     Key? key,
+    required this.scrollController,
     required this.selectedCategory,
     required this.onKeyTap,
   }) : super(key: key);
@@ -16,39 +19,6 @@ class CategoryPage extends StatelessWidget {
   //     "icon": Icons.category,
   //   };
   // });
-
-  final categories = [
-    {"name": "餐饮", "icon": Icons.restaurant},
-    {"name": "交通", "icon": Icons.directions_car},
-    {"name": "购物", "icon": Icons.shopping_bag},
-    {"name": "蔬菜", "icon": Icons.local_grocery_store},
-    {"name": "娱乐", "icon": Icons.movie},
-    {"name": "日常", "icon": Icons.home},
-    {"name": "运动", "icon": Icons.fitness_center},
-    {"name": "医疗", "icon": Icons.local_hospital},
-    {"name": "教育", "icon": Icons.school},
-    {"name": "旅行", "icon": Icons.airplanemode_active},
-    {"name": "通讯", "icon": Icons.phone},
-    {"name": "服饰", "icon": Icons.checkroom},
-    {"name": "数码", "icon": Icons.devices},
-    {"name": "宠物", "icon": Icons.pets},
-    {"name": "礼物", "icon": Icons.card_giftcard},
-    {"name": "水电", "icon": Icons.flash_on},
-    {"name": "房租", "icon": Icons.apartment},
-    {"name": "工资", "icon": Icons.attach_money},
-    {"name": "投资", "icon": Icons.trending_up},
-    {"name": "红包", "icon": Icons.money_off},
-    {"name": "彩票", "icon": Icons.confirmation_number},
-    {"name": "维修", "icon": Icons.build},
-    {"name": "学费", "icon": Icons.school},
-    {"name": "保险", "icon": Icons.security},
-    {"name": "税务", "icon": Icons.account_balance},
-    {"name": "捐赠", "icon": Icons.volunteer_activism},
-    {"name": "还款", "icon": Icons.payments},
-    {"name": "奖金", "icon": Icons.card_membership},
-    {"name": "补贴", "icon": Icons.support},
-    {"name": "罚款", "icon": Icons.warning},
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +42,7 @@ class CategoryPage extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12),
       child: GridView.builder(
+        controller: scrollController,
         itemCount: categories.length,
         // shrinkWrap:
         //     true, // 👈 allow the grid to size itself inside another scrollable
@@ -90,9 +61,9 @@ class CategoryPage extends StatelessWidget {
             key: itemKeys[index],
             onTap: () {
               // 👈 return selected category name to parent
-              onKeyTap(item["name"] as String);
+              onKeyTap(index, item["name"] as String);
 
-              _scrollToItem(index);
+              // _scrollToItem(index);
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
