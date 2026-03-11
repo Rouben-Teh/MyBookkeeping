@@ -44,11 +44,32 @@ class APIService {
         return;
       }
 
-      APIService().fetchTransactions();
+      fetchMonthTransactions(Global.appState.currentMonth);
 
       callback?.call(data);
     } catch (e) {
       print('post error: $e');
+    }
+  }
+
+  Future<void> fetchMonthTransactions(DateTime dt) async {
+    try {
+      final dtStart = DateTime(dt.year, dt.month, 1);
+      final dtEnd = DateTime(dt.year, dt.month + 1, 0, 23, 59, 59);
+      final res = await NetService().httpPost('month-list', {
+        'start': dtStart.millisecondsSinceEpoch,
+        'end': dtEnd.millisecondsSinceEpoch
+      });
+      final data = json.decode(res.body);
+
+      if (data['transactions'] == null) {
+        print("获取交易记录失败: ${data['error']}");
+        return;
+      }
+
+      Global.appState.setTransactions(data['transactions'] ?? []);
+    } catch (e) {
+      print('fetch error: $e');
     }
   }
 }

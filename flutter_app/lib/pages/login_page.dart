@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
         NetService().setToken(data['token']);
       });
 
-      APIService().fetchTransactions();
+      APIService().fetchMonthTransactions(DateTime.now());
 
       Navigator.pushReplacement(
         context,

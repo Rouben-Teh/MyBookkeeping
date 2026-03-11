@@ -14,7 +14,7 @@ class _RecordPageState extends State<RecordPage> {
   final _categoryCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
-  final ScrollController scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   DateTime _date = DateTime.now();
 
@@ -53,7 +53,7 @@ class _RecordPageState extends State<RecordPage> {
         children: [
           Expanded(
             child: CategoryPage(
-              scrollController: scrollController,
+              scrollController: _scrollController,
               selectedCategory: _categoryCtrl.text,
               onKeyTap: (categoryName) {
                 print('Selected category: $categoryName');

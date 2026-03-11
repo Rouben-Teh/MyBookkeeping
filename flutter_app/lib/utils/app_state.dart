@@ -8,6 +8,8 @@ class AppState extends ChangeNotifier {
 
   List transactions = [];
 
+  DateTime currentMonth = DateTime.now();
+
   void login(String _token, String _userId, String _email) {
     token = _token;
     userId = _userId;
@@ -30,6 +32,11 @@ class AppState extends ChangeNotifier {
     transactions = data;
     print("交易记录已更新: ${transactions}");
     notifyListeners(); // 通知所有UI刷新
+  }
+
+  void setCurrentMonth(DateTime dt) {
+    currentMonth = dt;
+    notifyListeners();
   }
 
   void checkVariables() {
