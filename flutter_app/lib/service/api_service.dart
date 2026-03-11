@@ -23,18 +23,18 @@ class APIService {
   }
 
   Future<void> addTransaction(String _category, String _amount, String _note,
-      int date, void Function(dynamic data)? callback) async {
+      DateTime date, void Function(dynamic data)? callback) async {
     final category = _category;
     final amount = double.tryParse(_amount) ?? 0.0;
     final note = _note;
     try {
       final res = await NetService().httpPost('add', {
+        'id':
+            '${Global.appState.userId}${DateTime.now().millisecondsSinceEpoch}',
         'category': category,
         'amount': amount,
         'note': note,
-        'datetime': date,
-        'id':
-            '${Global.appState.userId}${DateTime.now().millisecondsSinceEpoch}'
+        'timestamp': date.millisecondsSinceEpoch,
       });
 
       final data = json.decode(res.body);

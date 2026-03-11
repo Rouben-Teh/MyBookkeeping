@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'utils/app_state.dart';
 import 'singleton/singleton.dart';
 import 'pages/splash_page.dart';
 

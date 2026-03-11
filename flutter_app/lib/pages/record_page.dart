@@ -41,18 +41,6 @@ class _RecordPageState extends State<RecordPage> {
     );
   }
 
-  void _scrollToItem(int index) {
-    int row = index ~/ 4;
-
-    double itemHeight = 95; // 根据你的 childAspectRatio 估算
-
-    scrollController.animateTo(
-      row * itemHeight,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -67,12 +55,11 @@ class _RecordPageState extends State<RecordPage> {
             child: CategoryPage(
               scrollController: scrollController,
               selectedCategory: _categoryCtrl.text,
-              onKeyTap: (index, categoryName) {
+              onKeyTap: (categoryName) {
                 print('Selected category: $categoryName');
                 setState(() {
                   _categoryCtrl.text = categoryName; // 将选中的类别名称设置到备注输入框
                 });
-                _scrollToItem(index); // 滚动到选中的类别位置
               },
             ),
           ),
@@ -124,11 +111,8 @@ class _RecordPageState extends State<RecordPage> {
                     onAdd: () {
                       print(
                           '添加交易: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch}');
-                      APIService().addTransaction(
-                          _categoryCtrl.text,
-                          _amountCtrl.text,
-                          _noteCtrl.text,
-                          _date.microsecondsSinceEpoch, (data) {
+                      APIService().addTransaction(_categoryCtrl.text,
+                          _amountCtrl.text, _noteCtrl.text, _date, (data) {
                         _categoryCtrl.clear();
                         _amountCtrl.clear();
                         _noteCtrl.clear();

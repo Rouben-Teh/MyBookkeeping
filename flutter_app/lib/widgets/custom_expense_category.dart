@@ -4,7 +4,7 @@ import 'package:my_bookkeeping/enum/enum.dart';
 class CategoryPage extends StatelessWidget {
   final ScrollController scrollController;
   final String selectedCategory;
-  final Function(int, String) onKeyTap;
+  final Function(String) onKeyTap;
 
   CategoryPage({
     Key? key,
@@ -20,24 +20,36 @@ class CategoryPage extends StatelessWidget {
   //   };
   // });
 
+  void _scrollToItem(int index) {
+    int row = index ~/ 4;
+
+    double itemHeight = 95; // 根据你的 childAspectRatio 估算
+
+    scrollController.animateTo(
+      row * itemHeight,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<GlobalKey> itemKeys =
         List.generate(categories.length, (_) => GlobalKey());
 
-    void _scrollToItem(int index) {
-      final context = itemKeys[index].currentContext;
-      if (context != null) {
-        print(
-            "Scrolling to item: ${categories[index]['name']} at index $index");
+    // void _scrollToItem(int index) {
+    //   final context = itemKeys[index].currentContext;
+    //   if (context != null) {
+    //     print(
+    //         "Scrolling to item: ${categories[index]['name']} at index $index");
 
-        Scrollable.ensureVisible(
-          context,
-          duration: Duration(milliseconds: 1000),
-          alignment: 0.95,
-        );
-      }
-    }
+    //     Scrollable.ensureVisible(
+    //       context,
+    //       duration: Duration(milliseconds: 1000),
+    //       alignment: 0.95,
+    //     );
+    //   }
+    // }
 
     return Container(
       padding: EdgeInsets.all(12),
@@ -61,9 +73,9 @@ class CategoryPage extends StatelessWidget {
             key: itemKeys[index],
             onTap: () {
               // 👈 return selected category name to parent
-              onKeyTap(index, item["name"] as String);
+              onKeyTap(item["name"] as String);
 
-              // _scrollToItem(index);
+              _scrollToItem(index);
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

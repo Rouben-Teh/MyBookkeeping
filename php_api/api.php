@@ -110,8 +110,29 @@ if ($action === 'list') {
         exit;
     }
     
-    $stmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY datetime DESC');
+    $stmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY timestamp DESC');
     $stmt->execute([':user_id' => $userId]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    echo json_encode(['transactions' => $rows]);
+    exit;
+}
+
+if($action == "month-list"){
+    $userId = getAuth($db);
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+
+    $body = json_decode(file_get_contents('php://input'), true);
+    $start = $body['start'] ?? '';
+    $end = $body['end'] ?? '';
+
+    $stmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id AND timestamp >= :start
+                            AND timestamp < :end ORDER BY timestamp DESC');
+    $stmt->execute([':user_id' => $userId, ':start' => $start, ':end' => $end]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     echo json_encode(['transactions' => $rows]);
@@ -132,7 +153,7 @@ if ($action === 'add') {
     $category = $body['category'] ?? '';
     $amount = isset($body['amount']) ? (float)$body['amount'] : 0.0;
     $note = $body['note'] ?? '';
-    $datetime = $body['datetime'] ?? null;
+    $timestamp = $body['timestamp'] ??  round(microtime(true) * 1000);
     
     if (!$id) {
         http_response_code(400);
@@ -140,11 +161,11 @@ if ($action === 'add') {
         exit;
     }
     
-    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, datetime) VALUES (:id, :user_id, :category, :amount, :note, :datetime)');
-    $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note, ':datetime' => $datetime]);
+    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp) VALUES (:id, :user_id, :category, :amount, :note, :timestamp)');
+    $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp]);
     
     // 返回更新后的交易列表
-    $listStmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY datetime DESC');
+    $listStmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY timestamp DESC');
     $listStmt->execute([':user_id' => $userId]);
     $rows = $listStmt->fetchAll(PDO::FETCH_ASSOC);
     
@@ -183,7 +204,7 @@ if ($action === 'delete') {
     $stmt->execute([':id' => $id]);
     
     // 返回更新后的交易列表
-    $listStmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY datetime DESC');
+    $listStmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY timestamp DESC');
     $listStmt->execute([':user_id' => $userId]);
     $rows = $listStmt->fetchAll(PDO::FETCH_ASSOC);
     
