@@ -28,6 +28,7 @@ class _DualDirectionMaterialListState extends State<DualDirectionMaterialList> {
     return CustomMaterialIndicator(
       displacement: 20,
       indicatorBuilder: (context, controller) {
+        _controller = controller;
         return InfiniteRotation(
           running: controller.state.isLoading,
           child: const Icon(Icons.forward, size: 30),

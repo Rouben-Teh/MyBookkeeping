@@ -28,6 +28,9 @@ class _RecordPageState extends State<RecordPage> {
         return FractionallySizedBox(
           heightFactor: 0.35,
           child: TimePickerSheet(
+            isYear: true,
+            isMonth: true,
+            isDate: true,
             initialDate: _date,
             onConfirm: (date) {
               setState(() {

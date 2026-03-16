@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 class TimePickerSheet extends StatefulWidget {
+  final bool isYear;
+  final bool isMonth;
+  final bool isDate;
   final DateTime initialDate;
   final Function(DateTime) onConfirm;
 
   const TimePickerSheet({
     Key? key,
+    required this.isYear,
+    required this.isMonth,
+    required this.isDate,
     required this.initialDate,
     required this.onConfirm,
   }) : super(key: key);
@@ -52,73 +58,76 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
               child: Row(
                 children: [
                   // 年份滚轮
-                  Expanded(
-                    child: CupertinoPicker(
-                      itemExtent: 40,
-                      scrollController: FixedExtentScrollController(
-                        initialItem: years.indexOf(selectedYear),
+                  if (this.widget.isYear)
+                    Expanded(
+                      child: CupertinoPicker(
+                        itemExtent: 40,
+                        scrollController: FixedExtentScrollController(
+                          initialItem: years.indexOf(selectedYear),
+                        ),
+                        onSelectedItemChanged: (index) {
+                          setState(() {
+                            selectedYear = years[index];
+                          });
+                        },
+                        children: years
+                            .map((year) => Center(
+                                  child: Text(
+                                    "$year 年",
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                ))
+                            .toList(),
                       ),
-                      onSelectedItemChanged: (index) {
-                        setState(() {
-                          selectedYear = years[index];
-                        });
-                      },
-                      children: years
-                          .map((year) => Center(
-                                child: Text(
-                                  "$year 年",
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                              ))
-                          .toList(),
                     ),
-                  ),
 
                   // 月份滚轮
-                  Expanded(
-                    child: CupertinoPicker(
-                      itemExtent: 40,
-                      scrollController: FixedExtentScrollController(
-                        initialItem: months.indexOf(selectedMonth),
+                  if (this.widget.isMonth)
+                    Expanded(
+                      child: CupertinoPicker(
+                        itemExtent: 40,
+                        scrollController: FixedExtentScrollController(
+                          initialItem: months.indexOf(selectedMonth),
+                        ),
+                        onSelectedItemChanged: (index) {
+                          setState(() {
+                            selectedMonth = months[index];
+                          });
+                        },
+                        children: months
+                            .map((month) => Center(
+                                  child: Text(
+                                    "$month 月",
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                ))
+                            .toList(),
                       ),
-                      onSelectedItemChanged: (index) {
-                        setState(() {
-                          selectedMonth = months[index];
-                        });
-                      },
-                      children: months
-                          .map((month) => Center(
-                                child: Text(
-                                  "$month 月",
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                              ))
-                          .toList(),
                     ),
-                  ),
 
                   // 日滚轮
-                  Expanded(
-                    child: CupertinoPicker(
-                      itemExtent: 40,
-                      scrollController: FixedExtentScrollController(
-                        initialItem: days.indexOf(selectedDay),
+                  if (this.widget.isDate)
+                    Expanded(
+                      child: CupertinoPicker(
+                        itemExtent: 40,
+                        scrollController: FixedExtentScrollController(
+                          initialItem: days.indexOf(selectedDay),
+                        ),
+                        onSelectedItemChanged: (index) {
+                          setState(() {
+                            selectedDay = days[index];
+                          });
+                        },
+                        children: days
+                            .map((day) => Center(
+                                  child: Text(
+                                    "$day 日",
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                ))
+                            .toList(),
                       ),
-                      onSelectedItemChanged: (index) {
-                        setState(() {
-                          selectedDay = days[index];
-                        });
-                      },
-                      children: days
-                          .map((day) => Center(
-                                child: Text(
-                                  "$day 日",
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                              ))
-                          .toList(),
                     ),
-                  ),
                 ],
               ),
             ),

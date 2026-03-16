@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/widgets/dual_direction_material.dart';
+import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import '../utils/app_state.dart';
@@ -36,6 +37,33 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
         });
       }
     });
+  }
+
+  void openTimePicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        final appState = Provider.of<AppState>(context, listen: false);
+
+        return FractionallySizedBox(
+          heightFactor: 0.35,
+          child: TimePickerSheet(
+            isYear: true,
+            isMonth: true,
+            isDate: false,
+            initialDate: appState.currentMonth,
+            onConfirm: (date) {
+              setState(() {
+                appState.currentMonth = date;
+              });
+              print(date);
+              APIService().fetchMonthTransactions(appState.currentMonth);
+            },
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -93,12 +121,37 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '记账',
-          style: TextStyle(
-              color: Colors.white, // 设置标题文字颜色
-              fontSize: 20, // 设置标题文字大小
-              fontWeight: FontWeight.bold), // 设置标题文字加粗
+        title: Row(
+          children: [
+            Text(
+              '记账',
+              style: TextStyle(
+                  color: Colors.white, // 设置标题文字颜色
+                  fontSize: 20, // 设置标题文字大小
+                  fontWeight: FontWeight.bold), // 设置标题文字加粗
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            GestureDetector(
+              onTap: openTimePicker,
+              child: Container(
+                margin: EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFF5A5A),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  formatDateMonth(appState.currentMonth.millisecondsSinceEpoch),
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
         backgroundColor: Color(0xFFFF5A5A), // 设置AppBar背景颜色
       ),
