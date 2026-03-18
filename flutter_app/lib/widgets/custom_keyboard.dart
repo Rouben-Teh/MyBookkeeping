@@ -58,33 +58,33 @@ class CustomKeyboard extends StatelessWidget {
         physics: NeverScrollableScrollPhysics(), // 禁止滚动
         children: [
           // 第一排
-          buildButton("1"),
-          buildButton("2"),
-          buildButton("3"),
+          buildButton('1'),
+          buildButton('2'),
+          buildButton('3'),
           buildButton(
               isSameDay(selectedDate, DateTime.now())
-                  ? "今天"
-                  : "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+                  ? '今天'
+                  : '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
               color: Color(0xFFFF5A5A),
               onTap: onTime),
 
           // 第二排
-          buildButton("4"),
-          buildButton("5"),
-          buildButton("6"),
-          buildButton("+", color: Color(0xFFFF5A5A), onTap: onPlus),
+          buildButton('4'),
+          buildButton('5'),
+          buildButton('6'),
+          buildButton('+', color: Color(0xFFFF5A5A), onTap: onPlus),
 
           // 第三排
-          buildButton("7"),
-          buildButton("8"),
-          buildButton("9"),
-          buildButton("-", color: Color(0xFFFF5A5A), onTap: onMinus),
+          buildButton('7'),
+          buildButton('8'),
+          buildButton('9'),
+          buildButton('-', color: Color(0xFFFF5A5A), onTap: onMinus),
 
           // 第四排
-          buildButton("."),
-          buildButton("0"),
-          buildButton("⌫", onTap: onDelete),
-          buildButton(isCalculatorMode ? "=" : "添加",
+          buildButton('.'),
+          buildButton('0'),
+          buildButton('⌫', onTap: onDelete),
+          buildButton(isCalculatorMode ? '=' : '添加',
               color: Color(0xFFFF5A5A),
               onTap: isCalculatorMode ? onEqual : onAdd)
         ],

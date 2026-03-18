@@ -45,7 +45,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("选择时间"),
+          title: const Text('选择时间'),
           backgroundColor: const Color(0xFFFF5A5A),
           leading: IconButton(
             icon: const Icon(Icons.close),
@@ -73,7 +73,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                         children: years
                             .map((year) => Center(
                                   child: Text(
-                                    "$year 年",
+                                    '$year 年',
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ))
@@ -97,7 +97,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                         children: months
                             .map((month) => Center(
                                   child: Text(
-                                    "$month 月",
+                                    '$month 月',
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ))
@@ -121,7 +121,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                         children: days
                             .map((day) => Center(
                                   child: Text(
-                                    "$day 日",
+                                    '$day 日',
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ))
@@ -144,7 +144,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                   widget.onConfirm(result);
                   Navigator.pop(context);
                 },
-                child: const Text("确定"),
+                child: const Text('确定'),
               ),
             )
           ],

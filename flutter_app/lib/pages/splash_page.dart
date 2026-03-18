@@ -16,38 +16,40 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
+    // copyDatabase();
     checkLogin();
   }
 
   Future<void> checkLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("token");
-    String? userId = prefs.getString("userId");
-    String? email = prefs.getString("email");
+    String? token = prefs.getString('token');
+    String? userId = prefs.getString('userId');
+    String? email = prefs.getString('email');
 
     await Future.delayed(Duration(seconds: 1)); // 可选
 
     if (token != null) {
       Provider.of<AppState>(context, listen: false)
-          .login(token, userId ?? "", email ?? "");
+          .login(token, userId ?? '', email ?? '');
 
       NetService().setToken(token);
 
-      APIService().fetchMonthTransactions(DateTime.now());
+      // APIService().fetchMonthTransactions(DateTime.now());
+      APIService().fectLocalMonthTransaction(DateTime.now());
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => HomePage()),
       );
 
-      print("已登录，Token: $token");
+      print('已登录，Token: $token');
     } else {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => LoginPage()),
       );
 
-      print("未登录");
+      print('未登录');
     }
   }
 

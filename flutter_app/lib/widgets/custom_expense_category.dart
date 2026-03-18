@@ -73,7 +73,7 @@ class CategoryPage extends StatelessWidget {
             key: itemKeys[index],
             onTap: () {
               // 👈 return selected category name to parent
-              onKeyTap(item["name"] as String);
+              onKeyTap(item['name'] as String);
 
               _scrollToItem(index);
             },
@@ -84,19 +84,19 @@ class CategoryPage extends StatelessWidget {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: selectedCategory == item["name"]
+                    color: selectedCategory == item['name']
                         ? const Color.fromARGB(255, 255, 103, 103)
                         : const Color.fromARGB(255, 255, 195, 195),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    item["icon"] as IconData,
+                    item['icon'] as IconData,
                     color: const Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
                 SizedBox(height: 6),
                 Text(
-                  item["name"] as String,
+                  item['name'] as String,
                   style: TextStyle(fontSize: 13),
                   textAlign: TextAlign.center,
                 ),

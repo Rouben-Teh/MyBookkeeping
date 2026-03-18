@@ -58,7 +58,8 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                 appState.currentMonth = date;
               });
               print(date);
-              APIService().fetchMonthTransactions(appState.currentMonth);
+              // APIService().fetchMonthTransactions(appState.currentMonth);
+              APIService().fectLocalMonthTransaction(appState.currentMonth);
             },
           ),
         );
@@ -74,7 +75,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
       Map<String, List> grouped = {};
 
       for (var t in transactions) {
-        String dateKey = formatDate(int.parse(t["timestamp"]));
+        String dateKey = formatDate(t['timestamp']);
 
         if (!grouped.containsKey(dateKey)) {
           grouped[dateKey] = [];
@@ -97,13 +98,14 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
       final dtNow = DateTime.now();
       final dtEnd = DateTime(dtNow.year, dtNow.month + 1, 0, 23, 59, 59);
       if (nextMonth.millisecondsSinceEpoch > dtEnd.millisecondsSinceEpoch) {
-        print("Latest month already");
+        print('Latest month already');
         return;
       }
 
       appState.currentMonth = nextMonth;
 
-      await APIService().fetchMonthTransactions(appState.currentMonth);
+      // await APIService().fetchMonthTransactions(appState.currentMonth);
+      await APIService().fectLocalMonthTransaction(appState.currentMonth);
 
       print('current month: ${appState.currentMonth}');
     }
@@ -114,7 +116,8 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
         appState.currentMonth.month - 1,
       );
 
-      await APIService().fetchMonthTransactions(appState.currentMonth);
+      // await APIService().fetchMonthTransactions(appState.currentMonth);
+      await APIService().fectLocalMonthTransaction(appState.currentMonth);
 
       print('current month: ${appState.currentMonth}');
     }
@@ -192,7 +195,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                             final t = items[i];
 
                             var category = categories.firstWhere(
-                              (c) => c["name"] == t['category'],
+                              (c) => c['name'] == t['category'],
                             );
 
                             return Container(
@@ -218,13 +221,13 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                                   SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
-                                      t["note"],
+                                      t['note'],
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   SizedBox(width: 10),
                                   Text(
-                                    t["amount"].toString(),
+                                    t['amount'].toString(),
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),

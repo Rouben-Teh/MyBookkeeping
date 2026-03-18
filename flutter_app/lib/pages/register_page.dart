@@ -19,13 +19,12 @@ class _RegisterPageState extends State<RegisterPage> {
       String confirm = confirmCtrl.text;
 
       if (password != confirm) {
-        print("两次密码不一致");
+        print('两次密码不一致');
         return;
       }
 
-      final res =
-          await NetService()
-          .httpPost("register", {"email": email, "password": password});
+      final res = await NetService()
+          .httpPost('register', {'email': email, 'password': password});
 
       final data = json.decode(res.body);
 
@@ -34,7 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
         return;
       }
 
-      print("注册成功: $email" "id: ${data['id']}");
+      print('注册成功: $email' 'id: ${data['id']}');
       Navigator.pop(context);
     } catch (e) {
       print('post error: $e');
@@ -45,7 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("注册",
+        title: Text('注册',
             style: TextStyle(
                 color: Colors.white, // 设置标题文字颜色
                 fontSize: 20, // 设置标题文字大小
@@ -58,17 +57,17 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             TextField(
               controller: emailCtrl,
-              decoration: InputDecoration(labelText: "Email"),
+              decoration: InputDecoration(labelText: 'Email'),
             ),
             TextField(
               controller: passwordCtrl,
               obscureText: true,
-              decoration: InputDecoration(labelText: "Password"),
+              decoration: InputDecoration(labelText: 'Password'),
             ),
             TextField(
               controller: confirmCtrl,
               obscureText: true,
-              decoration: InputDecoration(labelText: "Confirm Password"),
+              decoration: InputDecoration(labelText: 'Confirm Password'),
             ),
             SizedBox(height: 20),
             SizedBox(
@@ -79,7 +78,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   padding: EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: register,
-                child: Text("注册",
+                child: Text('注册',
                     style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
             ),

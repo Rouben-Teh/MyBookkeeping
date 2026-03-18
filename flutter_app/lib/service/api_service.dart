@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:drift/drift.dart';
+import 'package:my_bookkeeping/database/app_database.dart';
+
 import '../utils/NetUtils.dart';
 import '../singleton/singleton.dart';
 
@@ -68,6 +71,26 @@ class APIService {
       }
 
       Global.appState.setTransactions(data['transactions'] ?? []);
+    } catch (e) {
+      print('fetch error: $e');
+    }
+  }
+
+  Future<void> fectLocalMonthTransaction(DateTime dt) async {
+    try {
+      final dtStart = DateTime(dt.year, dt.month, 1).millisecondsSinceEpoch;
+      final dtEnd =
+          DateTime(dt.year, dt.month + 1, 0, 23, 59, 59).millisecondsSinceEpoch;
+
+      final db = AppDatabase();
+      final query = db.select(db.transactions)
+        ..where((t) => t.timestamp.isBetweenValues(dtStart, dtEnd))
+        ..orderBy([
+          (t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc),
+        ]);
+      final list = await query.get();
+      final jsonList = list.map((row) => row.toJson()).toList();
+      Global.appState.setTransactions(jsonList);
     } catch (e) {
       print('fetch error: $e');
     }

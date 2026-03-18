@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class NetService {
-  static String token = "";
+  static String token = '';
 
   void setToken(String t) {
     token = t;
@@ -13,7 +13,7 @@ class NetService {
       Uri.parse('http://10.0.2.2:8000/api.php?action=$api'),
       headers: {
         'Content-Type': 'application/json',
-        if (token.isNotEmpty) "authorization": "Bearer $token"
+        if (token.isNotEmpty) 'authorization': 'Bearer $token'
       },
       body: json.encode(body),
     );

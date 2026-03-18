@@ -27,15 +27,15 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      final res = await NetService().httpPost("logout", {});
+      final res = await NetService().httpPost('logout', {});
 
       final data = json.decode(res.body);
 
       if (data['ok'] != true) {
-        print("登出失败: ${data['error']}");
+        print('登出失败: ${data['error']}');
         // return;
       } else {
-        print("登出成功");
+        print('登出成功');
       }
 
       await prefs.remove('token');
@@ -66,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           // 用户ID显示
           Text(
-            "用户ID:",
+            '用户ID:',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
           SizedBox(height: 5),
@@ -92,7 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 logout();
               },
-              child: Text("登出",
+              child: Text('登出',
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
@@ -121,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("个人资料",
+        title: Text('个人资料',
             style: TextStyle(
                 color: Colors.white, // 设置标题文字颜色
                 fontSize: 20, // 设置标题文字大小

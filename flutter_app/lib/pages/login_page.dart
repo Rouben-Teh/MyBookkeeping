@@ -30,10 +30,10 @@ class _LoginPageState extends State<LoginPage> {
       String email = emailCtrl.text;
       String password = passwordCtrl.text;
 
-      print("尝试登录: $email $password");
+      print('尝试登录: $email $password');
 
       final res = await NetService()
-          .httpPost("login", {"email": email, "password": password});
+          .httpPost('login', {'email': email, 'password': password});
 
       final data = json.decode(res.body);
 
@@ -61,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (_) => HomePage()),
       );
 
-      print("登录: $email $password");
+      print('登录: $email $password');
     } catch (e) {
       print('post error: $e');
     }
@@ -74,12 +74,12 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           TextField(
             controller: emailCtrl,
-            decoration: InputDecoration(labelText: "Email"),
+            decoration: InputDecoration(labelText: 'Email'),
           ),
           TextField(
             controller: passwordCtrl,
             obscureText: true,
-            decoration: InputDecoration(labelText: "Password"),
+            decoration: InputDecoration(labelText: 'Password'),
           ),
           SizedBox(height: 20),
           SizedBox(
@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                 padding: EdgeInsets.symmetric(vertical: 15),
               ),
               onPressed: login,
-              child: Text("登录",
+              child: Text('登录',
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
@@ -101,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                 MaterialPageRoute(builder: (_) => RegisterPage()),
               );
             },
-            child: Text("没有账号？注册"),
+            child: Text('没有账号？注册'),
           )
         ],
       ),
@@ -112,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("个人资料",
+        title: Text('个人资料',
             style: TextStyle(
                 color: Colors.white, // 设置标题文字颜色
                 fontSize: 20, // 设置标题文字大小

@@ -131,7 +131,7 @@ class _RecordPageState extends State<RecordPage> {
                         _amountCtrl.text = _amountCtrl.text
                             .substring(0, _amountCtrl.text.length - 1);
                       }
-                      _amountCtrl.text += "+";
+                      _amountCtrl.text += '+';
                       setState(() {
                         _mode = InputMode.operator; // 进入计算器模式
                       });
@@ -141,7 +141,7 @@ class _RecordPageState extends State<RecordPage> {
                         _amountCtrl.text = _amountCtrl.text
                             .substring(0, _amountCtrl.text.length - 1);
                       }
-                      _amountCtrl.text += "-";
+                      _amountCtrl.text += '-';
                       setState(() {
                         _mode = InputMode.operator; // 进入计算器模式
                       });
