@@ -3,9 +3,9 @@ import 'package:my_bookkeeping/widgets/dual_direction_material.dart';
 import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
-import '../utils/app_state.dart';
-import '../enum/enum.dart';
-import '../utils/datetime.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:my_bookkeeping/enum/enum.dart';
+import 'package:my_bookkeeping/utils/datetime.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
 
 class RecordDetailsPage extends StatefulWidget {

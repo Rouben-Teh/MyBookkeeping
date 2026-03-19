@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'singleton/singleton.dart';
-import 'pages/splash_page.dart';
+import 'package:my_bookkeeping/singleton/singleton.dart';
+import 'package:my_bookkeeping/pages/splash_page.dart';
 
 void main() {
   runApp(ChangeNotifierProvider(

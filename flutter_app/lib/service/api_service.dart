@@ -2,9 +2,8 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:my_bookkeeping/database/app_database.dart';
 import 'package:my_bookkeeping/utils/datetime.dart';
-
-import '../utils/NetUtils.dart';
-import '../singleton/singleton.dart';
+import 'package:my_bookkeeping/utils/NetUtils.dart';
+import 'package:my_bookkeeping/singleton/singleton.dart';
 
 class APIService {
   Future<void> fetchTransactions() async {

@@ -3,10 +3,10 @@ import 'package:my_bookkeeping/pages/home_page.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
-import '../utils/NetUtils.dart';
+import 'package:my_bookkeeping/utils/NetUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/app_state.dart';
-import 'register_page.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:my_bookkeeping/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override

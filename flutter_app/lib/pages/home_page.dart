@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'record_details_page.dart';
-import 'record_page.dart';
-import 'profile_page.dart';
+import 'package:my_bookkeeping/pages/record_details_page.dart';
+import 'package:my_bookkeeping/pages/record_page.dart';
+import 'package:my_bookkeeping/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
