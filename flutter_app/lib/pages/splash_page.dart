@@ -35,7 +35,7 @@ class _SplashPageState extends State<SplashPage> {
       NetService().setToken(token);
 
       // APIService().fetchMonthTransactions(DateTime.now());
-      APIService().fectLocalMonthTransaction(DateTime.now());
+      APIService().fetchLocalMonthTransactions(DateTime.now());
 
       Navigator.pushReplacement(
         context,

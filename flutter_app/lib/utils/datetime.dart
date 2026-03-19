@@ -11,3 +11,8 @@ String formatDateMonth(int timestamp) {
 
   return DateFormat('MMM yyyy').format(dt);
 }
+
+String formatCreatedAt(DateTime dateTime) {
+  final formatted = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+  return formatted;
+}

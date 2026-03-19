@@ -161,13 +161,8 @@ if ($action === 'add') {
         exit;
     }
     
-    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp) VALUES (:id, :user_id, :category, :amount, :note, :timestamp)');
+    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp, synced) VALUES (:id, :user_id, :category, :amount, :note, :timestamp, 1)');
     $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp]);
-    
-    // 返回更新后的交易列表
-    $listStmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY timestamp DESC');
-    $listStmt->execute([':user_id' => $userId]);
-    $rows = $listStmt->fetchAll(PDO::FETCH_ASSOC);
     
     echo json_encode(['ok' => true]);
     exit;
@@ -203,10 +198,41 @@ if ($action === 'delete') {
     $stmt = $db->prepare('DELETE FROM transactions WHERE id = :id');
     $stmt->execute([':id' => $id]);
     
-    // 返回更新后的交易列表
-    $listStmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY timestamp DESC');
-    $listStmt->execute([':user_id' => $userId]);
-    $rows = $listStmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
+// 同步交易
+if ($action === 'sync') {
+    $userId = getAuth($db);
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+    
+    $body = json_decode(file_get_contents('php://input'), true);
+    $id = $body['id'] ?? '';
+    $category = $body['category'] ?? '';
+    $amount = isset($body['amount']) ? (float)$body['amount'] : 0.0;
+    $note = $body['note'] ?? '';
+    $timestamp = $body['timestamp'] ??  round(microtime(true) * 1000);
+    
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'missing id']);
+        exit;
+    }
+    
+    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp, synced) 
+    VALUES (:id, :user_id, :category, :amount, :note, :timestamp, 1)
+    ON CONFLICT(id) DO UPDATE SET user_id = excluded.user_id,
+        category = excluded.category,
+        amount = excluded.amount,
+        note = excluded.note,
+        timestamp = excluded.timestamp,
+        synced = 1');
+    $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp]);
     
     echo json_encode(['ok' => true]);
     exit;

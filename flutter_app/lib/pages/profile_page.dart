@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/database/app_database.dart';
 import 'package:my_bookkeeping/pages/login_page.dart';
+import 'package:my_bookkeeping/service/api_service.dart';
+import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../utils/NetUtils.dart';
@@ -38,15 +41,20 @@ class _ProfilePageState extends State<ProfilePage> {
         print('登出成功');
       }
 
+      Global.appState.setTransactions([]);
+
       await prefs.remove('token');
       await prefs.remove('userId');
       await prefs.remove('email');
+
+      final db = Global.appDatabase;
+      await db.delete(db.transactions).go(); // 清空表
 
       setState(() {
         emailCtrl.clear();
         passwordCtrl.clear();
         Provider.of<AppState>(context, listen: false).logout();
-        NetService().setToken("");
+        NetService().setToken('');
       });
 
       Navigator.pushReplacement(
@@ -93,6 +101,42 @@ class _ProfilePageState extends State<ProfilePage> {
                 logout();
               },
               child: Text('登出',
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
+            ),
+          ),
+
+          SizedBox(height: 12),
+
+          // 获取后端的数据并同步至本地数据库
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: EdgeInsets.symmetric(vertical: 15),
+              ),
+              onPressed: () async {
+                await APIService().fetchTransactionsAndSync();
+              },
+              child: Text('获取备份',
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
+            ),
+          ),
+
+          SizedBox(height: 12),
+
+          // 同步本地数据至后端
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: EdgeInsets.symmetric(vertical: 15),
+              ),
+              onPressed: () async {
+                await APIService().syncUnsyncTransactions();
+              },
+              child: Text('同步数据',
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),

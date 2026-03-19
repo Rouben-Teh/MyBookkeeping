@@ -47,9 +47,37 @@ class $TransactionsTable extends Transactions
   late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
       'created_at', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, userId, category, amount, note, timestamp, createdAt];
+  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
+      'synced', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
+      defaultValue: Constant(false));
+  static const VerificationMeta _deletedMeta =
+      const VerificationMeta('deleted');
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+      'deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("deleted" IN (0, 1))'),
+      defaultValue: Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        userId,
+        category,
+        amount,
+        note,
+        timestamp,
+        createdAt,
+        synced,
+        deleted
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -99,6 +127,14 @@ class $TransactionsTable extends Transactions
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('synced')) {
+      context.handle(_syncedMeta,
+          synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(_deletedMeta,
+          deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta));
+    }
     return context;
   }
 
@@ -122,6 +158,10 @@ class $TransactionsTable extends Transactions
           .read(DriftSqlType.int, data['${effectivePrefix}timestamp'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}created_at'])!,
+      synced: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+      deleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}deleted'])!,
     );
   }
 
@@ -139,6 +179,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final String? note;
   final int timestamp;
   final String createdAt;
+  final bool synced;
+  final bool deleted;
   const Transaction(
       {required this.id,
       required this.userId,
@@ -146,7 +188,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       required this.amount,
       this.note,
       required this.timestamp,
-      required this.createdAt});
+      required this.createdAt,
+      required this.synced,
+      required this.deleted});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -159,6 +203,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     map['timestamp'] = Variable<int>(timestamp);
     map['created_at'] = Variable<String>(createdAt);
+    map['synced'] = Variable<bool>(synced);
+    map['deleted'] = Variable<bool>(deleted);
     return map;
   }
 
@@ -171,6 +217,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       timestamp: Value(timestamp),
       createdAt: Value(createdAt),
+      synced: Value(synced),
+      deleted: Value(deleted),
     );
   }
 
@@ -185,6 +233,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       note: serializer.fromJson<String?>(json['note']),
       timestamp: serializer.fromJson<int>(json['timestamp']),
       createdAt: serializer.fromJson<String>(json['createdAt']),
+      synced: serializer.fromJson<bool>(json['synced']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
     );
   }
   @override
@@ -198,6 +248,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'note': serializer.toJson<String?>(note),
       'timestamp': serializer.toJson<int>(timestamp),
       'createdAt': serializer.toJson<String>(createdAt),
+      'synced': serializer.toJson<bool>(synced),
+      'deleted': serializer.toJson<bool>(deleted),
     };
   }
 
@@ -208,7 +260,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           double? amount,
           Value<String?> note = const Value.absent(),
           int? timestamp,
-          String? createdAt}) =>
+          String? createdAt,
+          bool? synced,
+          bool? deleted}) =>
       Transaction(
         id: id ?? this.id,
         userId: userId ?? this.userId,
@@ -217,6 +271,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
         note: note.present ? note.value : this.note,
         timestamp: timestamp ?? this.timestamp,
         createdAt: createdAt ?? this.createdAt,
+        synced: synced ?? this.synced,
+        deleted: deleted ?? this.deleted,
       );
   Transaction copyWithCompanion(TransactionsCompanion data) {
     return Transaction(
@@ -227,6 +283,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       note: data.note.present ? data.note.value : this.note,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      synced: data.synced.present ? data.synced.value : this.synced,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
     );
   }
 
@@ -239,14 +297,16 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('amount: $amount, ')
           ..write('note: $note, ')
           ..write('timestamp: $timestamp, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('synced: $synced, ')
+          ..write('deleted: $deleted')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, userId, category, amount, note, timestamp, createdAt);
+  int get hashCode => Object.hash(id, userId, category, amount, note, timestamp,
+      createdAt, synced, deleted);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -257,7 +317,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.amount == this.amount &&
           other.note == this.note &&
           other.timestamp == this.timestamp &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.synced == this.synced &&
+          other.deleted == this.deleted);
 }
 
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
@@ -268,6 +330,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> note;
   final Value<int> timestamp;
   final Value<String> createdAt;
+  final Value<bool> synced;
+  final Value<bool> deleted;
   final Value<int> rowid;
   const TransactionsCompanion({
     this.id = const Value.absent(),
@@ -277,6 +341,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.note = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.synced = const Value.absent(),
+    this.deleted = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TransactionsCompanion.insert({
@@ -287,6 +353,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.note = const Value.absent(),
     required int timestamp,
     required String createdAt,
+    this.synced = const Value.absent(),
+    this.deleted = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         userId = Value(userId),
@@ -302,6 +370,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? note,
     Expression<int>? timestamp,
     Expression<String>? createdAt,
+    Expression<bool>? synced,
+    Expression<bool>? deleted,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -312,6 +382,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (note != null) 'note': note,
       if (timestamp != null) 'timestamp': timestamp,
       if (createdAt != null) 'created_at': createdAt,
+      if (synced != null) 'synced': synced,
+      if (deleted != null) 'deleted': deleted,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -324,6 +396,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       Value<String?>? note,
       Value<int>? timestamp,
       Value<String>? createdAt,
+      Value<bool>? synced,
+      Value<bool>? deleted,
       Value<int>? rowid}) {
     return TransactionsCompanion(
       id: id ?? this.id,
@@ -333,6 +407,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       note: note ?? this.note,
       timestamp: timestamp ?? this.timestamp,
       createdAt: createdAt ?? this.createdAt,
+      synced: synced ?? this.synced,
+      deleted: deleted ?? this.deleted,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -361,6 +437,12 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
     }
+    if (synced.present) {
+      map['synced'] = Variable<bool>(synced.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -377,6 +459,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('note: $note, ')
           ..write('timestamp: $timestamp, ')
           ..write('createdAt: $createdAt, ')
+          ..write('synced: $synced, ')
+          ..write('deleted: $deleted, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -403,6 +487,8 @@ typedef $$TransactionsTableCreateCompanionBuilder = TransactionsCompanion
   Value<String?> note,
   required int timestamp,
   required String createdAt,
+  Value<bool> synced,
+  Value<bool> deleted,
   Value<int> rowid,
 });
 typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
@@ -414,6 +500,8 @@ typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
   Value<String?> note,
   Value<int> timestamp,
   Value<String> createdAt,
+  Value<bool> synced,
+  Value<bool> deleted,
   Value<int> rowid,
 });
 
@@ -446,6 +534,12 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<String> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+      column: $table.deleted, builder: (column) => ColumnFilters(column));
 }
 
 class $$TransactionsTableOrderingComposer
@@ -477,6 +571,12 @@ class $$TransactionsTableOrderingComposer
 
   ColumnOrderings<String> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+      column: $table.deleted, builder: (column) => ColumnOrderings(column));
 }
 
 class $$TransactionsTableAnnotationComposer
@@ -508,6 +608,12 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<String> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get synced =>
+      $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
 }
 
 class $$TransactionsTableTableManager extends RootTableManager<
@@ -543,6 +649,8 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             Value<int> timestamp = const Value.absent(),
             Value<String> createdAt = const Value.absent(),
+            Value<bool> synced = const Value.absent(),
+            Value<bool> deleted = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TransactionsCompanion(
@@ -553,6 +661,8 @@ class $$TransactionsTableTableManager extends RootTableManager<
             note: note,
             timestamp: timestamp,
             createdAt: createdAt,
+            synced: synced,
+            deleted: deleted,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -563,6 +673,8 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             required int timestamp,
             required String createdAt,
+            Value<bool> synced = const Value.absent(),
+            Value<bool> deleted = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TransactionsCompanion.insert(
@@ -573,6 +685,8 @@ class $$TransactionsTableTableManager extends RootTableManager<
             note: note,
             timestamp: timestamp,
             createdAt: createdAt,
+            synced: synced,
+            deleted: deleted,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

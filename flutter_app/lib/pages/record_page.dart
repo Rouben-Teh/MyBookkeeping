@@ -114,7 +114,7 @@ class _RecordPageState extends State<RecordPage> {
                     onAdd: () {
                       print(
                           '添加交易: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch}');
-                      APIService().addTransaction(_categoryCtrl.text,
+                      APIService().addLocalTransaction(_categoryCtrl.text,
                           _amountCtrl.text, _noteCtrl.text, _date, (data) {
                         _categoryCtrl.clear();
                         _amountCtrl.clear();

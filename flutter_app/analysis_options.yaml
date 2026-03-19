@@ -1,12 +1,12 @@
 include: package:flutter_lints/flutter.yaml
 
-analyzer:
-  enable-experiment:
-    - records
-  errors:
-    invalid_assignment: ignore
-  exclude:
-    - "**/*.g.dart"
+# analyzer:
+#   enable-experiment:
+#     - records
+#   errors:
+#     invalid_assignment: ignore
+#   exclude:
+#     - "**/*.g.dart"
 
 linter:
   rules:

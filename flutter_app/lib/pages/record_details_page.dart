@@ -59,7 +59,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
               });
               print(date);
               // APIService().fetchMonthTransactions(appState.currentMonth);
-              APIService().fectLocalMonthTransaction(appState.currentMonth);
+              APIService().fetchLocalMonthTransactions(appState.currentMonth);
             },
           ),
         );
@@ -105,7 +105,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
       appState.currentMonth = nextMonth;
 
       // await APIService().fetchMonthTransactions(appState.currentMonth);
-      await APIService().fectLocalMonthTransaction(appState.currentMonth);
+      await APIService().fetchLocalMonthTransactions(appState.currentMonth);
 
       print('current month: ${appState.currentMonth}');
     }
@@ -117,7 +117,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
       );
 
       // await APIService().fetchMonthTransactions(appState.currentMonth);
-      await APIService().fectLocalMonthTransaction(appState.currentMonth);
+      await APIService().fetchLocalMonthTransactions(appState.currentMonth);
 
       print('current month: ${appState.currentMonth}');
     }
