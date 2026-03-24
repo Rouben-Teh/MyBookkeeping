@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:drift/native.dart';
 import 'dart:io';
@@ -62,7 +63,8 @@ Future<File> copyDatabase(File file) async {
   return file;
 }
 
-Future<void> saveToDrift(AppDatabase db, dynamic item) async {
+Future<void> saveToDrift(dynamic item) async {
+  final db = Global.appDatabase;
   print('data to save: $item');
   await db.into(db.transactions).insertOnConflictUpdate(
         TransactionsCompanion(

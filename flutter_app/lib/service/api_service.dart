@@ -32,9 +32,10 @@ class APIService {
     final list = List<Map<String, dynamic>>.from(data['transactions']);
 
     for (final item in list) {
-      final db = Global.appDatabase;
-      await saveToDrift(db, item);
+      await saveToDrift(item);
     }
+
+    fetchLocalMonthTransactions(Global.appState.currentMonth);
   }
 
   Future<void> addTransaction(
@@ -99,6 +100,7 @@ class APIService {
       final db = Global.appDatabase;
       final query = db.select(db.transactions)
         ..where((t) => t.timestamp.isBetweenValues(dtStart, dtEnd))
+        ..where((t) => t.deleted.equals(false))
         ..orderBy([
           (t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc),
         ]);
@@ -132,14 +134,12 @@ class APIService {
     };
     final db = Global.appDatabase;
 
-    await saveToDrift(db, item);
+    await saveToDrift(item);
 
     await fetchLocalMonthTransactions(Global.appState.currentMonth);
 
-    await addTransaction(_id, _category, _amount, _note, date, (data) async {
-      await (db.update(db.transactions)
-            ..where((t) => t.id.equals(t.id.toString())))
-          .write(
+    addTransaction(_id, _category, _amount, _note, date, (data) async {
+      await (db.update(db.transactions)..where((t) => t.id.equals(_id))).write(
         TransactionsCompanion(
           synced: Value(true),
         ),
@@ -154,14 +154,16 @@ class APIService {
     final list = await (db.select(db.transactions)
           ..where((t) => t.synced.equals(false)))
         .get();
-    for (final t in list) {
+    for (final l in list) {
       try {
         final res = await NetService().httpPost('sync', {
-          'id': t.id,
-          'category': t.category,
-          'amount': t.amount,
-          'note': t.note,
-          'timestamp': t.timestamp,
+          'id': l.id,
+          'category': l.category,
+          'amount': l.amount,
+          'note': l.note,
+          'timestamp': l.timestamp,
+          'synced': 1,
+          'deleted': l.deleted
         });
 
         final data = json.decode(res.body);
@@ -171,16 +173,58 @@ class APIService {
           return;
         }
 
-        await (db.update(db.transactions)
-              ..where((t) => t.id.equals(t.id.toString())))
+        await (db.update(db.transactions)..where((t) => t.id.equals(l.id)))
             .write(
           TransactionsCompanion(
             synced: Value(true),
           ),
         );
+        print('synced successfully');
       } catch (e) {
         print('同步失败: $e');
       }
     }
   }
+
+  Future<void> markDeleteLocalTransactions(String id, bool value) async {
+    final db = Global.appDatabase;
+    await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
+      TransactionsCompanion(
+        synced: Value(false),
+        deleted: Value(value),
+      ),
+    );
+
+    final list =
+        await ((db.select(db.transactions)..where((t) => t.deleted.equals(false)))
+              ..orderBy([
+                (t) => OrderingTerm(
+                    expression: t.timestamp, mode: OrderingMode.desc),
+              ]))
+            .get();
+
+    final jsonList = list.map((row) => row.toJson()).toList();
+    Global.appState.setTransactions(jsonList);
+  }
+
+  // Future<void> deleteLocalTransactions(String id) async {
+  //   final db = Global.appDatabase;
+  //   await (db.delete(db.transactions)..where((t) => t.id.equals(id))).go();
+  // }
+
+  // Future<void> deleteTransactions(String id) async {
+  //   try {
+  //     final res = await NetService().httpPost('delete', {
+  //       'id': id,
+  //     });
+  //     final data = json.decode(res.body);
+
+  //     if (data['ok'] != true) {
+  //       print("删除失败: ${data['error']}");
+  //       return;
+  //     }
+  //   } catch (e) {
+  //     print('删除失败: $e');
+  //   }
+  // }
 }

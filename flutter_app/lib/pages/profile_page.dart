@@ -140,21 +140,23 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
 
-          // // Bug check button (临时)
-          // SizedBox(
-          //   width: double.infinity,
-          //   child: ElevatedButton(
-          //     style: ElevatedButton.styleFrom(
-          //       backgroundColor: Colors.red,
-          //       padding: EdgeInsets.symmetric(vertical: 15),
-          //     ),
-          //     onPressed: () {
-          //       Provider.of<AppState>(context, listen: false).checkVariables();
-          //     },
-          //     child: Text("Check",
-          //         style: TextStyle(fontSize: 16, color: Colors.white)),
-          //   ),
-          // ),
+          SizedBox(height: 12),
+
+          // Bug check button (临时)
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: EdgeInsets.symmetric(vertical: 15),
+              ),
+              onPressed: () {
+                Provider.of<AppState>(context, listen: false).checkVariables();
+              },
+              child: Text('Check',
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
+            ),
+          ),
         ],
       ),
     );

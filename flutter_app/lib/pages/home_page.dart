@@ -17,25 +17,6 @@ class _HomePageState extends State<HomePage> {
 
   int currentIndex = 0;
 
-  Future<void> _openBottomDrawer(BuildContext context) async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true, // 可控制高度
-      // backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
-      ),
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.9,
-          child: RecordPage(),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +55,7 @@ class _HomePageState extends State<HomePage> {
         width: 70,
         height: 70,
         child: FloatingActionButton(
-          onPressed: () => _openBottomDrawer(context), // 打开底部抽屉
+          onPressed: () => RecordBottomSheet.open(context), // 打开底部抽屉
           child: Icon(Icons.add, size: 30, color: Colors.white),
           backgroundColor: Color(0xFFFF5A5A), // 设置按钮背景颜色
           shape: CircleBorder(),

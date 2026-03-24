@@ -5,7 +5,51 @@ import 'package:my_bookkeeping/widgets/custom_keyboard.dart';
 import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
 import 'package:my_bookkeeping/utils/calculator.dart';
 
+class RecordBottomSheet {
+  static void open(BuildContext context,
+      {String? category,
+      String? amount,
+      String? note,
+      DateTime? dt,
+      int? jumpItemIndex}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      builder: (_) => FractionallySizedBox(
+        heightFactor: 0.9,
+        child: RecordPage(
+          category: category,
+          amount: amount,
+          note: note,
+          dt: dt,
+          jumpItemIndex: jumpItemIndex,
+        ),
+      ),
+    );
+  }
+}
+
 class RecordPage extends StatefulWidget {
+  final String? category;
+  final String? amount;
+  final String? note;
+  final DateTime? dt;
+  final int? jumpItemIndex;
+
+  const RecordPage({
+    super.key,
+    this.category,
+    this.amount,
+    this.note,
+    this.dt,
+    this.jumpItemIndex,
+  });
+
   @override
   _RecordPageState createState() => _RecordPageState();
 }
@@ -20,28 +64,14 @@ class _RecordPageState extends State<RecordPage> {
 
   InputMode _mode = InputMode.normal;
 
-  void openTimePicker() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.35,
-          child: TimePickerSheet(
-            isYear: true,
-            isMonth: true,
-            isDate: true,
-            initialDate: _date,
-            onConfirm: (date) {
-              setState(() {
-                _date = date;
-              });
-              print(date);
-            },
-          ),
-        );
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+
+    _categoryCtrl.text = widget.category ?? '';
+    _amountCtrl.text = widget.amount ?? '';
+    _noteCtrl.text = widget.note ?? '';
+    _date = widget.dt ?? DateTime.now();
   }
 
   @override
@@ -64,6 +94,7 @@ class _RecordPageState extends State<RecordPage> {
                   _categoryCtrl.text = categoryName; // 将选中的类别名称设置到备注输入框
                 });
               },
+              jumpItemIndex: widget.jumpItemIndex,
             ),
           ),
           _categoryCtrl.text.isEmpty
@@ -121,10 +152,19 @@ class _RecordPageState extends State<RecordPage> {
                         _noteCtrl.clear();
                         Navigator.pop(context);
                       });
-                      ;
+                    },
+                    onEdit: () {
+                      print(
+                          '修改交易: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch}');
                     },
                     onTime: () {
-                      openTimePicker();
+                      TimePickerBottomSheet.open(
+                          context, _date, true, true, true,
+                          onConfirm: (date) => {
+                                setState(() {
+                                  _date = date;
+                                })
+                              });
                     },
                     onPlus: () {
                       if (_mode == InputMode.operator) {
@@ -160,6 +200,7 @@ class _RecordPageState extends State<RecordPage> {
                       }
                     },
                     isCalculatorMode: _mode == InputMode.operator,
+                    isEdit: widget.jumpItemIndex != null,
                     selectedDate: _date,
                   ),
                 )

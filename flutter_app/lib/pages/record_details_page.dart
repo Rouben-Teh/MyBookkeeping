@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/pages/record_page.dart';
 import 'package:my_bookkeeping/widgets/dual_direction_material.dart';
 import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:my_bookkeeping/utils/app_state.dart';
 import 'package:my_bookkeeping/enum/enum.dart';
 import 'package:my_bookkeeping/utils/datetime.dart';
@@ -37,34 +39,6 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
         });
       }
     });
-  }
-
-  void openTimePicker() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        final appState = Provider.of<AppState>(context, listen: false);
-
-        return FractionallySizedBox(
-          heightFactor: 0.35,
-          child: TimePickerSheet(
-            isYear: true,
-            isMonth: true,
-            isDate: false,
-            initialDate: appState.currentMonth,
-            onConfirm: (date) {
-              setState(() {
-                appState.currentMonth = date;
-              });
-              print(date);
-              // APIService().fetchMonthTransactions(appState.currentMonth);
-              APIService().fetchLocalMonthTransactions(appState.currentMonth);
-            },
-          ),
-        );
-      },
-    );
   }
 
   @override
@@ -137,7 +111,13 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
               width: 10,
             ),
             GestureDetector(
-              onTap: openTimePicker,
+              onTap: () => TimePickerBottomSheet.open(
+                  context, appState.currentMonth, true, true, false,
+                  onConfirm: (date) {
+                setState(() {
+                  appState.currentMonth = date;
+                });
+              }),
               child: Container(
                 margin: EdgeInsets.all(6),
                 decoration: BoxDecoration(
@@ -164,7 +144,8 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
         child: Column(
           children: [
             Expanded(
-                child: DualDirectionMaterialList(
+                child: SlidableAutoCloseBehavior(
+                    child: DualDirectionMaterialList(
               onRefreshUp: loadNextMonth,
               onRefreshDown: loadPreviousMonth,
               child: CustomScrollView(
@@ -194,44 +175,117 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                           (context, i) {
                             final t = items[i];
 
-                            var category = categories.firstWhere(
-                              (c) => c['name'] == t['category'],
-                            );
+                            var entry = categories.asMap().entries.firstWhere(
+                                  (e) => e.value['name'] == t['category'],
+                                  orElse: () => MapEntry(-1, {
+                                    'name': 'Unknown',
+                                    'icon': Icons.help,
+                                  }),
+                                );
 
-                            return Container(
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                              height: 70,
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Row(
+                            int index = entry.key;
+                            var category = entry.value;
+                            // print('Category: $category, Index: $index');
+
+                            return Slidable(
+                              key: ValueKey(t['id']),
+
+                              // 👉 左滑
+                              endActionPane: ActionPane(
+                                motion: ScrollMotion(),
                                 children: [
-                                  Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: const Color.fromARGB(
-                                          255, 255, 103, 103),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      category['icon'] as IconData,
-                                      color: const Color.fromARGB(
-                                          255, 255, 255, 255),
-                                    ),
+                                  SlidableAction(
+                                    onPressed: (context) {
+                                      RecordBottomSheet.open(context,
+                                          category: t['category'],
+                                          amount: t['amount'].toString(),
+                                          note: t['note'],
+                                          dt: DateTime
+                                              .fromMillisecondsSinceEpoch(
+                                                  t['timestamp']),
+                                          jumpItemIndex: index);
+                                    },
+                                    backgroundColor: Colors.green,
+                                    icon: Icons.edit,
                                   ),
-                                  SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      t['note'],
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    t['amount'].toString(),
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  SlidableAction(
+                                    onPressed: (context) {
+                                      bool isRestored = false;
+
+                                      APIService().markDeleteLocalTransactions(
+                                          t['id'], true);
+
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text('已删除 ${t['category']}'),
+                                          duration: const Duration(seconds: 3),
+                                          persist: false,
+                                          behavior:
+                                              SnackBarBehavior.floating, // 可选
+                                          action: SnackBarAction(
+                                            label: '撤销',
+                                            onPressed: () {
+                                              isRestored = true;
+
+                                              APIService()
+                                                  .markDeleteLocalTransactions(
+                                                      t['id'], false);
+                                              print('restore');
+                                            },
+                                          ),
+                                        ),
+                                      );
+
+                                      // 3️⃣ 可选：延迟真正删除（比如 API）
+                                      Future.delayed(const Duration(seconds: 3),
+                                          () {
+                                        if (!isRestored) {
+                                          APIService().syncUnsyncTransactions();
+                                        }
+                                      });
+                                    },
+                                    backgroundColor: Colors.red,
+                                    icon: Icons.delete,
                                   ),
                                 ],
+                              ),
+
+                              child: Container(
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                                height: 70,
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromARGB(
+                                            255, 255, 103, 103),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        category['icon'] as IconData,
+                                        color: const Color.fromARGB(
+                                            255, 255, 255, 255),
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        t['note'],
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      t['amount'].toString(),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -242,7 +296,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                   }).toList(),
                 ],
               ),
-            ))
+            ))),
           ],
         ),
       ),

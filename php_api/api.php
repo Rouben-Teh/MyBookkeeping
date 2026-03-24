@@ -217,6 +217,7 @@ if ($action === 'sync') {
     $amount = isset($body['amount']) ? (float)$body['amount'] : 0.0;
     $note = $body['note'] ?? '';
     $timestamp = $body['timestamp'] ??  round(microtime(true) * 1000);
+    $deleted = $body['deleted'] ?? false;
     
     if (!$id) {
         http_response_code(400);
@@ -224,15 +225,16 @@ if ($action === 'sync') {
         exit;
     }
     
-    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp, synced) 
-    VALUES (:id, :user_id, :category, :amount, :note, :timestamp, 1)
+    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp, synced, deleted) 
+    VALUES (:id, :user_id, :category, :amount, :note, :timestamp, 1, :deleted)
     ON CONFLICT(id) DO UPDATE SET user_id = excluded.user_id,
         category = excluded.category,
         amount = excluded.amount,
         note = excluded.note,
         timestamp = excluded.timestamp,
-        synced = 1');
-    $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp]);
+        synced = 1,
+        deleted = excluded.deleted');
+    $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp, ':deleted' => $deleted]);
     
     echo json_encode(['ok' => true]);
     exit;

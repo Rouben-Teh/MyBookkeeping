@@ -4,11 +4,13 @@ class CustomKeyboard extends StatelessWidget {
   final Function(String) onKeyTap;
   final VoidCallback onDelete;
   final VoidCallback onAdd;
+  final VoidCallback onEdit;
   final VoidCallback onTime;
   final VoidCallback onPlus;
   final VoidCallback onMinus;
   final VoidCallback onEqual;
   final bool isCalculatorMode;
+  final bool isEdit;
   final DateTime selectedDate;
 
   const CustomKeyboard({
@@ -16,11 +18,13 @@ class CustomKeyboard extends StatelessWidget {
     required this.onKeyTap,
     required this.onDelete,
     required this.onAdd,
+    required this.onEdit,
     required this.onTime,
     required this.onPlus,
     required this.onMinus,
     required this.onEqual,
     required this.isCalculatorMode,
+    required this.isEdit,
     required this.selectedDate,
   }) : super(key: key);
 
@@ -84,9 +88,18 @@ class CustomKeyboard extends StatelessWidget {
           buildButton('.'),
           buildButton('0'),
           buildButton('⌫', onTap: onDelete),
-          buildButton(isCalculatorMode ? '=' : '添加',
+          buildButton(
+              isCalculatorMode
+                  ? '='
+                  : isEdit
+                      ? '修改'
+                      : '添加',
               color: Color(0xFFFF5A5A),
-              onTap: isCalculatorMode ? onEqual : onAdd)
+              onTap: isCalculatorMode
+                  ? onEqual
+                  : isEdit
+                      ? onEdit
+                      : onAdd)
         ],
       ),
     );

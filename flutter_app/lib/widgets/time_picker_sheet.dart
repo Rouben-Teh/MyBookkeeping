@@ -1,5 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:my_bookkeeping/service/api_service.dart';
+
+class TimePickerBottomSheet {
+  static void open(
+      BuildContext context, DateTime dt, bool year, bool month, bool date,
+      {required Function(DateTime) onConfirm}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        final appState = Provider.of<AppState>(context, listen: false);
+
+        return FractionallySizedBox(
+          heightFactor: 0.35,
+          child: TimePickerSheet(
+            isYear: year,
+            isMonth: month,
+            isDate: date,
+            initialDate: dt,
+            onConfirm: (date) {
+              onConfirm(date);
+              print(date);
+              APIService().fetchLocalMonthTransactions(appState.currentMonth);
+            },
+          ),
+        );
+      },
+    );
+  }
+}
 
 class TimePickerSheet extends StatefulWidget {
   final bool isYear;
