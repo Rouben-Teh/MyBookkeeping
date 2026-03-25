@@ -6,12 +6,7 @@ import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
 import 'package:my_bookkeeping/utils/calculator.dart';
 
 class RecordBottomSheet {
-  static void open(BuildContext context,
-      {String? category,
-      String? amount,
-      String? note,
-      DateTime? dt,
-      int? jumpItemIndex}) {
+  static void open(BuildContext context, {dynamic data, int? jumpItemIndex}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -23,10 +18,7 @@ class RecordBottomSheet {
       builder: (_) => FractionallySizedBox(
         heightFactor: 0.9,
         child: RecordPage(
-          category: category,
-          amount: amount,
-          note: note,
-          dt: dt,
+          data: data,
           jumpItemIndex: jumpItemIndex,
         ),
       ),
@@ -35,18 +27,12 @@ class RecordBottomSheet {
 }
 
 class RecordPage extends StatefulWidget {
-  final String? category;
-  final String? amount;
-  final String? note;
-  final DateTime? dt;
+  final dynamic data;
   final int? jumpItemIndex;
 
   const RecordPage({
     super.key,
-    this.category,
-    this.amount,
-    this.note,
-    this.dt,
+    this.data,
     this.jumpItemIndex,
   });
 
@@ -68,10 +54,12 @@ class _RecordPageState extends State<RecordPage> {
   void initState() {
     super.initState();
 
-    _categoryCtrl.text = widget.category ?? '';
-    _amountCtrl.text = widget.amount ?? '';
-    _noteCtrl.text = widget.note ?? '';
-    _date = widget.dt ?? DateTime.now();
+    if (widget.data != null) {
+      _categoryCtrl.text = widget.data['category'] ?? '';
+      _amountCtrl.text = widget.data['amount'].toString();
+      _noteCtrl.text = widget.data['note'] ?? '';
+      _date = DateTime.fromMillisecondsSinceEpoch(widget.data['timestamp']);
+    }
   }
 
   @override
@@ -155,7 +143,20 @@ class _RecordPageState extends State<RecordPage> {
                     },
                     onEdit: () {
                       print(
-                          '修改交易: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch}');
+                          '修改交易: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch},  ${widget.data['createdAt']}');
+                      APIService().editLocalTransactions({
+                        'id': widget.data['id'],
+                        'category': _categoryCtrl.text,
+                        'amount': double.tryParse(_amountCtrl.text) ?? 0.0,
+                        'note': _noteCtrl.text,
+                        'timestamp': _date.millisecondsSinceEpoch,
+                        'created_at': widget.data['createdAt'],
+                      }, (data) {
+                        _categoryCtrl.clear();
+                        _amountCtrl.clear();
+                        _noteCtrl.clear();
+                        Navigator.pop(context);
+                      });
                     },
                     onTime: () {
                       TimePickerBottomSheet.open(

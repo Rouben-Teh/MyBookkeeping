@@ -195,16 +195,31 @@ class APIService {
       ),
     );
 
-    final list =
-        await ((db.select(db.transactions)..where((t) => t.deleted.equals(false)))
-              ..orderBy([
-                (t) => OrderingTerm(
-                    expression: t.timestamp, mode: OrderingMode.desc),
-              ]))
-            .get();
+    fetchLocalMonthTransactions(Global.appState.currentMonth);
+  }
 
-    final jsonList = list.map((row) => row.toJson()).toList();
-    Global.appState.setTransactions(jsonList);
+  Future<void> editLocalTransactions(
+      dynamic data, void Function(dynamic data)? callback) async {
+    final db = Global.appDatabase;
+    await (db.update(db.transactions)..where((t) => t.id.equals(data['id'])))
+        .write(
+      TransactionsCompanion(
+        id: Value(data['id']),
+        category: Value(data['category']),
+        amount: Value(data['amount']),
+        note: Value(data['note']),
+        timestamp: Value(data['timestamp']),
+        createdAt: Value(data['created_at']),
+        synced: Value(false),
+        deleted: Value(false),
+      ),
+    );
+
+    await fetchLocalMonthTransactions(Global.appState.currentMonth);
+
+    syncUnsyncTransactions();
+
+    callback?.call(null);
   }
 
   // Future<void> deleteLocalTransactions(String id) async {

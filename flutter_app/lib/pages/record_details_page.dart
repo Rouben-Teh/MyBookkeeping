@@ -45,10 +45,14 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context, listen: true);
 
+    double totalAmount = 0.0;
+
     Map<String, List> groupByDate(List transactions) {
       Map<String, List> grouped = {};
 
       for (var t in transactions) {
+        if (t['deleted'] != 1) totalAmount += t['amount'];
+
         String dateKey = formatDate(t['timestamp']);
 
         if (!grouped.containsKey(dateKey)) {
@@ -134,6 +138,16 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                 ),
               ),
             ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              '总消费 ￥${totalAmount}',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            )
           ],
         ),
         backgroundColor: Color(0xFFFF5A5A), // 设置AppBar背景颜色
@@ -196,14 +210,9 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                                 children: [
                                   SlidableAction(
                                     onPressed: (context) {
+                                      print(t);
                                       RecordBottomSheet.open(context,
-                                          category: t['category'],
-                                          amount: t['amount'].toString(),
-                                          note: t['note'],
-                                          dt: DateTime
-                                              .fromMillisecondsSinceEpoch(
-                                                  t['timestamp']),
-                                          jumpItemIndex: index);
+                                          data: t, jumpItemIndex: index);
                                     },
                                     backgroundColor: Colors.green,
                                     icon: Icons.edit,
