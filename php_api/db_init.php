@@ -8,8 +8,19 @@ CREATE TABLE IF NOT EXISTS accounts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    token TEXT,
     created_at TEXT DEFAULT (datetime('now','localtime'))
+)
+");
+
+$db->exec("
+CREATE TABLE IF NOT EXISTS tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token TEXT NOT NULL,
+    device_type TEXT,
+    created_at TEXT DEFAULT (datetime('now','localtime')),
+    expired_at TEXT,
+    is_revoked INTEGER DEFAULT 0
 )
 ");
 

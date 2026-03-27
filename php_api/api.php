@@ -20,10 +20,10 @@ function getAuth($db) {
     if (!$token) {
         return null;
     }
-    $stmt = $db->prepare('SELECT id FROM accounts WHERE token = :token');
+    $stmt = $db->prepare('SELECT user_id FROM tokens WHERE token = :token');
     $stmt->execute([':token' => $token]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $user ? $user['id'] : null;
+    return $user ? $user['user_id'] : null;
 }
 
 // 注册接口
@@ -78,8 +78,18 @@ if ($action === 'login') {
     }
     
     $token = bin2hex(random_bytes(32));
-    $updateStmt = $db->prepare('UPDATE accounts SET token = :token WHERE id = :id');
-    $updateStmt->execute([':token' => $token, ':id' => $user['id']]);
+    $deviceType = $body['device_type'] ?? 'UNKNOWN';
+
+    $stmt = $db->prepare("
+    INSERT INTO tokens (user_id, token, device_type, expired_at)
+    VALUES (:user_id, :token, :device_type, datetime('now','+7 day'))
+    ");
+
+    $stmt->execute([
+        ':user_id' => $user['id'],
+        ':token' => $token,
+        ':device_type' => $deviceType // 'WEB' or 'APP'
+    ]);
     
     echo json_encode(['id' => $user['id'], 'token' => $token]);
     exit;
@@ -94,7 +104,7 @@ if ($action === 'logout') {
         exit;
     }
     
-    $stmt = $db->prepare('UPDATE accounts SET token = NULL WHERE id = :id');
+    $stmt = $db->prepare('UPDATE tokens SET is_revoked = 1 WHERE user_id = :id');
     $stmt->execute([':id' => $userId]);
     
     echo json_encode(['ok' => true]);

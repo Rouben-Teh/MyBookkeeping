@@ -32,8 +32,8 @@ class _LoginPageState extends State<LoginPage> {
 
       print('尝试登录: $email $password');
 
-      final res = await NetService()
-          .httpPost('login', {'email': email, 'password': password});
+      final res = await NetService().httpPost('login',
+          {'email': email, 'password': password, 'device_type': 'APP'});
 
       final data = json.decode(res.body);
 
