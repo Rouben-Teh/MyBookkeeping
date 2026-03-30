@@ -20,10 +20,23 @@ function getAuth($db) {
     if (!$token) {
         return null;
     }
-    $stmt = $db->prepare('SELECT user_id FROM tokens WHERE token = :token');
+
+    $stmt = $db->prepare("
+        SELECT user_id, token, device_type, expired_at, is_revoked
+        FROM tokens
+        WHERE token = :token
+    ");
     $stmt->execute([':token' => $token]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $user ? $user['user_id'] : null;
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) return null;
+
+    // 可选：检查是否过期 / 已登出
+    // if ($row['is_revoked']) return null;
+    // if ($row['expired_at'] && strtotime($row['expired_at']) < time()) return null;
+
+    return $row;
 }
 
 // 注册接口
@@ -97,15 +110,17 @@ if ($action === 'login') {
 
 // 登出接口
 if ($action === 'logout') {
-    $userId = getAuth($db);
-    if (!$userId) {
+    $auth = getAuth($db);
+    if (!$auth) {
         http_response_code(401);
         echo json_encode(['error' => 'unauthorized']);
         exit;
     }
+
+    $body = json_decode(file_get_contents('php://input'), true);
     
-    $stmt = $db->prepare('UPDATE tokens SET is_revoked = 1 WHERE user_id = :id');
-    $stmt->execute([':id' => $userId]);
+    $stmt = $db->prepare('UPDATE tokens SET is_revoked = 1 WHERE token = :token');
+    $stmt->execute([':token' => $auth['token']]);
     
     echo json_encode(['ok' => true]);
     exit;
@@ -113,15 +128,15 @@ if ($action === 'logout') {
 
 // 获取当前用户的所有交易
 if ($action === 'list') {
-    $userId = getAuth($db);
-    if (!$userId) {
+    $auth = getAuth($db);
+    if (!$auth) {
         http_response_code(401);
         echo json_encode(['error' => 'unauthorized']);
         exit;
     }
     
     $stmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id ORDER BY timestamp DESC');
-    $stmt->execute([':user_id' => $userId]);
+    $stmt->execute([':user_id' => $auth['user_id']]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     echo json_encode(['transactions' => $rows]);
@@ -129,8 +144,8 @@ if ($action === 'list') {
 }
 
 if($action == "month-list"){
-    $userId = getAuth($db);
-    if (!$userId) {
+    $auth = getAuth($db);
+    if (!$auth) {
         http_response_code(401);
         echo json_encode(['error' => 'unauthorized']);
         exit;
@@ -142,7 +157,7 @@ if($action == "month-list"){
 
     $stmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id AND timestamp >= :start
                             AND timestamp < :end ORDER BY timestamp DESC');
-    $stmt->execute([':user_id' => $userId, ':start' => $start, ':end' => $end]);
+    $stmt->execute([':user_id' => $auth['user_id'], ':start' => $start, ':end' => $end]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     echo json_encode(['transactions' => $rows]);
@@ -151,8 +166,8 @@ if($action == "month-list"){
 
 // 添加交易
 if ($action === 'add') {
-    $userId = getAuth($db);
-    if (!$userId) {
+    $auth = getAuth($db);
+    if (!$auth) {
         http_response_code(401);
         echo json_encode(['error' => 'unauthorized']);
         exit;
@@ -172,7 +187,7 @@ if ($action === 'add') {
     }
     
     $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp, synced) VALUES (:id, :user_id, :category, :amount, :note, :timestamp, 1)');
-    $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp]);
+    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp]);
     
     echo json_encode(['ok' => true]);
     exit;
@@ -180,8 +195,8 @@ if ($action === 'add') {
 
 // 删除交易
 if ($action === 'delete') {
-    $userId = getAuth($db);
-    if (!$userId) {
+    $auth = getAuth($db);
+    if (!$auth) {
         http_response_code(401);
         echo json_encode(['error' => 'unauthorized']);
         exit;
@@ -199,7 +214,7 @@ if ($action === 'delete') {
     $checkStmt->execute([':id' => $id]);
     $transaction = $checkStmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$transaction || $transaction['user_id'] != $userId) {
+    if (!$transaction || $transaction['user_id'] != $auth['user_id']) {
         http_response_code(403);
         echo json_encode(['error' => 'forbidden']);
         exit;
@@ -214,8 +229,8 @@ if ($action === 'delete') {
 
 // 同步交易
 if ($action === 'sync') {
-    $userId = getAuth($db);
-    if (!$userId) {
+    $auth = getAuth($db);
+    if (!$auth) {
         http_response_code(401);
         echo json_encode(['error' => 'unauthorized']);
         exit;
@@ -244,7 +259,7 @@ if ($action === 'sync') {
         timestamp = excluded.timestamp,
         synced = 1,
         deleted = excluded.deleted');
-    $stmt->execute([':id' => $id, ':user_id' => $userId, ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp, ':deleted' => $deleted]);
+    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp, ':deleted' => $deleted]);
     
     echo json_encode(['ok' => true]);
     exit;
