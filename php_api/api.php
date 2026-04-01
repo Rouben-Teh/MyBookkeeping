@@ -201,8 +201,9 @@ if ($action === 'delete') {
         echo json_encode(['error' => 'unauthorized']);
         exit;
     }
-    
-    $id = $_GET['id'] ?? '';
+
+    $body = json_decode(file_get_contents('php://input'), true);
+    $id = $body['id'] ?? '';
     if (!$id) {
         http_response_code(400);
         echo json_encode(['error' => 'missing id']);
@@ -221,6 +222,41 @@ if ($action === 'delete') {
     }
     
     $stmt = $db->prepare('DELETE FROM transactions WHERE id = :id');
+    $stmt->execute([':id' => $id]);
+    
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
+// 软删除交易
+if ($action === 'soft-delete') {
+    $auth = getAuth($db);
+    if (!$auth) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+
+    $body = json_decode(file_get_contents('php://input'), true);
+    $id = $body['id'] ?? '';
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'missing id']);
+        exit;
+    }
+    
+    // 验证交易所有者
+    $checkStmt = $db->prepare('SELECT user_id FROM transactions WHERE id = :id');
+    $checkStmt->execute([':id' => $id]);
+    $transaction = $checkStmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$transaction || $transaction['user_id'] != $auth['user_id']) {
+        http_response_code(403);
+        echo json_encode(['error' => 'forbidden']);
+        exit;
+    }
+
+    $stmt = $db->prepare('UPDATE transactions  SET deleted = 1 WHERE id = :id');
     $stmt->execute([':id' => $id]);
     
     echo json_encode(['ok' => true]);

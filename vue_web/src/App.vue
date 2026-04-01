@@ -8,10 +8,11 @@
       ]"
     >
       <button
-        class="w-full py-2 text-sm bg-blue-800 hover:bg-blue-700"
+        class="w-full py-2 flex items-center justify-center bg-blue-800 hover:bg-blue-700"
         @click="collapsed = !collapsed"
       >
-        {{ collapsed ? '»' : '«' }}
+         <ChevronRight v-if="collapsed"/>
+          <ChevronLeft v-else />
       </button>
       <ul class="mt-2 space-y-1">
         <li
@@ -23,7 +24,7 @@
             item.key === selected ? 'bg-blue-700' : 'hover:bg-blue-700/80',
           ]"
         >
-          <span class="w-8 text-center">{{ item.icon }}</span>
+          <component :is="item.icon" class="w-8 text-center" />
           <span v-if="!collapsed" class="ml-2">{{ item.name }}</span>
         </li>
       </ul>
@@ -43,7 +44,9 @@
         @logout="handleLogout"
         @nextMonth="handleNextMonth"
         @previousMonth="handlePreviousMonth"
-      />
+        @selectMonth="handleMonthSelected"        
+        @deleteTransaction="handleDeleteTransaction"      
+        />
     </main>
   </div>
 </template>
@@ -56,9 +59,11 @@ import Login from "./pages/Login.vue";
 import auth from "./plugins/auth";
 import { httpPost } from "./utils/NetUtils";
 import dayjs from "dayjs";
+import { NotebookPen, User, ChartNoAxesCombined, ChevronRight, ChevronLeft} from 'lucide-vue-next';
+
 
 export default {
-  components: { Records, Profile, Summary, Login },
+  components: { Records, Profile, Summary, Login, ChevronRight, ChevronLeft },
   data() {
     return {
       transactions: [],
@@ -67,9 +72,9 @@ export default {
       selected: "records",
       isLoggedIn: auth.isAuthenticated(),
       menu: [
-        { key: "records", name: "记录", icon: "🧾" },
-        { key: "profile", name: "个人页面", icon: "👤" },
-        { key: "summary", name: "概览", icon: "📊" },
+        { key: "records", name: "记录", icon: NotebookPen },
+        { key: "profile", name: "个人页面", icon: User },
+        { key: "summary", name: "概览", icon: ChartNoAxesCombined },
       ],
     };
   },
@@ -96,11 +101,10 @@ export default {
       this.transactions = data['transactions'] || [];
     },
     async addTransaction(payload) {
-      await fetch("http://localhost:8000/api.php?action=add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await httpPost("add", payload);
+      const data = await res.data;
+      console.log(data);
+      if(data['ok'])
       await this.fetchCurrenttMonthTransactions();
     },
     async handleLogin(payload) {
@@ -128,7 +132,18 @@ export default {
       this.currentDate = dayjs(this.currentDate).subtract(1,'month').valueOf();
       this.fetchCurrenttMonthTransactions();
       console.log(this.currentDate);
-    }
+    },
+    handleMonthSelected(timestamp) {
+      this.currentDate = timestamp;
+      this.fetchCurrenttMonthTransactions();
+    },
+    async handleDeleteTransaction(tx) {
+      const res = await httpPost('soft-delete', { id: tx.id });
+      const data = await res.data;
+      if (data.ok) {
+        await this.fetchCurrenttMonthTransactions();
+      }
+    },
   },
 };
 </script>
