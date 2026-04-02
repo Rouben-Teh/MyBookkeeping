@@ -55,6 +55,19 @@ async function logout() {
   deleteCookie(COOKIE_NAME);
 }
 
+async function register(email, password) {
+  if (!email || !password) {
+    throw new Error("请输入邮箱和密码");
+  }
+
+  const res = await httpPost("register", {
+    email: email,
+    password: password,
+  });
+
+  return res.data;
+}
+
 function getAuthToken() {
   return getCookie(COOKIE_NAME)
     ? decodeURIComponent(getCookie(COOKIE_NAME))
@@ -68,6 +81,7 @@ function isAuthenticated() {
 export default {
   login,
   logout,
+  register,
   getAuthToken,
   isAuthenticated,
 };

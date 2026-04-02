@@ -24,7 +24,7 @@
       </div>
       <div class="flex justify-end gap-2">
         <button @click="$emit('close')" class="px-4 py-2 rounded border hover:bg-gray-200">取消</button>
-        <button @click="confirm" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-500">确定</button>
+        <button @click="confirm" class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-400">确定</button>
       </div>
     </div>
   </div>
