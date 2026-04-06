@@ -21,6 +21,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+    if (to.hash) {
+      return { el: to.hash, top: 0, behavior: "smooth" };
+    }
+    return { top: 0 };
+  },
 });
 
 router.beforeEach((to, from, next) => {
@@ -28,7 +37,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuth) {
     return next({ name: "Login" });
   }
-  if ((to.name === "Login" || to.name === "Landing") && isAuth) {
+  if ((to.name === "Login" || to.name === "Register") && isAuth) {
     return next({ name: "Dashboard" });
   }
   next();

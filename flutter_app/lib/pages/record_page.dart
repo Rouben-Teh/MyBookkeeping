@@ -95,7 +95,7 @@ class _RecordPageState extends State<RecordPage> {
                       flex: 3,
                       child: TextField(
                           controller: _noteCtrl,
-                          decoration: InputDecoration(labelText: '备注')),
+                          decoration: InputDecoration(labelText: 'Note')),
                     ),
                     SizedBox(width: 12),
                     Expanded(
@@ -104,7 +104,7 @@ class _RecordPageState extends State<RecordPage> {
                           readOnly: true,
                           controller: _amountCtrl,
                           keyboardType: TextInputType.none,
-                          decoration: InputDecoration(labelText: '金额')),
+                          decoration: InputDecoration(labelText: 'Amount')),
                     ),
                     SizedBox(width: 12),
                   ],
@@ -132,7 +132,7 @@ class _RecordPageState extends State<RecordPage> {
                     },
                     onAdd: () {
                       print(
-                          '添加交易: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch}');
+                          'Adding transaction: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch}');
                       APIService().addLocalTransaction(_categoryCtrl.text,
                           _amountCtrl.text, _noteCtrl.text, _date, (data) {
                         _categoryCtrl.clear();
@@ -143,7 +143,7 @@ class _RecordPageState extends State<RecordPage> {
                     },
                     onEdit: () {
                       print(
-                          '修改交易: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch},  ${widget.data['createdAt']}');
+                          'Editing transaction: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch},  ${widget.data['createdAt']}');
                       APIService().editLocalTransactions({
                         'id': widget.data['id'],
                         'category': _categoryCtrl.text,
@@ -196,7 +196,7 @@ class _RecordPageState extends State<RecordPage> {
                             _mode = InputMode.normal; // 删除后回到普通输入模式
                           });
                         } catch (e) {
-                          print('计算错误: $e');
+                          print('Calculation error: $e');
                         }
                       }
                     },

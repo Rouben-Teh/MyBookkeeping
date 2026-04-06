@@ -105,7 +105,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
         title: Row(
           children: [
             Text(
-              '记账',
+              'Records',
               style: TextStyle(
                   color: Colors.white, // 设置标题文字颜色
                   fontSize: 20, // 设置标题文字大小
@@ -142,7 +142,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
               width: 10,
             ),
             Text(
-              '总消费 ￥${totalAmount}',
+              'Total: \$${totalAmount}',
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -227,13 +227,14 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
-                                          content: Text('已删除 ${t['category']}'),
+                                          content:
+                                              Text('Deleted ${t['category']}'),
                                           duration: const Duration(seconds: 3),
                                           persist: false,
                                           behavior:
                                               SnackBarBehavior.floating, // 可选
                                           action: SnackBarAction(
-                                            label: '撤销',
+                                            label: 'Undo',
                                             onPressed: () {
                                               isRestored = true;
 

@@ -19,7 +19,7 @@ class _RegisterPageState extends State<RegisterPage> {
       String confirm = confirmCtrl.text;
 
       if (password != confirm) {
-        print('两次密码不一致');
+        print('Passwords do not match');
         return;
       }
 
@@ -29,11 +29,11 @@ class _RegisterPageState extends State<RegisterPage> {
       final data = json.decode(res.body);
 
       if (data['id'] == null) {
-        print("注册失败: ${data['error']}");
+        print("Register failed: ${data['error']}");
         return;
       }
 
-      print('注册成功: $email' 'id: ${data['id']}');
+      print('Register successful: $email, id: ${data['id']}');
       Navigator.pop(context);
     } catch (e) {
       print('post error: $e');
@@ -44,13 +44,13 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('注册',
+        title: Text('Register',
             style: TextStyle(
-                color: Colors.white, // 设置标题文字颜色
-                fontSize: 20, // 设置标题文字大小
+                color: Colors.white,
+                fontSize: 20,
                 fontWeight: FontWeight.bold)),
         backgroundColor: Color(0xFFFF5A5A),
-      ), // 设置标题文字加粗)),
+      ),
       body: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
@@ -78,7 +78,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   padding: EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: register,
-                child: Text('注册',
+                child: Text('Register',
                     style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
             ),

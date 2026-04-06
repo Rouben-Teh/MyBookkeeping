@@ -22,7 +22,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: pages[currentIndex],
 
-      // 底部导航栏
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(), // 中间挖洞
         notchMargin: 8,
@@ -46,7 +45,7 @@ class _HomePageState extends State<HomePage> {
                 }),
           ],
         ),
-        color: Color.fromARGB(255, 255, 252, 252), // 设置底部导航栏背景颜色
+        color: Color.fromARGB(255, 255, 252, 252),
         shadowColor: const Color.fromARGB(255, 94, 94, 94),
       ),
 

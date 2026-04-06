@@ -67,7 +67,7 @@ class CustomKeyboard extends StatelessWidget {
           buildButton('3'),
           buildButton(
               isSameDay(selectedDate, DateTime.now())
-                  ? '今天'
+                  ? 'Today'
                   : '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
               color: Color(0xFFFF5A5A),
               onTap: onTime),
@@ -92,8 +92,8 @@ class CustomKeyboard extends StatelessWidget {
               isCalculatorMode
                   ? '='
                   : isEdit
-                      ? '修改'
-                      : '添加',
+                      ? 'Edit'
+                      : 'Add',
               color: Color(0xFFFF5A5A),
               onTap: isCalculatorMode
                   ? onEqual

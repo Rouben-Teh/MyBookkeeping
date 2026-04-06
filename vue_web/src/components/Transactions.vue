@@ -24,7 +24,7 @@
                 :is="categoryMap[tx.category]?.icon"
                 class="w-5 h-5 text-red-500"
               />
-              <span class="font-medium">{{ categoryMap[tx.category]?.name || '未知分类' }}</span>
+              <span class="font-medium">{{ categoryMap[tx.category]?.name || 'Unknown' }}</span>
             </div>
             <!-- amount + time -->
             <div class="flex items-center gap-4">
@@ -34,14 +34,14 @@
               <button
                 @click.stop="toggleUpdate(tx)"
                 :class="[
-                  'absolute right-17 bottom-3 text-white bg-green-500 px-2 py-1 rounded hover:bg-green-400 transition-opacity duration-150',
+                  'absolute right-20 bottom-3 text-white bg-green-500 px-2 py-1 rounded hover:bg-green-400 transition-opacity duration-150',
                   menuMode && activeItemMenu === tx.id
                     ? 'opacity-100 pointer-events-auto'
                     : 'opacity-0 pointer-events-none',
                   'group-hover:opacity-100 group-hover:pointer-events-auto'
                 ]"
               >
-                修改
+                Update
               </button>
 
               <button
@@ -54,7 +54,7 @@
                   'group-hover:opacity-100 group-hover:pointer-events-auto'
                 ]"
               >
-                删除
+                Delete
               </button>
             </div>
           </div>

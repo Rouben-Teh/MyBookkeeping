@@ -105,7 +105,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                         children: years
                             .map((year) => Center(
                                   child: Text(
-                                    '$year 年',
+                                    '$year Year',
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ))
@@ -129,7 +129,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                         children: months
                             .map((month) => Center(
                                   child: Text(
-                                    '$month 月',
+                                    '$month Month',
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ))
@@ -153,7 +153,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                         children: days
                             .map((day) => Center(
                                   child: Text(
-                                    '$day 日',
+                                    '$day Day',
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ))

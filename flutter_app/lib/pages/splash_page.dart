@@ -42,14 +42,14 @@ class _SplashPageState extends State<SplashPage> {
         MaterialPageRoute(builder: (_) => HomePage()),
       );
 
-      print('已登录，Token: $token');
+      print('Logged in, Token: $token');
     } else {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => LoginPage()),
       );
 
-      print('未登录');
+      print('Not logged in');
     }
   }
 

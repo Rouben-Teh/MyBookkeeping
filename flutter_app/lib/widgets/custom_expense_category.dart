@@ -123,7 +123,7 @@ class _CategoryPageState extends State<CategoryPage> {
                 SizedBox(height: 6),
                 Text(
                   item['name'] as String,
-                  style: TextStyle(fontSize: 13),
+                  style: TextStyle(fontSize: 10),
                   textAlign: TextAlign.center,
                 ),
               ],

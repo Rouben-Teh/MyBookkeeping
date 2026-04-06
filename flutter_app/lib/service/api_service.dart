@@ -60,7 +60,7 @@ class APIService {
       final data = json.decode(res.body);
 
       if (data['ok'] != true) {
-        print("添加失败: ${data['error']}");
+        print("Adding transaction failed: ${data['error']}");
         return;
       }
 
@@ -81,7 +81,7 @@ class APIService {
       final data = json.decode(res.body);
 
       if (data['transactions'] == null) {
-        print("获取交易记录失败: ${data['error']}");
+        print("Fetching transaction records failed: ${data['error']}");
         return;
       }
 
@@ -169,7 +169,7 @@ class APIService {
         final data = json.decode(res.body);
 
         if (data['ok'] != true) {
-          print("同步失败: ${data['error']}");
+          print("Syncing transaction failed: ${data['error']}");
           return;
         }
 
@@ -179,9 +179,9 @@ class APIService {
             synced: Value(true),
           ),
         );
-        print('synced successfully');
+        print('Synced successfully');
       } catch (e) {
-        print('同步失败: $e');
+        print('Syncing failed: $e');
       }
     }
   }
@@ -235,11 +235,11 @@ class APIService {
   //     final data = json.decode(res.body);
 
   //     if (data['ok'] != true) {
-  //       print("删除失败: ${data['error']}");
+  //       print("Deleting transaction failed: ${data['error']}");
   //       return;
   //     }
   //   } catch (e) {
-  //     print('删除失败: $e');
+  //     print('Deleting transaction failed: $e');
   //   }
   // }
 }

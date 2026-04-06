@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col h-full">
-    <h1 class="text-2xl font-semibold mb-4">记账记录</h1>
+    <h1 class="text-2xl font-semibold mb-4">Records</h1>
     <AddTransaction
       :date="date"
       @add="$emit('add', $event)"/>
@@ -27,7 +27,7 @@
         </button>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-sm text-slate-500">总数: ¥{{ totalAmount }}</span>
+        <span class="text-sm text-slate-500">Total: ¥{{ totalAmount }}</span>
       </div>
     </div>
 

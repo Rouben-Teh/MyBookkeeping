@@ -34,10 +34,10 @@ class _ProfilePageState extends State<ProfilePage> {
       final data = json.decode(res.body);
 
       if (data['ok'] != true) {
-        print('登出失败: ${data['error']}');
+        print('Logout failed: ${data['error']}');
         // return;
       } else {
-        print('登出成功');
+        print('Logout successful');
       }
 
       Global.appState.setTransactions([]);
@@ -73,7 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           // 用户ID显示
           Text(
-            '用户ID:',
+            'User ID:',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
           SizedBox(height: 5),
@@ -99,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 logout();
               },
-              child: Text('登出',
+              child: Text('Logout',
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
@@ -117,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () async {
                 await APIService().fetchTransactionsAndSync();
               },
-              child: Text('获取备份',
+              child: Text('Fetch Backup',
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
@@ -135,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () async {
                 await APIService().syncUnsyncTransactions();
               },
-              child: Text('同步数据',
+              child: Text('Sync Data',
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
@@ -166,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('个人资料',
+        title: Text('Profile',
             style: TextStyle(
                 color: Colors.white, // 设置标题文字颜色
                 fontSize: 20, // 设置标题文字大小

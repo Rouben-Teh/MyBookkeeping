@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
       String email = emailCtrl.text;
       String password = passwordCtrl.text;
 
-      print('尝试登录: $email $password');
+      print('Attempting login: $email $password');
 
       final res = await NetService().httpPost('login',
           {'email': email, 'password': password, 'device_type': 'APP'});
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
       final data = json.decode(res.body);
 
       if (data['token'] == null) {
-        print("登录失败: ${data['error']}");
+        print("Login failed: ${data['error']}");
         return;
       }
 
@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (_) => HomePage()),
       );
 
-      print('登录: $email $password');
+      print('Attempting login: $email $password');
     } catch (e) {
       print('post error: $e');
     }
@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                 padding: EdgeInsets.symmetric(vertical: 15),
               ),
               onPressed: login,
-              child: Text('登录',
+              child: Text('Login',
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
@@ -102,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                 MaterialPageRoute(builder: (_) => RegisterPage()),
               );
             },
-            child: Text('没有账号？注册'),
+            child: Text('Don\'t have an account? Register'),
           )
         ],
       ),

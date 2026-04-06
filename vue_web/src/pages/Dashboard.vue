@@ -7,17 +7,17 @@
           :to="{ name: 'Dashboard', params: { tab: 'records' } }"
           class="block px-3 py-2 rounded hover:bg-red-500"
           :class="{ 'bg-red-500': selectedTab === 'records' }"
-        ><NotebookPen class="w-5 h-5 inline mr-2" />记录</router-link>
+        ><NotebookPen class="w-5 h-5 inline mr-2" />Records</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'profile' } }"
           class="block px-3 py-2 rounded hover:bg-red-500"
           :class="{ 'bg-red-500': selectedTab === 'profile' }"
-        ><User class="w-5 h-5 inline mr-2" />个人</router-link>
+        ><User class="w-5 h-5 inline mr-2" />Profile</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'summary' } }"
           class="block px-3 py-2 rounded hover:bg-red-500"
           :class="{ 'bg-red-500': selectedTab === 'summary' }"
-        ><ChartNoAxesCombined class="w-5 h-5 inline mr-2" />概览</router-link>
+        ><ChartNoAxesCombined class="w-5 h-5 inline mr-2" />Summary</router-link>
       </nav>
     </aside>
     <main class="flex-1 p-6 overflow-auto">

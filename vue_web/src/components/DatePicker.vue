@@ -1,7 +1,7 @@
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
     <div class="bg-white rounded-lg p-4 w-full max-w-md shadow-lg">
-      <h3 class="text-lg font-semibold mb-3">选择日期</h3>
+      <h3 class="text-lg font-semibold mb-3">Select Date</h3>
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div v-if="year">
           <label class="block text-sm text-slate-600 mb-1">年</label>
