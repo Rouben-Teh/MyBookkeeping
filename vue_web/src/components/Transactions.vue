@@ -34,7 +34,7 @@
               <button
                 @click.stop="toggleUpdate(tx)"
                 :class="[
-                  'absolute right-20 bottom-3 text-white bg-green-500 px-2 py-1 rounded hover:bg-green-400 transition-opacity duration-150',
+                  'absolute right-20 bottom-3 text-white bg-green-500 px-2 py-1 rounded-full hover:bg-green-400 transition-opacity duration-150',
                   menuMode && activeItemMenu === tx.id
                     ? 'opacity-100 pointer-events-auto'
                     : 'opacity-0 pointer-events-none',
@@ -47,7 +47,7 @@
               <button
                 @click.stop="removeTransaction(tx)"
                 :class="[
-                  'absolute right-3 bottom-3 text-white bg-red-500 px-2 py-1 rounded hover:bg-red-400 transition-opacity duration-150',
+                  'absolute right-3 bottom-3 text-white bg-red-500 px-2 py-1 rounded-full hover:bg-red-400 transition-opacity duration-150',
                   menuMode && activeItemMenu === tx.id
                     ? 'opacity-100 pointer-events-auto'
                     : 'opacity-0 pointer-events-none',

@@ -301,5 +301,61 @@ if ($action === 'sync') {
     exit;
 }
 
+function callLLM($cmsData) {
+    $url =  "http://localhost:5000/api/chat";
+
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($cmsData));
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json'
+    ]);
+
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+    $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        return [
+            'error' => curl_error($ch)
+        ];
+    }
+
+    curl_close($ch);
+
+    return json_decode($response, true);
+}
+
+if($action === 'chat') {
+    $auth = getAuth($db);
+    if (!$auth) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+
+    $body = json_decode(file_get_contents('php://input'), true);
+    $api_key = $body['api_key'] ?? '';
+    $message = $body['message'] ?? '';
+
+    if (!$api_key || !$message) {
+        http_response_code(400);
+        echo json_encode(['error' => 'missing api_key or message']);
+        exit;
+    }
+
+    $reply = callLLM([
+        'api_key' => $api_key,
+        'message' => $message
+    ]);
+
+    echo json_encode(['reply' => $reply]);
+    exit;
+}
+
 http_response_code(400);
 echo json_encode(['error' => 'unknown action']);

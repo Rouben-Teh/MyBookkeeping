@@ -16,17 +16,17 @@
             v-model="email"
             type="email"
             placeholder="Email"
-            class="w-full border rounded px-3 py-2"
+            class="w-full border rounded-full px-3 py-2"
           />
           <input
             v-model="password"
             type="password"
             placeholder="Password"
-            class="w-full border rounded px-3 py-2"
+            class="w-full border rounded-full px-3 py-2"
           />
           <button
             @click="submit"
-            class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-400"
+            class="w-full bg-red-500 text-white py-2 rounded-full hover:bg-red-400"
           >
             Login
           </button>
@@ -35,7 +35,7 @@
             <p class="text-sm text-slate-500">Don't have an account? Sign up now!</p>
             <button
               @click="$router.push({ name: 'Register' })"
-              class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-500"
+              class="w-full bg-green-600 text-white py-2 rounded-full hover:bg-green-500"
             >
               Sign Up
             </button>

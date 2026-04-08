@@ -1,0 +1,168 @@
+<template>
+  <div class="fixed bottom-4 right-4 z-50">
+    <button
+      @click="toggleChat"
+      class="bg-red-500 hover:bg-red-400 text-white rounded-full p-3 shadow-lg transition-colors"
+    >
+      <Bot class="w-10 h-10" />
+    </button>
+
+    <div
+      v-if="showModal"
+      class="absolute bottom-20 right-0 bg-white rounded-lg shadow-xl w-80 h-96 flex flex-col border"
+    >
+      <div class="flex justify-between items-center p-3 border-b bg-red-500 rounded-t-lg">
+        <h3 class="text-sm font-semibold text-white">AI Assistant</h3>
+        <button @click="showModal = false" class="text-white hover:text-gray-300">
+          <X class="w-4 h-4" />
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-3 space-y-3" ref="chatContainer">
+        <div
+          v-for="message in messages"
+          :key="message.id"
+          :class="[
+            'flex',
+            message.role === 'user' ? 'justify-end' : 'justify-start'
+          ]"
+        >
+          <div
+            :class="[
+              'max-w-xs px-3 py-2 rounded-lg text-sm',
+              message.role === 'user'
+                ? 'bg-red-600 text-white'
+                : 'bg-gray-200 text-gray-800'
+            ]"
+          >
+            {{ message.content }}
+          </div>
+        </div>
+        <div v-if="isLoading" class="flex justify-start">
+          <div class="bg-gray-200 text-gray-800 px-3 py-2 rounded-lg text-sm">
+            thinking...
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 border-t">
+        <div class="flex gap-2">
+          <input
+            v-model="inputMessage"
+            @keyup.enter="sendMessage"
+            placeholder="key in your message..."
+            class="flex-1 border rounded-full px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+          <button
+            @click="sendMessage"
+            :disabled="!inputMessage.trim() || isLoading"
+            class="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-3 py-1 rounded-full text-sm"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import dayjs from 'dayjs';
+import { Bot, X } from 'lucide-vue-next';
+import { LLM_API_URL } from '../config';
+
+export default {
+  components: { Bot, X },
+  data() {
+    return {
+      showModal: false,
+      messages: [],
+      inputMessage: '',
+      isLoading: false,
+      id: "11111111" + dayjs().valueOf(),
+      title: "bookkeeping" + dayjs().format('YYYY-MM-DD HH:mm:ss')
+    };
+  },
+  watch: {
+    showModal(newVal) {
+      if (newVal) {
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
+      }
+    },
+    messages() {
+      this.$nextTick(() => {
+        this.scrollToBottom();
+      });
+    },
+  },
+  methods: {
+    toggleChat() {
+      this.showModal = !this.showModal;
+    },
+    async sendMessage() {
+      if (!this.inputMessage.trim() || this.isLoading) return;
+
+      const userMessage = {
+        id: Date.now(),
+        role: 'user',
+        content: this.inputMessage.trim(),
+      };
+
+      this.messages.push(userMessage);
+      this.inputMessage = '';
+      this.isLoading = true;
+
+      try {
+        const response = await this.callLLMAPI(userMessage.content);
+        const assistantMessage = {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: response,
+        };
+        this.messages.push(assistantMessage);
+      } catch (error) {
+        console.error('LLM API error:', error);
+        const errorMessage = {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: 'sorry, something went wrong.',
+        };
+        this.messages.push(errorMessage);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async callLLMAPI(message) {
+      const response = await fetch(`${LLM_API_URL}/chat/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id:this.id,
+          title:this.title,
+          // message: [
+          //   { role: 'system', content: 'You are a helpful assistant for bookkeeping and financial management.' },
+          //   { role: 'user', content: message },
+          // ],
+          message: message,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const data = await response.json();
+      return data.msg.response;
+    },
+    scrollToBottom() {
+      if (this.$refs.chatContainer) {
+        this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
+      }
+    },
+  },
+};
+</script>

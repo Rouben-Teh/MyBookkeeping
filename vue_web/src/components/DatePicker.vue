@@ -5,26 +5,26 @@
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div v-if="year">
           <label class="block text-sm text-slate-600 mb-1">年</label>
-          <select v-model.number="selectedYear" class="w-full border rounded px-2 py-1">
+          <select v-model.number="selectedYear" class="w-full border rounded-full px-2 py-1">
             <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
           </select>
         </div>
         <div v-if="month">
           <label class="block text-sm text-slate-600 mb-1">月</label>
-          <select v-model.number="selectedMonth" class="w-full border rounded px-2 py-1">
+          <select v-model.number="selectedMonth" class="w-full border rounded-full px-2 py-1">
             <option v-for="m in 12" :key="m" :value="m">{{ m }}</option>
           </select>
         </div>
         <div v-if="date">
           <label class="block text-sm text-slate-600 mb-1">日</label>
-          <select v-model.number="selectedDay" class="w-full border rounded px-2 py-1">
+          <select v-model.number="selectedDay" class="w-full border rounded-full px-2 py-1">
             <option v-for="d in dayCount" :key="d" :value="d">{{ d }}</option>
           </select>
         </div>
       </div>
       <div class="flex justify-end gap-2">
-        <button @click="$emit('close')" class="px-4 py-2 rounded border hover:bg-gray-200">取消</button>
-        <button @click="confirm" class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-400">确定</button>
+        <button @click="$emit('close')" class="px-4 py-2 rounded-full border hover:bg-gray-200">取消</button>
+        <button @click="confirm" class="px-4 py-2 rounded-full bg-red-500 text-white hover:bg-red-400">确定</button>
       </div>
     </div>
   </div>

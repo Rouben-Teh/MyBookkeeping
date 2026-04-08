@@ -1,12 +1,15 @@
 <template>
   <div class="min-h-screen bg-white text-black">
-    <header class="container mx-auto px-6 py-6 flex items-center justify-between bg-red-400 text-white">
+    <header class="container mx-auto px-6 py-6 flex items-center justify-between bg-red-400 text-white sticky top-0 z-10">
       <h1 class="text-3xl font-bold">My Bookkeeping</h1>
       <nav class="space-x-4">
         <router-link class="hover:underline" :to="{ path: '/', hash: '#home' }">Home</router-link>
         <router-link class="hover:underline" :to="{ path: '/', hash: '#about' }">About</router-link>
         <router-link class="hover:underline" :to="{ path: '/', hash: '#features' }">Features</router-link>
         <router-link class="hover:underline" :to="{ path: '/', hash: '#contact' }">Contact</router-link>
+        <router-link to="/login" class="inline-block px-4 py-2 bg-red-500 hover:bg-red-600 rounded-full font-Regular text-white">
+          Get Started
+        </router-link>
       </nav>
     </header>
 
@@ -43,7 +46,7 @@
           <img 
             src="@/assets/images/platform.png" 
             alt="Illustration" 
-            class=" w-100 h-auto object-contain"
+            class=" w-200 h-auto object-contain"
           />
         </div>
 
@@ -78,7 +81,7 @@
           </div>
 
           <div class="flex w-full h-80 items-center gap-4 mb-4 shadow-lg backdrop-blur bg-white/50 rounded-xl p-8">
-            <Cpu class="w-25 h-auto text-red-500" />
+            <Bot class="w-25 h-auto text-red-500" />
             <h3 class="text-xl font-semibold">AI-Powered Insights<br>*upcoming</h3>
           </div>
 
@@ -106,7 +109,7 @@
 </template>
 
 <script setup>
-import { CloudSync, FunnelPlus, Clipboard, ShieldAlert, Cpu, Layers2 } from 'lucide-vue-next';
+import { CloudSync, FunnelPlus, Clipboard, ShieldAlert, Bot, Layers2 } from 'lucide-vue-next';
 </script>
 
 <script>

@@ -7,7 +7,7 @@
       <p class="text-slate-500 mb-4">Here you can display account information, statistics, and settings.</p>
       <button
         @click="$emit('logout')"
-        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500"
+        class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-500"
       >
         Logout
       </button>

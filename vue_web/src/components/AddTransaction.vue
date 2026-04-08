@@ -3,7 +3,7 @@
         <div class="flex flex-wrap gap-2 mb-4">
             <select
                 v-model="category"
-                class="border rounded px-3 py-2 w-30"
+                class="border rounded-full px-3 py-2 w-30"
             >
                 <option value="">Select Category</option>
                 <option v-for="cat in categoryList" :key="cat.name" :value="cat.name">
@@ -14,29 +14,29 @@
                 v-model="amount"
                 type="number"
                 placeholder="Amount"
-                class="border rounded px-3 py-2 w-30"
+                class="border rounded-full px-3 py-2 w-30"
             />
             <input
                 v-model="note"
                 placeholder="Note"
-                class="border rounded px-3 py-2 flex-1 min-w-30"
+                class="border rounded-full px-3 py-2 flex-1 min-w-30"
             />
             <button
                 @click="showDatePicker = true"
-                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400"
+                class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
             >
                 {{isToday(selectedDate) ? 'Today' : formattedDate(selectedDate)}}
             </button>
             <button
                 v-if="initial && initial.id"
                 @click="$emit('cancel')"
-                class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-400"
+                class="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-400"
             >
                 Cancel
             </button>
             <button
                 @click="submit"
-                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400"
+                class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
             >
                 {{ initial && initial.id ? 'Update' : 'Add' }}
             </button>

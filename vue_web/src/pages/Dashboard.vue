@@ -5,17 +5,17 @@
       <nav class="space-y-2">
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'records' } }"
-          class="block px-3 py-2 rounded hover:bg-red-500"
+          class="block px-3 py-2 rounded-full hover:bg-red-500"
           :class="{ 'bg-red-500': selectedTab === 'records' }"
         ><NotebookPen class="w-5 h-5 inline mr-2" />Records</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'profile' } }"
-          class="block px-3 py-2 rounded hover:bg-red-500"
+          class="block px-3 py-2 rounded-full hover:bg-red-500"
           :class="{ 'bg-red-500': selectedTab === 'profile' }"
         ><User class="w-5 h-5 inline mr-2" />Profile</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'summary' } }"
-          class="block px-3 py-2 rounded hover:bg-red-500"
+          class="block px-3 py-2 rounded-full hover:bg-red-500"
           :class="{ 'bg-red-500': selectedTab === 'summary' }"
         ><ChartNoAxesCombined class="w-5 h-5 inline mr-2" />Summary</router-link>
       </nav>
@@ -34,6 +34,8 @@
         @updateTransaction="handleUpdateTransaction"
       />
     </main>
+
+    <ChatModal />
   </div>
 </template>
 
@@ -41,13 +43,14 @@
 import Records from './Records.vue';
 import Profile from './Profile.vue';
 import Summary from './Summary.vue';
+import ChatModal from '../components/ChatModal.vue';
 import auth from '../plugins/auth';
 import { httpPost } from '../utils/NetUtils';
 import dayjs from 'dayjs';
 import { NotebookPen, User, ChartNoAxesCombined } from 'lucide-vue-next';
 
 export default {
-  components: { Records, Profile, Summary, NotebookPen, User, ChartNoAxesCombined },
+  components: { Records, Profile, Summary, ChatModal, NotebookPen, User, ChartNoAxesCombined },
   data() {
     return {
       transactions: [],

@@ -16,29 +16,29 @@
             v-model="email"
             type="email"
             placeholder="Email"
-            class="w-full border rounded px-3 py-2"
+            class="w-full border rounded-full px-3 py-2"
           />
           <input
             v-model="password"
             type="password"
             placeholder="Password (at least 6 characters)"
-            class="w-full border rounded px-3 py-2"
+            class="w-full border rounded-full px-3 py-2"
           />
           <input
             v-model="confirmPassword"
             type="password"
             placeholder="Confirm Password"
-            class="w-full border rounded px-3 py-2"
+            class="w-full border rounded-full px-3 py-2"
           />
           <button
             @click="submit"
-            class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-500"
+            class="w-full bg-green-600 text-white py-2 rounded-full hover:bg-green-500"
           >
             Register and Login
           </button>
           <button
             @click="$router.push({ name: 'Login' })"
-            class="w-full border border-green-600 text-green-600 py-2 rounded hover:bg-green-50"
+            class="w-full border border-green-600 text-green-600 py-2 rounded-full hover:bg-green-50"
           >
             Already have an account? Go to Login
           </button>
