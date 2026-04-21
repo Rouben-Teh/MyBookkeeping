@@ -4,3 +4,4 @@ vue_web/node_modules
 php_api/bookkeeping.sqlite
 flutter_app/android
 vue_web/dist
+vue_web/.env

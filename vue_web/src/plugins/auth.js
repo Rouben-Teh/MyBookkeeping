@@ -43,6 +43,11 @@ async function login(email, password) {
 }
 
 async function logout() {
+  if (!isAuthenticated()) {
+    console.log("未认证，无需登出");
+    return;
+  }
+
   const res = await httpPost("logout");
   const data = res.data;
 
@@ -53,6 +58,9 @@ async function logout() {
   }
 
   deleteCookie(COOKIE_NAME);
+  localStorage.removeItem("email");
+  localStorage.removeItem("id");
+  localStorage.removeItem("token");
 }
 
 async function register(email, password) {

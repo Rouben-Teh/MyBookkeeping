@@ -315,7 +315,7 @@ function callLLM($cmsData) {
         'Content-Type: application/json'
     ]);
 
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 300);
 
     $response = curl_exec($ch);
 
@@ -324,8 +324,6 @@ function callLLM($cmsData) {
             'error' => curl_error($ch)
         ];
     }
-
-    curl_close($ch);
 
     return json_decode($response, true);
 }
@@ -348,12 +346,20 @@ if($action === 'chat') {
         exit;
     }
 
-    $reply = callLLM([
+    $response = callLLM([
         'api_key' => $api_key,
-        'message' => $message
+        'message' => $message,
+        'configs' => [
+            'prompt' => "You are a financial assistant, You help user analysis their finance, and give advise to them about financial problem.",
+            'toxic_threshold' => 1.0,
+            'rag_threshold' => 1.0,
+            'rag_samples' => 1,
+            'rag' => 0,
+            'enable_filter' => false,
+        ]
     ]);
 
-    echo json_encode(['reply' => $reply]);
+    echo json_encode(['ok' => true, 'response' => $response['msg']['response']]);
     exit;
 }
 

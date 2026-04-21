@@ -9,16 +9,16 @@
 
     <div
       v-if="showModal"
-      class="absolute bottom-20 right-0 bg-white rounded-lg shadow-xl w-80 h-96 flex flex-col border"
+      class="absolute bottom-20 right-0 bg-white rounded-lg shadow-xl w-80 h-96 flex flex-col"
     >
-      <div class="flex justify-between items-center p-3 border-b bg-red-500 rounded-t-lg">
+      <div class="flex justify-between items-center p-3 border-b  bg-red-500 rounded-t-lg">
         <h3 class="text-sm font-semibold text-white">AI Assistant</h3>
         <button @click="showModal = false" class="text-white hover:text-gray-300">
           <X class="w-4 h-4" />
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-3 space-y-3" ref="chatContainer">
+      <div class="flex-1 overflow-y-auto p-3 space-y-3 mb-1" ref="chatContainer">
         <div
           v-for="message in messages"
           :key="message.id"
@@ -32,7 +32,7 @@
               'max-w-xs px-3 py-2 rounded-lg text-sm',
               message.role === 'user'
                 ? 'bg-red-600 text-white'
-                : 'bg-gray-200 text-gray-800'
+                : 'bg-red-200 text-gray-800'
             ]"
           >
             {{ message.content }}
@@ -45,18 +45,18 @@
         </div>
       </div>
 
-      <div class="p-3 border-t">
+      <div class="p-3 border-t border-red-500">
         <div class="flex gap-2">
           <input
             v-model="inputMessage"
             @keyup.enter="sendMessage"
             placeholder="key in your message..."
-            class="flex-1 border rounded-full px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="flex-1 border border-red-500 rounded-full px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-red-400"
           />
           <button
             @click="sendMessage"
             :disabled="!inputMessage.trim() || isLoading"
-            class="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-3 py-1 rounded-full text-sm"
+            class="bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white px-3 py-1 rounded-full text-sm"
           >
             Send
           </button>
@@ -69,7 +69,7 @@
 <script>
 import dayjs from 'dayjs';
 import { Bot, X } from 'lucide-vue-next';
-import { LLM_API_URL } from '../config';
+import { httpPost } from '../utils/NetUtils';
 
 export default {
   components: { Bot, X },
@@ -91,10 +91,13 @@ export default {
         });
       }
     },
-    messages() {
-      this.$nextTick(() => {
-        this.scrollToBottom();
-      });
+    messages: {
+      handler() {
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
+      },
+      deep: true
     },
   },
   methods: {
@@ -135,28 +138,22 @@ export default {
       }
     },
     async callLLMAPI(message) {
-      const response = await fetch(`${LLM_API_URL}/chat/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id:this.id,
-          title:this.title,
-          // message: [
-          //   { role: 'system', content: 'You are a helpful assistant for bookkeeping and financial management.' },
-          //   { role: 'user', content: message },
-          // ],
-          message: message,
-        }),
+      const apiKey = import.meta.env.VITE_LLM_API_KEY;
+      if (!apiKey) {
+        throw new Error('LLM API key is not configured');
+      }
+
+      const res = await httpPost("chat", {
+        api_key: apiKey,
+        message: message,
       });
 
-      if (!response.ok) {
+      const data = res.data;
+      if (!data.ok) {
         throw new Error('API request failed');
       }
 
-      const data = await response.json();
-      return data.msg.response;
+      return data.response;
     },
     scrollToBottom() {
       if (this.$refs.chatContainer) {
