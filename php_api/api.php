@@ -4,13 +4,14 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
+require_once 'llm_tools.php';
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-$db = new PDO('sqlite:bookkeeping.sqlite');
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$db = require 'db.php';
 
 $action = $_GET['action'] ?? '';
 
@@ -301,33 +302,6 @@ if ($action === 'sync') {
     exit;
 }
 
-function callLLM($cmsData) {
-    $url =  "http://localhost:5000/api/chat";
-
-    $ch = curl_init($url);
-
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($cmsData));
-
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json'
-    ]);
-
-    curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-
-    $response = curl_exec($ch);
-
-    if (curl_errno($ch)) {
-        return [
-            'error' => curl_error($ch)
-        ];
-    }
-
-    return json_decode($response, true);
-}
-
 if($action === 'chat') {
     $auth = getAuth($db);
     if (!$auth) {
@@ -337,20 +311,22 @@ if($action === 'chat') {
     }
 
     $body = json_decode(file_get_contents('php://input'), true);
-    $api_key = $body['api_key'] ?? '';
     $message = $body['message'] ?? '';
 
-    if (!$api_key || !$message) {
+    if (!$message) {
         http_response_code(400);
         echo json_encode(['error' => 'missing api_key or message']);
         exit;
     }
 
-    $response = callLLM([
-        'api_key' => $api_key,
+    $response = callLLM(
+        $auth['user_id'],
+        $db,
+        [
+        'api_key' => 'f8967ad2-9f52-4f50-94e2-db2ec249efe8',
         'message' => $message,
         'configs' => [
-            'prompt' => "You are a financial assistant, You help user analysis their finance, and give advise to them about financial problem.",
+            'prompt' => $prompt,
             'toxic_threshold' => 1.0,
             'rag_threshold' => 1.0,
             'rag_samples' => 1,

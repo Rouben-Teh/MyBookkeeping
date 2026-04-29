@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/pages/record_details_page.dart';
 import 'package:my_bookkeeping/pages/record_page.dart';
 import 'package:my_bookkeeping/pages/profile_page.dart';
+import 'package:my_bookkeeping/pages/chat_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,7 +21,29 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[currentIndex],
+      body: Stack(
+        children: [
+          pages[currentIndex],
+          // 右下角聊天悬浮按钮
+          Positioned(
+            width: 50,
+            height: 50,
+            right: 20,
+            bottom: 20,
+            child: FloatingActionButton(
+              mini: true,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ChatPage()),
+                );
+              },
+              backgroundColor: Color(0xFFFF5A5A),
+              child: Icon(Icons.chat, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
 
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(), // 中间挖洞

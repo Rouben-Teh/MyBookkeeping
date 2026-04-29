@@ -8,6 +8,8 @@ class AppState extends ChangeNotifier {
 
   List transactions = [];
 
+  List messages = [];
+
   DateTime currentMonth = DateTime.now();
 
   void login(String _token, String _userId, String _email) {
@@ -36,6 +38,16 @@ class AppState extends ChangeNotifier {
 
   void setCurrentMonth(DateTime dt) {
     currentMonth = dt;
+    notifyListeners();
+  }
+
+  void setMessage(List data) {
+    messages = data;
+    notifyListeners();
+  }
+
+  void addMessage(dynamic data) {
+    messages.add(data);
     notifyListeners();
   }
 

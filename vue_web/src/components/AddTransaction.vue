@@ -5,7 +5,7 @@
                 v-model="category"
                 class="border rounded-full px-3 py-2 w-30"
             >
-                <option value="">Select Category</option>
+                <option value="">Category</option>
                 <option v-for="cat in categoryList" :key="cat.name" :value="cat.name">
                 {{ cat.name }}
                 </option>

@@ -11,14 +11,14 @@
       v-if="showModal"
       class="absolute bottom-20 right-0 bg-white rounded-lg shadow-xl w-80 h-96 flex flex-col"
     >
-      <div class="flex justify-between items-center p-3 border-b  bg-red-500 rounded-t-lg">
+      <div class="flex justify-between items-center p-3 bg-red-500 rounded-t-lg">
         <h3 class="text-sm font-semibold text-white">AI Assistant</h3>
         <button @click="showModal = false" class="text-white hover:text-gray-300">
           <X class="w-4 h-4" />
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-3 space-y-3 mb-1" ref="chatContainer">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 mb-1" ref="chatContainer">
         <div
           v-for="message in messages"
           :key="message.id"
@@ -39,7 +39,7 @@
           </div>
         </div>
         <div v-if="isLoading" class="flex justify-start">
-          <div class="bg-gray-200 text-gray-800 px-3 py-2 rounded-lg text-sm">
+          <div class="bg-red-200 text-gray-800 px-3 py-2 rounded-lg text-sm">
             thinking...
           </div>
         </div>
@@ -73,6 +73,7 @@ import { httpPost } from '../utils/NetUtils';
 
 export default {
   components: { Bot, X },
+  emits: ["fetchTransaction"],
   data() {
     return {
       showModal: false,
@@ -138,13 +139,7 @@ export default {
       }
     },
     async callLLMAPI(message) {
-      const apiKey = import.meta.env.VITE_LLM_API_KEY;
-      if (!apiKey) {
-        throw new Error('LLM API key is not configured');
-      }
-
       const res = await httpPost("chat", {
-        api_key: apiKey,
         message: message,
       });
 
@@ -153,7 +148,15 @@ export default {
         throw new Error('API request failed');
       }
 
-      return data.response;
+      const json = JSON.parse(data.response);
+
+      if(json.type == "tool"){
+        if(json.tool.name == "add_expense" || json.tool.name == "add_income"){
+          this.$emit("fetchTransaction");
+        }
+      }
+
+      return json.content;
     },
     scrollToBottom() {
       if (this.$refs.chatContainer) {

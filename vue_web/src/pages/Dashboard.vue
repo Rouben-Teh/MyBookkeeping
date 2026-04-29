@@ -35,7 +35,7 @@
       />
     </main>
 
-    <ChatModal />
+    <ChatModal @fetchTransaction="handleFetchCurrentMonthTransaction" />
   </div>
 </template>
 
@@ -136,6 +136,9 @@ export default {
         console.error(error);
       }
     },
+    async handleFetchCurrentMonthTransaction() {
+      await this.fetchCurrentMonthTransactions();
+    }
   },
   watch: {
     '$route.params.tab'() {

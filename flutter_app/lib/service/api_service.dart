@@ -222,6 +222,34 @@ class APIService {
     callback?.call(null);
   }
 
+  Future<String> chat(String message) async {
+    try {
+      final res = await NetService().httpPost('chat', {
+        'message': message,
+      });
+
+      final data = json.decode(res.body);
+
+      print(data);
+
+      if (!data['ok']) throw new Error();
+
+      final jsonData = json.decode(data['response']);
+
+      if (jsonData['type'] == 'tool') {
+        if (jsonData['tool']['name'] == 'add_expense' ||
+            jsonData['tool']['name'] == 'add_income') {
+          fetchTransactionsAndSync();
+        }
+      }
+
+      return jsonData['content'];
+    } catch (e) {
+      print('fetch error: $e');
+      return 'Network error';
+    }
+  }
+
   // Future<void> deleteLocalTransactions(String id) async {
   //   final db = Global.appDatabase;
   //   await (db.delete(db.transactions)..where((t) => t.id.equals(id))).go();

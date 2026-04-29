@@ -41,6 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
 
       Global.appState.setTransactions([]);
+      Global.appState.setMessage([]);
 
       await prefs.remove('token');
       await prefs.remove('userId');

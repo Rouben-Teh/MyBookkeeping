@@ -77,7 +77,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('选择时间'),
+          title: const Text('Select time'),
           backgroundColor: const Color(0xFFFF5A5A),
           leading: IconButton(
             icon: const Icon(Icons.close),
@@ -105,7 +105,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                         children: years
                             .map((year) => Center(
                                   child: Text(
-                                    '$year Year',
+                                    '$year',
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ))
@@ -129,7 +129,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                         children: months
                             .map((month) => Center(
                                   child: Text(
-                                    '$month Month',
+                                    '$month',
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ))
@@ -176,7 +176,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                   widget.onConfirm(result);
                   Navigator.pop(context);
                 },
-                child: const Text('确定'),
+                child: const Text('Confirm'),
               ),
             )
           ],
