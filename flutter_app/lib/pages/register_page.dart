@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:my_bookkeeping/utils/NetUtils.dart';
+import 'package:my_bookkeeping/utils/net_utils.dart';
 
 class RegisterPage extends StatefulWidget {
   @override

@@ -32,3 +32,15 @@ final categories = [
   {'name': 'Subsidy', 'icon': Icons.support},
   {'name': 'Fine', 'icon': Icons.warning},
 ];
+
+class ChatMessage {
+  final String content;
+  final bool isUser;
+  final DateTime timestamp;
+
+  ChatMessage({
+    required this.content,
+    required this.isUser,
+    DateTime? timestamp,
+  }) : timestamp = timestamp ?? DateTime.now();
+}

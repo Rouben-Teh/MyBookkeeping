@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:my_bookkeeping/database/app_database.dart';
 import 'package:my_bookkeeping/utils/datetime.dart';
-import 'package:my_bookkeeping/utils/NetUtils.dart';
+import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:my_bookkeeping/singleton/singleton.dart';
 
 class APIService {
@@ -247,6 +247,26 @@ class APIService {
     } catch (e) {
       print('fetch error: $e');
       return 'Network error';
+    }
+  }
+
+  Future<List<dynamic>> getChatHistory() async {
+    try {
+      final res = await NetService().httpPost('get_chat_history', {});
+
+      final data = json.decode(res.body);
+
+      print(data);
+
+      if (!data['ok']) throw new Error();
+
+      if (data['response']['chat_history'] != null) {
+        return data['response']['chat_history'];
+      }
+      return [];
+    } catch (e) {
+      print('fetch error: $e');
+      return [];
     }
   }
 

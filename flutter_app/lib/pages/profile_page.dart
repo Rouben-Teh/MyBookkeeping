@@ -4,7 +4,7 @@ import 'package:my_bookkeeping/service/api_service.dart';
 import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
-import 'package:my_bookkeeping/utils/NetUtils.dart';
+import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_bookkeeping/utils/app_state.dart';
 

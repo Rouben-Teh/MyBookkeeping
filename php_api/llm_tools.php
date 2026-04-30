@@ -133,6 +133,34 @@ function callLLM($user_id, $db, $cmsData) {
     return $parsedRes;
 }
 
+function getLLMHistory($cmsData) {
+    $url =  "http://localhost:5000/api/get_chat_history";
+
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($cmsData));
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json'
+    ]);
+
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+    $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        return [
+            'error' => curl_error($ch)
+        ];
+    }
+
+   $parsedRes = json_decode($response, true);
+   return $parsedRes;
+}
+
 function convertDateToTimestamp($dateStr) {
     $now = new DateTime("now", new DateTimeZone("UTC"));
 

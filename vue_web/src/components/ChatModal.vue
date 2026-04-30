@@ -76,6 +76,7 @@ export default {
   emits: ["fetchTransaction"],
   data() {
     return {
+      restoreHis: false,
       showModal: false,
       messages: [],
       inputMessage: '',
@@ -83,6 +84,11 @@ export default {
       id: "11111111" + dayjs().valueOf(),
       title: "bookkeeping" + dayjs().format('YYYY-MM-DD HH:mm:ss')
     };
+  },
+  async mounted() {
+    if(this.restoreHis) return;
+    await this.restoreChatHistory();
+    this.restoreHis = true;
   },
   watch: {
     showModal(newVal) {
@@ -157,6 +163,47 @@ export default {
       }
 
       return json.content;
+    },
+    async restoreChatHistory() {
+      const histories = await this.getLLMHistory();
+
+      console.log(histories);
+      //use in get index, of get data
+      for (const his of histories) {
+        console.log(his);
+        if (his.sender == 'human') {
+          console.log('human');
+          const userMessage = {
+            id: Date.now(),
+            role: 'user',
+            content: his.response,
+          };
+
+          this.messages.push(userMessage);
+        } else {
+          console.log('ai');
+          console.log(his.response);
+          const parseRes = JSON.parse(his.response);
+          const assistantMessage = {
+            id: Date.now() + 1,
+            role: 'assistant',
+            content: parseRes.content,
+          };
+          this.messages.push(assistantMessage);
+        }
+      }
+    },
+    async getLLMHistory() {
+      const res = await httpPost("get_chat_history", {});
+
+      const data = res.data;
+      if (!data.ok) {
+        throw new Error('API request failed');
+      }
+
+      if (data.response.chat_history != null) {
+        return data.response.chat_history;
+      }
     },
     scrollToBottom() {
       if (this.$refs.chatContainer) {

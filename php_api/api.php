@@ -339,5 +339,24 @@ if($action === 'chat') {
     exit;
 }
 
+if($action === 'get_chat_history') {
+    $auth = getAuth($db);
+    if (!$auth) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+
+    $body = json_decode(file_get_contents('php://input'), true);
+
+    $response = getLLMHistory([
+        'api_key' => 'f8967ad2-9f52-4f50-94e2-db2ec249efe8',
+        'enable_filter' => false,
+        ]);
+
+    echo json_encode(['ok' => true, 'response' => $response['msg']]);
+    exit;
+}
+
 http_response_code(400);
 echo json_encode(['error' => 'unknown action']);

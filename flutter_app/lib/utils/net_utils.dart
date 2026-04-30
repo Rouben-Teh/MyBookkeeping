@@ -1,11 +1,18 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:my_bookkeeping/utils/app_session.dart';
 
 class NetService {
   static String token = '';
 
   void setToken(String t) {
     token = t;
+
+    if (token.isNotEmpty) {
+      AppSession.init();
+    } else {
+      AppSession.resetInit();
+    }
   }
 
   Future<http.Response> httpPost(String api, Map<String, dynamic> body) async {

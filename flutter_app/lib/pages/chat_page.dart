@@ -2,18 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:my_bookkeeping/utils/app_state.dart';
-
-class ChatMessage {
-  final String content;
-  final bool isUser;
-  final DateTime timestamp;
-
-  ChatMessage({
-    required this.content,
-    required this.isUser,
-    DateTime? timestamp,
-  }) : timestamp = timestamp ?? DateTime.now();
-}
+import 'package:my_bookkeeping/enum/enum.dart';
+import 'package:my_bookkeeping/widgets/animated_dots.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -49,6 +39,7 @@ class _ChatPageState extends State<ChatPage> {
         content: text,
         isUser: true,
       ));
+      appState.setLoading(true);
     });
 
     _messageController.clear();
@@ -61,6 +52,7 @@ class _ChatPageState extends State<ChatPage> {
         content: res,
         isUser: false,
       ));
+      appState.setLoading(false);
     });
     _scrollToBottom();
   }
@@ -99,7 +91,7 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Expanded(
-            child: appState.messages.isEmpty
+            child: appState.messages.isEmpty && !appState.isLoading
                 ? Center(
                     child: Text(
                       "Let's start the conversation.",
@@ -110,8 +102,14 @@ class _ChatPageState extends State<ChatPage> {
                 : ListView.builder(
                     controller: _scrollController,
                     padding: EdgeInsets.all(25),
-                    itemCount: appState.messages.length,
+                    itemCount:
+                        appState.messages.length + (appState.isLoading ? 1 : 0),
                     itemBuilder: (context, index) {
+                      // 最后一项是 loading 状态
+                      if (appState.isLoading &&
+                          index == appState.messages.length) {
+                        return _buildThinkingBubble();
+                      }
                       final message = appState.messages[index];
                       return _buildMessageBubble(message);
                     },
@@ -120,6 +118,43 @@ class _ChatPageState extends State<ChatPage> {
           _buildInputArea(),
         ],
       ),
+    );
+  }
+
+  Widget _buildThinkingBubble() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 255, 172, 172),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Thinking',
+              style: TextStyle(
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(width: 8),
+            _buildDots(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDots() {
+    return SizedBox(
+      width: 30,
+      height: 10,
+      child: AnimatedDots(),
     );
   }
 

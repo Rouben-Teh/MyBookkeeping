@@ -10,6 +10,8 @@ class AppState extends ChangeNotifier {
 
   List messages = [];
 
+  bool isLoading = false;
+
   DateTime currentMonth = DateTime.now();
 
   void login(String _token, String _userId, String _email) {
@@ -48,6 +50,11 @@ class AppState extends ChangeNotifier {
 
   void addMessage(dynamic data) {
     messages.add(data);
+    notifyListeners();
+  }
+
+  void setLoading(bool loading) {
+    isLoading = loading;
     notifyListeners();
   }
 
