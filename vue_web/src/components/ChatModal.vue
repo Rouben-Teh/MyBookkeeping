@@ -170,9 +170,9 @@ export default {
       console.log(histories);
       //use in get index, of get data
       for (const his of histories) {
-        console.log(his);
+        // console.log(his);
         if (his.sender == 'human') {
-          console.log('human');
+          // console.log('human');
           const userMessage = {
             id: Date.now(),
             role: 'user',
@@ -181,8 +181,8 @@ export default {
 
           this.messages.push(userMessage);
         } else {
-          console.log('ai');
-          console.log(his.response);
+          // console.log('ai');
+          // console.log(his.response);
           const parseRes = JSON.parse(his.response);
           const assistantMessage = {
             id: Date.now() + 1,
