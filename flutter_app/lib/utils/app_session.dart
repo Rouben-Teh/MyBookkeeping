@@ -23,13 +23,13 @@ class AppSession {
     final histories = await APIService().getChatHistory();
 
     for (final his in histories) {
-      if (his['sender'] == 'human') {
+      if (his['role'] == 'human') {
         Global.appState.addMessage(ChatMessage(
-          content: his['response'],
+          content: his['content'],
           isUser: true,
         ));
       } else {
-        final parseRes = json.decode(his['response']);
+        final parseRes = json.decode(his['content']);
         Global.appState.addMessage(ChatMessage(
           content: parseRes['content'] != null ? parseRes['content'] : '',
           isUser: false,

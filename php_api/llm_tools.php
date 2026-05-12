@@ -39,7 +39,7 @@ args: timestamp
 
 Rules:
 - Use tool ONLY when user requests action
-- Otherwise use type = "chat"
+- Otherwise use type = "chat", and reply something in content to user
 - If tool is used, content must be ""
 - If chat, tool must be {}
 
@@ -158,6 +158,37 @@ function getLLMHistory($cmsData) {
     }
 
    $parsedRes = json_decode($response, true);
+    
+    // Use error_log() to see output in terminal (not in response)
+    // error_log("getLLMHistory Response: " . print_r($parsedRes['msg'], true));
+
+    foreach ($parsedRes['msg']['chat_history'] as &$msg) {
+
+    if (($msg['role'] ?? '') === 'ai') {
+
+        $content = json_decode($msg['content'], true);
+
+        if (!$content || !is_array($content)) {
+            continue;
+        }
+
+        if (($content['type'] ?? '') === 'tool') {
+
+            if (($content['content'] ?? '') === '') {
+
+                $content['content'] = 'Action performed.';
+            }
+        }
+
+        $msg['content'] = json_encode(
+            $content,
+            JSON_UNESCAPED_UNICODE
+        );
+    }
+}
+
+    unset($msg);
+   
    return $parsedRes;
 }
 

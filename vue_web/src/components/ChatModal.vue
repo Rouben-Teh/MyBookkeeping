@@ -171,21 +171,21 @@ export default {
       //use in get index, of get data
       for (const his of histories) {
         // console.log(his);
-        if (his.sender == 'human') {
+        if (his.role == 'human') {
           // console.log('human');
           const userMessage = {
-            id: Date.now(),
+            id: his.id,
             role: 'user',
-            content: his.response,
+            content: his.content,
           };
 
           this.messages.push(userMessage);
         } else {
           // console.log('ai');
-          // console.log(his.response);
-          const parseRes = JSON.parse(his.response);
+          // console.log(his.content);
+          const parseRes = JSON.parse(his.content);
           const assistantMessage = {
-            id: Date.now() + 1,
+            id: his.id,
             role: 'assistant',
             content: parseRes.content,
           };
