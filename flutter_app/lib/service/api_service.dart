@@ -40,6 +40,7 @@ class APIService {
 
   Future<void> addTransaction(
       String _id,
+      String _type,
       String _category,
       String _amount,
       String _note,
@@ -51,6 +52,7 @@ class APIService {
     try {
       final res = await NetService().httpPost('add', {
         'id': _id,
+        'type': _type,
         'category': category,
         'amount': amount,
         'note': note,
@@ -114,6 +116,7 @@ class APIService {
   }
 
   Future<void> addLocalTransaction(
+      String _type,
       String _category,
       String _amount,
       String _note,
@@ -123,6 +126,7 @@ class APIService {
         '${Global.appState.userId}${DateTime.now().millisecondsSinceEpoch}';
     final item = {
       'id': _id,
+      'type': _type,
       'user_id': int.parse(Global.appState.userId),
       'category': _category,
       'amount': double.tryParse(_amount) ?? 0.0,
@@ -138,7 +142,7 @@ class APIService {
 
     await fetchLocalMonthTransactions(Global.appState.currentMonth);
 
-    addTransaction(_id, _category, _amount, _note, date, (data) async {
+    addTransaction(_id, _type, _category, _amount, _note, date, (data) async {
       await (db.update(db.transactions)..where((t) => t.id.equals(_id))).write(
         TransactionsCompanion(
           synced: Value(true),
@@ -158,6 +162,7 @@ class APIService {
       try {
         final res = await NetService().httpPost('sync', {
           'id': l.id,
+          'type': l.type,
           'category': l.category,
           'amount': l.amount,
           'note': l.note,
@@ -205,6 +210,7 @@ class APIService {
         .write(
       TransactionsCompanion(
         id: Value(data['id']),
+        type: Value(data['type']),
         category: Value(data['category']),
         amount: Value(data['amount']),
         note: Value(data['note']),

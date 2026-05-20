@@ -1,15 +1,22 @@
 <template>
     <div class="flex flex-col">
         <div class="flex flex-wrap gap-2 mb-4">
+          <div class="relative border rounded-full w-30">
             <select
                 v-model="category"
-                class="border rounded-full px-3 py-2 w-30"
+                class="px-3 py-2 appearance-none w-full rounded-full bg-transparent"
             >
                 <option value="">Category</option>
                 <option v-for="cat in categoryList" :key="cat.name" :value="cat.name">
                 {{ cat.name }}
                 </option>
             </select>
+
+            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs">
+              ▼
+            </div>
+          </div>
+            
             <input
                 v-model="amount"
                 type="number"
@@ -53,13 +60,14 @@
 </template>
 
 <script>
-import { categories } from '../enum/enum';
+import { expenseCategories, incomeCategories } from '../enum/enum';
 import DatePicker from './DatePicker.vue';
 import dayjs from 'dayjs';
 
 export default {
   components: { DatePicker },
   props: {
+    type: { type: String, required: true },
     date: { type: Number, required: true },
     initial: { type: Object, default: null },
   },
@@ -92,7 +100,10 @@ export default {
   },
   computed: {
     categoryList() {
-      return categories;
+      if (this.type === 'expense') {
+        return expenseCategories;
+      }
+      return incomeCategories;
     },
   },
   methods: {
@@ -100,8 +111,9 @@ export default {
       return dayjs(timestamp).format('YYYY-MM-DD');
     },
     submit() {
-      if (!this.amount || !this.note || !this.category) return;
+      if (!this.amount || !this.category) return;
       const payload = {
+        type: this.type,
         category: this.category,
         amount: Number(this.amount),
         note: this.note,

@@ -45,13 +45,20 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context, listen: true);
 
-    double totalAmount = 0.0;
+    double totalExpensesAmount = 0.0;
+    double totalIncomeAmount = 0.0;
 
     Map<String, List> groupByDate(List transactions) {
       Map<String, List> grouped = {};
 
       for (var t in transactions) {
-        if (t['deleted'] != 1) totalAmount += t['amount'];
+        if (t['deleted'] != 1) {
+          if (t['type'] == 'expense') {
+            totalExpensesAmount += t['amount'];
+          } else if (t['type'] == 'income') {
+            totalIncomeAmount += t['amount'];
+          }
+        }
 
         String dateKey = formatDate(t['timestamp']);
 
@@ -102,55 +109,77 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Records',
-              style: TextStyle(
+            DropdownMenu<String>(
+              inputDecorationTheme: InputDecorationTheme(
+                border: InputBorder.none,
+              ),
+              textStyle: TextStyle(
                   color: Colors.white, // 设置标题文字颜色
                   fontSize: 20, // 设置标题文字大小
                   fontWeight: FontWeight.bold), // 设置标题文字加粗
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            GestureDetector(
-              onTap: () => TimePickerBottomSheet.open(
-                  context, appState.currentMonth, true, true, false,
-                  onConfirm: (date) {
-                setState(() {
-                  appState.currentMonth = date;
-                });
-              }),
-              child: Container(
-                margin: EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Color(0xFFFF5A5A),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  formatDateMonth(appState.currentMonth.millisecondsSinceEpoch),
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
+              menuStyle: MenuStyle(
+                backgroundColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.hovered)) {
+                    return const Color.fromARGB(255, 255, 88, 113);
+                  }
+                  return const Color.fromARGB(255, 255, 255, 255);
+                }),
               ),
+              initialSelection: 'expense',
+              dropdownMenuEntries: const [
+                DropdownMenuEntry(value: 'expense', label: 'Expenses'),
+                DropdownMenuEntry(value: 'income', label: 'Income'),
+              ],
+              onSelected: (value) {
+                appState.setType(value!);
+                print(value);
+              },
             ),
-            SizedBox(
-              width: 10,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () => TimePickerBottomSheet.open(
+                      context, appState.currentMonth, true, true, false,
+                      onConfirm: (date) {
+                    setState(() {
+                      appState.currentMonth = date;
+                    });
+                  }),
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 0, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFF5A5A),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      formatDateMonth(
+                          appState.currentMonth.millisecondsSinceEpoch),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                  ),
+                ),
+                Text(
+                  'Total: \$${appState.type == 'expense' ? totalExpensesAmount.toStringAsFixed(2) : totalIncomeAmount.toStringAsFixed(2)}',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                )
+              ],
             ),
-            Text(
-              'Total: \$${totalAmount}',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
-            )
           ],
         ),
         backgroundColor: Color(0xFFFF5A5A), // 设置AppBar背景颜色
+        toolbarHeight: 100,
       ),
       body: Container(
         color: const Color.fromARGB(255, 255, 223, 223),
@@ -168,7 +197,11 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                 ),
                 controller: _scrollController,
                 slivers: [
-                  ...grouped.entries.map((entry) {
+                  ...grouped.entries.where((entry) {
+                    return entry.value.any(
+                      (item) => item['type'] == appState.type,
+                    );
+                  }).map((entry) {
                     final date = entry.key;
                     final items = entry.value;
 
@@ -189,13 +222,18 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                           (context, i) {
                             final t = items[i];
 
-                            var entry = categories.asMap().entries.firstWhere(
-                                  (e) => e.value['name'] == t['category'],
-                                  orElse: () => MapEntry(-1, {
-                                    'name': 'Unknown',
-                                    'icon': Icons.help,
-                                  }),
-                                );
+                            if (t['type'] != appState.type) {
+                              return SizedBox.shrink();
+                            }
+
+                            var entry =
+                                ExpenseCategories.asMap().entries.firstWhere(
+                                      (e) => e.value['name'] == t['category'],
+                                      orElse: () => MapEntry(-1, {
+                                        'name': 'Unknown',
+                                        'icon': Icons.help,
+                                      }),
+                                    );
 
                             int index = entry.key;
                             var category = entry.value;

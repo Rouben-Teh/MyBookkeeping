@@ -154,7 +154,12 @@ export default {
         throw new Error('API request failed');
       }
 
-      const json = JSON.parse(data.response);
+      let json;
+      try {
+        json = JSON.parse(data.response);
+      } catch (e) {
+        return data.response; //if not json, return original response
+      }
 
       if(json.type == "tool"){
         if(json.tool.name == "add_expense" || json.tool.name == "add_income"){
@@ -183,7 +188,12 @@ export default {
         } else {
           // console.log('ai');
           // console.log(his.content);
-          const parseRes = JSON.parse(his.content);
+          let parseRes;
+          try {
+            parseRes = JSON.parse(his.content);
+          } catch {
+            parseRes = his; //if parse error, use original content
+          }
           const assistantMessage = {
             id: his.id,
             role: 'assistant',

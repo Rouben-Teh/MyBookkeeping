@@ -6,6 +6,8 @@ class AppState extends ChangeNotifier {
   String userId = '';
   String email = '';
 
+  String type = 'expense';
+
   List transactions = [];
 
   List messages = [];
@@ -30,6 +32,11 @@ class AppState extends ChangeNotifier {
     isLoggedIn = false;
     notifyListeners();
     print('Logged out $userId $email $isLoggedIn');
+  }
+
+  void setType(String t) {
+    type = t;
+    notifyListeners();
   }
 
   void setTransactions(List data) {

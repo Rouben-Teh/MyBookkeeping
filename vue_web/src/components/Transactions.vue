@@ -9,6 +9,7 @@
       >
         <div v-if="activateItemUpdate === tx.id">
           <AddTransaction
+            :type="tx.type"
             :date="selectedDate"
             :initial="tx"
             @cancel="onCancelUpdate"

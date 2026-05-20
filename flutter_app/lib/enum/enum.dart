@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-final categories = [
+final ExpenseCategories = [
   {'name': 'Food', 'icon': Icons.restaurant},
   {'name': 'Transportation', 'icon': Icons.directions_car},
   {'name': 'Shopping', 'icon': Icons.shopping_bag},
@@ -31,6 +31,15 @@ final categories = [
   {'name': 'Bonus', 'icon': Icons.card_membership},
   {'name': 'Subsidy', 'icon': Icons.support},
   {'name': 'Fine', 'icon': Icons.warning},
+];
+
+final IncomeCategories = [
+  {'name': 'Salary', 'icon': Icons.attach_money},
+  {'name': 'Investment', 'icon': Icons.trending_up},
+  {'name': 'Red Packet', 'icon': Icons.money_off},
+  {'name': 'Lottery', 'icon': Icons.confirmation_number},
+  {'name': 'Bonus', 'icon': Icons.card_membership},
+  {'name': 'Subsidy', 'icon': Icons.support},
 ];
 
 class ChatMessage {

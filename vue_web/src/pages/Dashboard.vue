@@ -5,17 +5,17 @@
       <nav class="space-y-2">
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'records' } }"
-          class="block px-3 py-2 rounded-full hover:bg-red-500"
+          class="block px-3 py-2 rounded-full hover:bg-red-500/50"
           :class="{ 'bg-red-500': selectedTab === 'records' }"
         ><NotebookPen class="w-5 h-5 inline mr-2" />Records</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'profile' } }"
-          class="block px-3 py-2 rounded-full hover:bg-red-500"
+          class="block px-3 py-2 rounded-full hover:bg-red-500/50"
           :class="{ 'bg-red-500': selectedTab === 'profile' }"
         ><User class="w-5 h-5 inline mr-2" />Profile</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'summary' } }"
-          class="block px-3 py-2 rounded-full hover:bg-red-500"
+          class="block px-3 py-2 rounded-full hover:bg-red-500/50"
           :class="{ 'bg-red-500': selectedTab === 'summary' }"
         ><ChartNoAxesCombined class="w-5 h-5 inline mr-2" />Summary</router-link>
       </nav>

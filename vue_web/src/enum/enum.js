@@ -31,7 +31,7 @@ import {
   AlertTriangle,
 } from "lucide-vue-next";
 
-export const categories = [
+export const expenseCategories = [
   { name: "Food", icon: Utensils },
   { name: "Transportation", icon: Car },
   { name: "Shopping", icon: ShoppingBag },
@@ -65,5 +65,14 @@ export const categories = [
 ];
 
 export const categoryMap = Object.fromEntries(
-  categories.map((c) => [c.name, c]),
+  expenseCategories.map((c) => [c.name, c]),
 );
+
+export const incomeCategories = [
+  { name: "Salary", icon: DollarSign },
+  { name: "Investment", icon: TrendingUp },
+  { name: "Red Packet", icon: WalletCards },
+  { name: "Lottery", icon: Ticket },
+  { name: "Bonus", icon: BadgeDollarSign },
+  { name: "Subsidy", icon: HeartPlus },
+];

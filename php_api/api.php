@@ -187,8 +187,8 @@ if ($action === 'add') {
         exit;
     }
     
-    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp, synced) VALUES (:id, :user_id, :category, :amount, :note, :timestamp, 1)');
-    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp]);
+    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, type, category, amount, note, timestamp, synced) VALUES (:id, :user_id, :type, :category, :amount, :note, :timestamp, 1)');
+    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':type' => $body['type'] ?? 'expense', ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp]);
     
     echo json_encode(['ok' => true]);
     exit;
@@ -275,6 +275,7 @@ if ($action === 'sync') {
     
     $body = json_decode(file_get_contents('php://input'), true);
     $id = $body['id'] ?? '';
+    $type = $body['type'] ?? 'expense';
     $category = $body['category'] ?? '';
     $amount = isset($body['amount']) ? (float)$body['amount'] : 0.0;
     $note = $body['note'] ?? '';
@@ -287,16 +288,17 @@ if ($action === 'sync') {
         exit;
     }
     
-    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp, synced, deleted) 
-    VALUES (:id, :user_id, :category, :amount, :note, :timestamp, 1, :deleted)
+    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, type, category, amount, note, timestamp, synced, deleted) 
+    VALUES (:id, :user_id, :type, :category, :amount, :note, :timestamp, 1, :deleted)
     ON CONFLICT(id) DO UPDATE SET user_id = excluded.user_id,
+        type = excluded.type,
         category = excluded.category,
         amount = excluded.amount,
         note = excluded.note,
         timestamp = excluded.timestamp,
         synced = 1,
         deleted = excluded.deleted');
-    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp, ':deleted' => $deleted]);
+    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':type' => $body['type'] ?? 'expense', ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp, ':deleted' => $deleted]);
     
     echo json_encode(['ok' => true]);
     exit;
@@ -324,8 +326,10 @@ if($action === 'chat') {
         $db,
         [
         'api_key' => 'f8967ad2-9f52-4f50-94e2-db2ec249efe8',
+        'uid' => $auth['user_id'],
         'message' => $message,
         'configs' => [
+            'model_type' => 'complex',
             'prompt' => $prompt,
             'toxic_threshold' => 1.0,
             'rag_threshold' => 1.0,
@@ -351,6 +355,7 @@ if($action === 'get_chat_history') {
 
     $response = getLLMHistory([
         'api_key' => 'f8967ad2-9f52-4f50-94e2-db2ec249efe8',
+        'uid' => $auth['user_id'],
         'enable_filter' => false,
         ]);
 

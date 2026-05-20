@@ -29,11 +29,14 @@ $db->exec("
 CREATE TABLE IF NOT EXISTS transactions (
     id TEXT NOT NULL PRIMARY KEY,
     user_id INTEGER NOT NULL,
+    type TEXT NOT NULL CHECK(type IN ('expense', 'income')),
     category TEXT NOT NULL,
     amount REAL NOT NULL,  
     note TEXT,
     timestamp INTEGER DEFAULT ((strftime('%s','now') * 1000, 'unixepoch', 'localtime')),
     created_at TEXT DEFAULT (datetime('now','localtime')),
+    synced INTEGER DEFAULT 0,
+    deleted INTEGER DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES accounts(id)
 )
 ");

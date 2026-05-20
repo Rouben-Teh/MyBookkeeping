@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
+import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'package:my_bookkeeping/widgets/custom_expense_category.dart';
 import 'package:my_bookkeeping/widgets/custom_keyboard.dart';
 import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
@@ -132,9 +133,13 @@ class _RecordPageState extends State<RecordPage> {
                     },
                     onAdd: () {
                       print(
-                          'Adding transaction: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch}');
-                      APIService().addLocalTransaction(_categoryCtrl.text,
-                          _amountCtrl.text, _noteCtrl.text, _date, (data) {
+                          'Adding transaction: ${Global.appState.type} ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch}');
+                      APIService().addLocalTransaction(
+                          Global.appState.type,
+                          _categoryCtrl.text,
+                          _amountCtrl.text,
+                          _noteCtrl.text,
+                          _date, (data) {
                         _categoryCtrl.clear();
                         _amountCtrl.clear();
                         _noteCtrl.clear();
@@ -143,9 +148,10 @@ class _RecordPageState extends State<RecordPage> {
                     },
                     onEdit: () {
                       print(
-                          'Editing transaction: ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch},  ${widget.data['createdAt']}');
+                          'Editing transaction: ${Global.appState.type} ${_categoryCtrl.text}, ${_amountCtrl.text}, ${_noteCtrl.text}, ${_date.millisecondsSinceEpoch},  ${widget.data['createdAt']}');
                       APIService().editLocalTransactions({
                         'id': widget.data['id'],
+                        'type': Global.appState.type,
                         'category': _categoryCtrl.text,
                         'amount': double.tryParse(_amountCtrl.text) ?? 0.0,
                         'note': _noteCtrl.text,

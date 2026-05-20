@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage> {
             bottom: 20,
             child: FloatingActionButton(
               mini: true,
+              shape: CircleBorder(),
               onPressed: () {
                 Navigator.push(
                   context,

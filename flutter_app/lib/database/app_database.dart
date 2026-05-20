@@ -11,6 +11,7 @@ part 'app_database.g.dart';
 class Transactions extends Table {
   TextColumn get id => text()();
   IntColumn get userId => integer()();
+  TextColumn get type => text()();
   TextColumn get category => text()();
   RealColumn get amount => real()();
   TextColumn get note => text().nullable()();
@@ -30,7 +31,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 }
 
 LazyDatabase _openConnection() {
@@ -70,6 +71,7 @@ Future<void> saveToDrift(dynamic item) async {
         TransactionsCompanion(
           id: Value(item['id']),
           userId: Value(item['user_id']),
+          type: Value(item['type']),
           category: Value(item['category']),
           amount: Value((item['amount'] as num).toDouble()),
           note: Value(item['note'] ?? ''),

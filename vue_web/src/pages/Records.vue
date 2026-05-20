@@ -1,7 +1,36 @@
 <template>
   <div class="flex flex-col h-full">
-    <h1 class="text-2xl font-semibold mb-4">Records</h1>
+    <!-- <h1 class="text-2xl font-semibold mb-4">Records</h1> -->
+
+    <div class="mb-4">
+      <div class="inline-flex rounded-full  bg-red-100 overflow-hidden">
+        <button
+          @click="setActiveType('expense')"
+          :class="[
+            'px-4 py-2 text-sm font-medium transition-colors rounded-full',
+            activeType === 'expense'
+              ? 'bg-red-500 text-white'
+              : 'text-slate-700 hover:bg-red-200'
+          ]"
+        >
+          Expenses
+        </button>
+        <button
+          @click="setActiveType('income')"
+          :class="[
+            'px-4 py-2 text-sm font-medium transition-colors rounded-full',
+            activeType === 'income'
+              ? 'bg-red-500 text-white'
+              : 'text-slate-700 hover:bg-red-200'
+          ]"
+        >
+          Income
+        </button>
+      </div>
+    </div>
+
     <AddTransaction
+      :type="activeType"
       :date="date"
       @add="$emit('add', $event)"/>
 
@@ -27,7 +56,7 @@
         </button>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-sm text-slate-500">Total: ¥{{ totalAmount }}</span>
+        <span class="text-sm text-slate-500">Total {{ activeType === 'expense' ? 'Expenses' : 'Income' }}: ¥{{ totalAmount }}</span>
       </div>
     </div>
 
@@ -40,7 +69,7 @@
     />
 
     <Transactions
-      :transactions="transactions"
+      :transactions="filteredTransactions"
       @deleteTransaction="$emit('deleteTransaction', $event)"
       @updateTransaction="$emit('updateTransaction', $event)"
       />
@@ -71,16 +100,23 @@ export default {
   data() {
     return { 
       showMonthPicker: false,
+      activeType: 'expense',
      };
   },
   computed: {
+    filteredTransactions() {
+      return this.transactions.filter(tx => tx.deleted !== 1 && tx.type === this.activeType);
+    },
     totalAmount() {
-      return this.transactions.filter(tx => tx.deleted !== 1).reduce((sum, tx) => {
+      return this.filteredTransactions.reduce((sum, tx) => {
         return sum + Number(tx.amount || 0);
       }, 0);
     }
   },
   methods: {
+    setActiveType(type) {
+      this.activeType = type;
+    },
     formattedMonth(timestamp) {
       return dayjs(timestamp).format('YYYY-MM');
     },

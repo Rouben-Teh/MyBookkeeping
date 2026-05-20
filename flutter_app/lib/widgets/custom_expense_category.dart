@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/enum/enum.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:provider/provider.dart';
 
 class CategoryPage extends StatefulWidget {
   final ScrollController scrollController;
@@ -60,8 +62,13 @@ class _CategoryPageState extends State<CategoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<GlobalKey> itemKeys =
-        List.generate(categories.length, (_) => GlobalKey());
+    final appState = Provider.of<AppState>(context, listen: true);
+
+    final List<GlobalKey> itemKeys = List.generate(
+        appState.type == 'expense'
+            ? ExpenseCategories.length
+            : IncomeCategories.length,
+        (_) => GlobalKey());
 
     // void _scrollToItem(int index) {
     //   final context = itemKeys[index].currentContext;
@@ -81,7 +88,9 @@ class _CategoryPageState extends State<CategoryPage> {
       padding: EdgeInsets.all(12),
       child: GridView.builder(
         controller: widget.scrollController,
-        itemCount: categories.length,
+        itemCount: appState.type == 'expense'
+            ? ExpenseCategories.length
+            : IncomeCategories.length,
         // shrinkWrap:
         //     true, // 👈 allow the grid to size itself inside another scrollable
         // physics:
@@ -93,7 +102,9 @@ class _CategoryPageState extends State<CategoryPage> {
           childAspectRatio: 0.9, // 控制高宽比例
         ),
         itemBuilder: (context, index) {
-          final item = categories[index];
+          final item = appState.type == 'expense'
+              ? ExpenseCategories[index]
+              : IncomeCategories[index];
 
           return GestureDetector(
             key: itemKeys[index],

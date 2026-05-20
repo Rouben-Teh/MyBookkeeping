@@ -29,7 +29,7 @@ add_expense:
 args: timestamp, amount, category, note
 
 add_income:
-args: timestamp, amount, source
+args: timestamp, amount, category, note
 
 get_total_expense:
 args: timestamp
@@ -96,10 +96,11 @@ function callLLM($user_id, $db, $cmsData) {
             switch ($parsedAns['tool']['name']) {
                 case 'add_expense':
                     $id = $user_id .  round(microtime(true) * 1000);
-                    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, category, amount, note, timestamp, synced) VALUES (:id, :user_id, :category, :amount, :note, :timestamp, 1)');
+                    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, type, category, amount, note, timestamp, synced) VALUES (:id, :user_id, :type, :category, :amount, :note, :timestamp, 1)');
                     $stmt->execute([
                         ':id' => $id, 
                         ':user_id' => $user_id, 
+                        ':type' => 'expense',
                         ':category' => $parsedAns['tool']['args']['category'], 
                         ':amount' => $parsedAns['tool']['args']['amount'], 
                         ':note' => $parsedAns['tool']['args']['note'], 
@@ -108,7 +109,17 @@ function callLLM($user_id, $db, $cmsData) {
                     break;
 
                 case 'add_income':
-                    // 执行代码
+                    $id = $user_id .  round(microtime(true) * 1000);
+                    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, type, category, amount, note, timestamp, synced) VALUES (:id, :user_id, :type, :category, :amount, :note, :timestamp, 1)');
+                    $stmt->execute([
+                        ':id' => $id, 
+                        ':user_id' => $user_id,
+                        ':type' => 'income', 
+                        ':category' => $parsedAns['tool']['args']['category'], 
+                        ':amount' => $parsedAns['tool']['args']['amount'], 
+                        ':note' => $parsedAns['tool']['args']['note'], 
+                        ':timestamp' => $parsedAns['tool']['args']['timestamp']
+                    ]);
                     break;
 
                 case 'get_total_expense':
@@ -123,6 +134,8 @@ function callLLM($user_id, $db, $cmsData) {
                     break;
             }
         }
+    } else {
+        return $parsedRes;
     }
 
     $parsedRes['msg']['response'] = json_encode(
