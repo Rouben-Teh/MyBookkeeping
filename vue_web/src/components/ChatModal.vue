@@ -51,12 +51,12 @@
             v-model="inputMessage"
             @keyup.enter="sendMessage"
             placeholder="key in your message..."
-            class="flex-1 border border-red-500 rounded-full px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-red-400"
+            class="shadow flex-1 rounded-full px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-red-400"
           />
           <button
             @click="sendMessage"
             :disabled="!inputMessage.trim() || isLoading"
-            class="bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white px-3 py-1 rounded-full text-sm"
+            class="shadow bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white px-3 py-1 rounded-full text-sm"
           >
             Send
           </button>

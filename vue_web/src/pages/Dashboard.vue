@@ -1,30 +1,63 @@
 <template>
   <div class="h-screen flex bg-slate-50 text-slate-900">
     <aside class="h-screen bg-red-400 text-white w-56 p-4 space-y-4">
-      <h2 class="text-xl font-bold">My Bookkeeping</h2>
+      <h2 class="text-xl font-bold">MyBookkeeping</h2>
       <nav class="space-y-2">
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'records' } }"
           class="block px-3 py-2 rounded-full hover:bg-red-500/50"
-          :class="{ 'bg-red-500': selectedTab === 'records' }"
+          :class="{ 'shadow bg-red-500': selectedTab === 'records' }"
         ><NotebookPen class="w-5 h-5 inline mr-2" />Records</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'profile' } }"
           class="block px-3 py-2 rounded-full hover:bg-red-500/50"
-          :class="{ 'bg-red-500': selectedTab === 'profile' }"
+          :class="{ 'shadow bg-red-500': selectedTab === 'profile' }"
         ><User class="w-5 h-5 inline mr-2" />Profile</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'summary' } }"
           class="block px-3 py-2 rounded-full hover:bg-red-500/50"
-          :class="{ 'bg-red-500': selectedTab === 'summary' }"
+          :class="{ 'shadow bg-red-500': selectedTab === 'summary' }"
         ><ChartNoAxesCombined class="w-5 h-5 inline mr-2" />Summary</router-link>
       </nav>
     </aside>
     <main class="flex-1 p-6 overflow-auto">
-      <component
+      <Profile
+        v-if="selectedTab === 'profile'"
+        :last_current_streak="last_current_streak"
+        :last_totalTrackingDays="last_totalTrackingDays"
+        :last_totalEntries="last_totalEntries"
+        @recordEntry="handleProfileRecordEntry"
+        @recordStreak="handleProfileRecordStreak"
+        @logout="handleLogout"
+      />
+
+      <Summary
+        v-else-if="selectedTab === 'summary'"
+        :transactions="summaryData"
+        :dateFrom="dateFromSummary"
+        :dateTo="dateToSummary"
+        @selectMonthFromSummary="handleMonthFromSummary"
+        @selectMonthToSummary="handleMonthToSummary"
+      />
+
+      <Records
+        v-else
+        :transactions="transactions"
+        :date="currentDate"
+        @add="addTransaction"
+        @nextMonth="handleNextMonth"
+        @previousMonth="handlePreviousMonth"
+        @selectMonth="handleMonthSelected"
+        @deleteTransaction="handleDeleteTransaction"
+        @updateTransaction="handleUpdateTransaction"
+      />
+
+      <!-- <component
         :is="currentComponent"
         :transactions="transactions"
         :date="currentDate"
+        :dateFrom="dateFromSummary"
+        :dateTo="dateToSummary"
         @add="addTransaction"
         @logout="handleLogout"
         @nextMonth="handleNextMonth"
@@ -32,7 +65,9 @@
         @selectMonth="handleMonthSelected"
         @deleteTransaction="handleDeleteTransaction"
         @updateTransaction="handleUpdateTransaction"
-      />
+        @selectMonthFromSummary="handleMonthFromSummary"
+        @selectMonthToSummary="handleMonthToSummary"
+      /> -->
     </main>
 
     <ChatModal @fetchTransaction="handleFetchCurrentMonthTransaction" />
@@ -55,17 +90,23 @@ export default {
     return {
       transactions: [],
       currentDate: dayjs().valueOf(),
+      last_current_streak: 0,
+      last_totalTrackingDays: 0,
+      last_totalEntries: 0,
+      dateFromSummary: dayjs().subtract(6, 'month').valueOf(),
+      dateToSummary: dayjs().valueOf(),
+      summaryData: [],
     };
   },
   computed: {
     selectedTab() {
       return this.$route.params.tab || 'records';
     },
-    currentComponent() {
-      if (this.selectedTab === 'profile') return 'Profile';
-      if (this.selectedTab === 'summary') return 'Summary';
-      return 'Records';
-    },
+    // currentComponent() {
+    //   if (this.selectedTab === 'profile') return 'Profile';
+    //   if (this.selectedTab === 'summary') return 'Summary';
+    //   return 'Records';
+    // },
   },
   created() {
     if (!auth.isAuthenticated()) {
@@ -73,6 +114,7 @@ export default {
       return;
     }
     this.fetchCurrentMonthTransactions();
+    this.handleFetchSummaryData();
   },
   methods: {
     async fetchCurrentMonthTransactions() {
@@ -97,6 +139,13 @@ export default {
       } catch (error) {
         console.error(error);
       }
+    },
+    handleProfileRecordStreak(streak, ttd) {
+      this.last_current_streak= streak;
+      this.last_totalTrackingDays= ttd;
+    },
+    handleProfileRecordEntry(te) {
+      this.last_totalEntries= te;
     },
     async handleLogout() {
       await auth.logout();
@@ -138,12 +187,38 @@ export default {
     },
     async handleFetchCurrentMonthTransaction() {
       await this.fetchCurrentMonthTransactions();
+    }, 
+    handleMonthFromSummary(timestamp) {
+      this.dateFromSummary = timestamp;
+    },
+    handleMonthToSummary(timestamp) {
+      this.dateToSummary = timestamp;
+    },
+    async handleFetchSummaryData() {
+      try {
+        const res = await httpPost('statistic', { start: dayjs(this.dateFromSummary).startOf('month').valueOf(), end: dayjs(this.dateToSummary).endOf('month').valueOf() });
+        const data = res.data;
+        if (data.ok) {
+          this.summaryData = data.response;
+          console.log(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
   },
   watch: {
     '$route.params.tab'() {
       // Keep main view consistent; tab changed by router-link.
     },
+    dateFromSummary(newVal, oldVal) {
+      this.handleFetchSummaryData();
+      console.log('from date changed:', newVal)
+    },
+    dateToSummary(newVal, oldVal) {
+      this.handleFetchSummaryData();
+      console.log('to date changed:', newVal)
+    }
   },
 };
 </script>

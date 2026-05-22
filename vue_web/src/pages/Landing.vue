@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-white text-black">
     <header class="container mx-auto px-6 py-6 flex items-center justify-between bg-red-400 text-white sticky top-0 z-10">
-      <h1 class="text-3xl font-bold">My Bookkeeping</h1>
+      <h1 class="text-3xl font-bold">MyBookkeeping</h1>
       <nav class="space-x-4">
         <router-link class="hover:underline" :to="{ path: '/', hash: '#home' }">Home</router-link>
         <router-link class="hover:underline" :to="{ path: '/', hash: '#about' }">About</router-link>
@@ -20,7 +20,7 @@
       >
         <div class="w-full h-full md:w-1/2 flex flex-col justify-center px-6 md:px-10 text-center md:text-left">
           <h2 class="text-3xl md:text-4xl font-bold mb-4">
-            Welcome to My Bookkeeping
+            Welcome to MyBookkeeping
           </h2>
           <p class="text-base md:text-lg text-slate-600">
             Easily manage your expenses/income, analyze monthly budgets, and get visual summaries.
@@ -104,7 +104,7 @@
       </section>
     </main>
 
-    <footer class="bg-red-400 py-4 text-center text-sm text-white">© 2026 My Bookkeeping</footer>
+    <footer class="bg-red-400 py-4 text-center text-sm text-white">© 2026 MyBookkeeping</footer>
   </div>
 </template>
 

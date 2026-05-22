@@ -1,10 +1,10 @@
 <template>
     <div class="flex flex-col">
         <div class="flex flex-wrap gap-2 mb-4">
-          <div class="relative border rounded-full w-30">
+          <div class="relative shadow rounded-full w-30 bg-white">
             <select
                 v-model="category"
-                class="px-3 py-2 appearance-none w-full rounded-full bg-transparent"
+                class="px-3 py-2 appearance-none w-full rounded-full bg-transparent focus:outline-none focus:ring-1 focus:ring-red-400"
             >
                 <option value="">Category</option>
                 <option v-for="cat in categoryList" :key="cat.name" :value="cat.name">
@@ -21,29 +21,29 @@
                 v-model="amount"
                 type="number"
                 placeholder="Amount"
-                class="border rounded-full px-3 py-2 w-30"
+                class="shadow rounded-full px-3 py-2 w-30 bg-white focus:outline-none focus:ring-1 focus:ring-red-400"
             />
             <input
                 v-model="note"
                 placeholder="Note"
-                class="border rounded-full px-3 py-2 flex-1 min-w-30"
+                class="shadow rounded-full px-3 py-2 flex-1 min-w-30 bg-white focus:outline-none focus:ring-1 focus:ring-red-400"
             />
             <button
                 @click="showDatePicker = true"
-                class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
+                class="shadow bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
             >
                 {{isToday(selectedDate) ? 'Today' : formattedDate(selectedDate)}}
             </button>
             <button
                 v-if="initial && initial.id"
                 @click="$emit('cancel')"
-                class="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-400"
+                class="shadow bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-400"
             >
                 Cancel
             </button>
             <button
                 @click="submit"
-                class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
+                class="shadow bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
             >
                 {{ initial && initial.id ? 'Update' : 'Add' }}
             </button>

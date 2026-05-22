@@ -7,9 +7,9 @@
         <button
           @click="setActiveType('expense')"
           :class="[
-            'px-4 py-2 text-sm font-medium transition-colors rounded-full',
+            'px-4 py-2 text-sm font-medium transition-colors rounded-full w-30',
             activeType === 'expense'
-              ? 'bg-red-500 text-white'
+              ? 'bg-red-500 text-white shadow'
               : 'text-slate-700 hover:bg-red-200'
           ]"
         >
@@ -18,9 +18,9 @@
         <button
           @click="setActiveType('income')"
           :class="[
-            'px-4 py-2 text-sm font-medium transition-colors rounded-full',
+            'px-4 py-2 text-sm font-medium transition-colors rounded-full w-30',
             activeType === 'income'
-              ? 'bg-red-500 text-white'
+              ? 'bg-red-500 text-white shadow'
               : 'text-slate-700 hover:bg-red-200'
           ]"
         >
@@ -38,19 +38,19 @@
       <div class="flex items-center gap-2">
         <button 
           @click="previousMonth"
-          class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
+          class="shadow bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
         >
           <ArrowLeft class="w-5 h-5"/>
         </button>
         <button 
-          class="text-black px-4"
+          class="text-black px-4 shadow bg-white py-2 rounded-lg hover:bg-slate-100"
           @click="showMonthPicker = true"
         >
           {{formattedMonth(date)}}
         </button>
         <button 
           @click="nextMonth"
-          class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
+          class="shadow bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
         >
           <ArrowRight class="w-5 h-5"/>
         </button>
@@ -63,7 +63,7 @@
     <DatePicker
       v-if="showMonthPicker"
       :date="false"
-      :value="this.date"
+      :value="date"
       @select="onMonthSelected"
       @close="showMonthPicker = false"
     />

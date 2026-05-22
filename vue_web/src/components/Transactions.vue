@@ -3,7 +3,7 @@
       <li
         v-for="tx in transactions.filter(tx => tx.deleted !== 1)"
         :key="tx.id || tx.created_at + tx.note"
-        class="border rounded p-3 bg-white relative group"
+        class="shadow rounded p-3 bg-white relative group"
         :class="{ 'bg-slate-100': menuMode && activeItemMenu === tx.id }"
         @click="isMobile ? toggleMenu(tx.id) : null"
       >
@@ -35,7 +35,7 @@
               <button
                 @click.stop="toggleUpdate(tx)"
                 :class="[
-                  'absolute right-20 bottom-3 text-white bg-green-500 px-2 py-1 rounded-full hover:bg-green-400 transition-opacity duration-150',
+                  'absolute right-20 bottom-3 shadow text-white bg-green-500 px-2 py-1 rounded-full hover:bg-green-400 transition-opacity duration-150',
                   menuMode && activeItemMenu === tx.id
                     ? 'opacity-100 pointer-events-auto'
                     : 'opacity-0 pointer-events-none',
@@ -48,7 +48,7 @@
               <button
                 @click.stop="removeTransaction(tx)"
                 :class="[
-                  'absolute right-3 bottom-3 text-white bg-red-500 px-2 py-1 rounded-full hover:bg-red-400 transition-opacity duration-150',
+                  'absolute right-3 bottom-3 shadow text-white bg-red-500 px-2 py-1 rounded-full hover:bg-red-400 transition-opacity duration-150',
                   menuMode && activeItemMenu === tx.id
                     ? 'opacity-100 pointer-events-auto'
                     : 'opacity-0 pointer-events-none',
