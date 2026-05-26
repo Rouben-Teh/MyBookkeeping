@@ -312,7 +312,7 @@ if($action === 'streak') {
         exit;
     }
 
-    $stmt = $db->prepare('SELECT DISTINCT DATE(created_at) as day FROM transactions WHERE user_id = :user_id AND deleted = 0 ORDER BY day DESC');
+    $stmt = $db->prepare('SELECT DISTINCT DATE(created_at) as day FROM transactions WHERE user_id = :user_id AND deleted != 1 ORDER BY day DESC');
     $stmt->execute([':user_id' => $auth['user_id']]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -328,7 +328,7 @@ if($action === 'count') {
         exit;
     }
 
-    $stmt = $db->prepare('SELECT COUNT(*) AS total_entries FROM transactions WHERE user_id = :user_id AND deleted = 0');
+    $stmt = $db->prepare('SELECT COUNT(*) AS total_entries FROM transactions WHERE user_id = :user_id AND deleted != 1');
     $stmt->execute([':user_id' => $auth['user_id']]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -352,7 +352,7 @@ if($action === 'statistic') {
         SELECT *
         FROM transactions
         WHERE user_id = :user_id
-        AND timestamp BETWEEN :start AND :end AND deleted = 0
+        AND timestamp BETWEEN :start AND :end AND deleted != 1
         ORDER BY timestamp DESC
     ');
 

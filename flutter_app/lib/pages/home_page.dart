@@ -4,6 +4,8 @@ import 'package:my_bookkeeping/pages/record_details_page.dart';
 import 'package:my_bookkeeping/pages/record_page.dart';
 import 'package:my_bookkeeping/pages/profile_page.dart';
 import 'package:my_bookkeeping/pages/chat_page.dart';
+import 'package:my_bookkeeping/pages/summary_page.dart';
+import 'package:my_bookkeeping/pages/Plans.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,6 +15,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final pages = [
     RecordDetailsPage(),
+    PlansPage(),
+    SummaryPage(),
     ProfilePage(),
   ];
 
@@ -53,18 +57,32 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-                icon: Icon(Icons.bar_chart, color: Colors.black),
+                icon: Icon(Icons.savings, color: Colors.black),
                 onPressed: () {
                   setState(() {
                     currentIndex = 0;
                   });
                 }),
+            IconButton(
+                icon: Icon(Icons.event_note, color: Colors.black),
+                onPressed: () {
+                  setState(() {
+                    currentIndex = 1;
+                  });
+                }),
             SizedBox(width: 40), // 给中间按钮留空间
+            IconButton(
+                icon: Icon(Icons.bar_chart, color: Colors.black),
+                onPressed: () {
+                  setState(() {
+                    currentIndex = 2;
+                  });
+                }),
             IconButton(
                 icon: Icon(Icons.person, color: Colors.black),
                 onPressed: () {
                   setState(() {
-                    currentIndex = 1;
+                    currentIndex = 3;
                   });
                 }),
           ],

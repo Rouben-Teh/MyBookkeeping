@@ -23,11 +23,9 @@
     <main class="flex-1 p-6 overflow-auto">
       <Profile
         v-if="selectedTab === 'profile'"
-        :last_current_streak="last_current_streak"
-        :last_totalTrackingDays="last_totalTrackingDays"
-        :last_totalEntries="last_totalEntries"
-        @recordEntry="handleProfileRecordEntry"
-        @recordStreak="handleProfileRecordStreak"
+        :last_current_streak="currentStreak"
+        :last_totalTrackingDays="totalTrackingDays"
+        :last_totalEntries="totalEntries"
         @logout="handleLogout"
       />
 
@@ -90,9 +88,9 @@ export default {
     return {
       transactions: [],
       currentDate: dayjs().valueOf(),
-      last_current_streak: 0,
-      last_totalTrackingDays: 0,
-      last_totalEntries: 0,
+      currentStreak: 0,
+      totalTrackingDays: 0,
+      totalEntries: 0,
       dateFromSummary: dayjs().subtract(6, 'month').valueOf(),
       dateToSummary: dayjs().valueOf(),
       summaryData: [],
@@ -114,6 +112,8 @@ export default {
       return;
     }
     this.fetchCurrentMonthTransactions();
+    this.fetchCount();
+    this.fetchStreak();
     this.handleFetchSummaryData();
   },
   methods: {
@@ -134,18 +134,14 @@ export default {
         const res = await httpPost('add', payload);
         const data = res.data;
         if (data.ok) {
-          await this.fetchCurrentMonthTransactions();
+          this.fetchCurrentMonthTransactions();
+          this.fetchCount();
+          this.fetchStreak();
+          this.handleFetchSummaryData();
         }
       } catch (error) {
         console.error(error);
       }
-    },
-    handleProfileRecordStreak(streak, ttd) {
-      this.last_current_streak= streak;
-      this.last_totalTrackingDays= ttd;
-    },
-    handleProfileRecordEntry(te) {
-      this.last_totalEntries= te;
     },
     async handleLogout() {
       await auth.logout();
@@ -168,7 +164,10 @@ export default {
         const res = await httpPost('soft-delete', { id: tx.id });
         const data = res.data;
         if (data.ok) {
-          await this.fetchCurrentMonthTransactions();
+          this.fetchCurrentMonthTransactions();
+          this.fetchCount();
+          this.fetchStreak();
+          this.handleFetchSummaryData();
         }
       } catch (error) {
         console.error(error);
@@ -179,7 +178,8 @@ export default {
         const res = await httpPost('sync', tx);
         const data = res.data;
         if (data.ok) {
-          await this.fetchCurrentMonthTransactions();
+          this.fetchCurrentMonthTransactions();
+          this.handleFetchSummaryData();
         }
       } catch (error) {
         console.error(error);
@@ -188,6 +188,26 @@ export default {
     async handleFetchCurrentMonthTransaction() {
       await this.fetchCurrentMonthTransactions();
     }, 
+    async fetchCount() {
+      try {
+        const res = await httpPost('count', {});
+        const data = res.data;
+        this.totalEntries= data.response.total_entries;
+      } catch (error) {
+        console.error('fetchCurrentStreak error:', error.response?.data || error.message || error);
+      }
+    },
+    async fetchStreak() {
+      try {
+        const res = await httpPost('streak', {});
+        const data = res.data;
+        const list = data.response;
+        this.currentStreak= this.calculateStreak(list);
+        this.totalTrackingDays= list.length;
+      } catch (error) {
+        console.error('fetchCurrentStreak error:', error.response?.data || error.message || error);
+      }
+    },
     handleMonthFromSummary(timestamp) {
       this.dateFromSummary = timestamp;
     },
@@ -205,6 +225,31 @@ export default {
       } catch (error) {
         console.error(error);
       }
+    },
+    calculateStreak(list) {
+      const set = new Set(list.map(i => i.day))
+
+      let streak = 0
+      let current = new Date()
+
+      // 如果今天没记，从昨天开始
+      if (!set.has(this.formatDate(current))) {
+        current.setDate(current.getDate() - 1)
+      }
+
+      while (set.has(this.formatDate(current))) {
+        streak++
+        current.setDate(current.getDate() - 1)
+      }
+
+      return streak
+    },
+    formatDate(date) {
+      const yyyy = date.getFullYear()
+      const mm = String(date.getMonth() + 1).padStart(2, '0')
+      const dd = String(date.getDate()).padStart(2, '0')
+
+      return `${yyyy}-${mm}-${dd}`
     }
   },
   watch: {

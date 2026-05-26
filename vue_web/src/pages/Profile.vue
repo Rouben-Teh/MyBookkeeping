@@ -45,7 +45,7 @@ import { httpPost } from '../utils/NetUtils';
 
 export default {
   name: "Profile",
-  emits: ["recordEntry", "recordStreak", "logout"],
+  emits: ["logout"],
   props: {
     last_current_streak: {type: Number, required: true},
     last_totalTrackingDays: {type: Number, required: true},
@@ -63,58 +63,5 @@ export default {
       totalEntries: this.last_totalEntries,
     }
   },
-  created() {
-    this.fetchCount();
-    this.fetchStreak();
-  },
-  methods: {
-    async fetchCount() {
-      try {
-        const res = await httpPost('count', {});
-        const data = res.data;
-        this.totalEntries = data.response.total_entries;
-        this.$emit('recordEntry', this.totalEntries);
-      } catch (error) {
-        console.error('fetchCurrentStreak error:', error.response?.data || error.message || error);
-      }
-    },
-    async fetchStreak() {
-      try {
-        const res = await httpPost('streak', {});
-        const data = res.data;
-        const list = data.response;
-        this.current_streak = this.calculateStreak(list);
-        this.totalTrackingDays = list.length;
-        this.$emit('recordStreak', this.current_streak, this.totalTrackingDays);
-      } catch (error) {
-        console.error('fetchCurrentStreak error:', error.response?.data || error.message || error);
-      }
-    },
-    calculateStreak(list) {
-      const set = new Set(list.map(i => i.day))
-
-      let streak = 0
-      let current = new Date()
-
-      // 如果今天没记，从昨天开始
-      if (!set.has(this.formatDate(current))) {
-        current.setDate(current.getDate() - 1)
-      }
-
-      while (set.has(this.formatDate(current))) {
-        streak++
-        current.setDate(current.getDate() - 1)
-      }
-
-      return streak
-    },
-    formatDate(date) {
-      const yyyy = date.getFullYear()
-      const mm = String(date.getMonth() + 1).padStart(2, '0')
-      const dd = String(date.getDate()).padStart(2, '0')
-
-      return `${yyyy}-${mm}-${dd}`
-    }
-  }
 };
 </script>

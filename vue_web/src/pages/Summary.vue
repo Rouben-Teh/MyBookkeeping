@@ -44,23 +44,19 @@
 
     <div class="my-4"></div>
 
-    <div class="flex flex-row items-center justify-center">
-      
-      <div class="flex-2 h-100 p-5 bg-white shadow rounded-lg flex justify-center items-center">
-        <div class="w-full h-80">
-          <Line :data="lineGraphData" :options="chartOptions" />
+    <div class="flex flex-col lg:flex-row items-stretch justify-center gap-4">
+      <div class="flex-2 min-w-0 p-5 bg-white shadow rounded-lg flex justify-center items-center">
+        <div class="relative w-full h-80">
+          <Line ref="lineChart" class="w-full h-full" :data="lineGraphData" :options="chartOptions" />
         </div>
       </div>
 
-      <div class="flex-1 ml-4 h-100 p-5 bg-white shadow rounded-lg flex justify-center items-center">
-        <div class="w-80 h-80">
-          <Pie :data="pieChartData" :options="chartOptions" />
+      <div class="flex-1 min-w-0 lg:ml-0 p-5 bg-white shadow rounded-lg flex justify-center items-center">
+        <div class="relative w-full h-80 max-w-sm mx-auto">
+          <Pie ref="pieChart" class="w-full h-full" :data="pieChartData" :options="chartOptions" />
         </div>
       </div>
-      
     </div>
-
-    
 
   </div>
 
@@ -91,7 +87,8 @@ import { Pie } from 'vue-chartjs'
 
 const chartOptions = {
   responsive: true,
-  maintainAspectRatio: false
+  maintainAspectRatio: false,
+  resizeDelay: 0
 }
 </script>
 
@@ -129,9 +126,22 @@ export default {
       return this.buildPieChartData(this.transactions)
     },
   },
+  mounted() {
+    this.handleResizeCharts();
+    window.addEventListener('resize', this.handleResizeCharts);
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.handleResizeCharts);
+  },
   methods: {
     formattedMonth(timestamp) {
       return dayjs(timestamp).format('YYYY-MM');
+    },
+    handleResizeCharts() {
+      this.$nextTick(() => {
+        this.$refs.lineChart?.chart?.resize?.();
+        this.$refs.pieChart?.chart?.resize?.();
+      });
     },
     onMonthFromSelected(timestamp) {
       this.showMonthFromPicker = false;
