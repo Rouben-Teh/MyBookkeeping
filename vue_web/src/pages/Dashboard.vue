@@ -31,9 +31,11 @@
 
       <Summary
         v-else-if="selectedTab === 'summary'"
+        :activeSummaryType="activeSummaryType"
         :transactions="summaryData"
         :dateFrom="dateFromSummary"
         :dateTo="dateToSummary"
+        @activeSummaryType="handleSummaryType"
         @selectMonthFromSummary="handleMonthFromSummary"
         @selectMonthToSummary="handleMonthToSummary"
       />
@@ -91,6 +93,7 @@ export default {
       currentStreak: 0,
       totalTrackingDays: 0,
       totalEntries: 0,
+      activeSummaryType: 'year',
       dateFromSummary: dayjs().subtract(6, 'month').valueOf(),
       dateToSummary: dayjs().valueOf(),
       summaryData: [],
@@ -214,9 +217,12 @@ export default {
     handleMonthToSummary(timestamp) {
       this.dateToSummary = timestamp;
     },
+    handleSummaryType(type) {
+      this.activeSummaryType = type;
+    },
     async handleFetchSummaryData() {
       try {
-        const res = await httpPost('statistic', { start: dayjs(this.dateFromSummary).startOf('month').valueOf(), end: dayjs(this.dateToSummary).endOf('month').valueOf() });
+        const res = await httpPost('statistic', { start: this.dateFromSummary, end: this.dateToSummary });
         const data = res.data;
         if (data.ok) {
           this.summaryData = data.response;
@@ -256,10 +262,10 @@ export default {
     '$route.params.tab'() {
       // Keep main view consistent; tab changed by router-link.
     },
-    dateFromSummary(newVal, oldVal) {
-      this.handleFetchSummaryData();
-      console.log('from date changed:', newVal)
-    },
+    // dateFromSummary(newVal, oldVal) {
+    //   this.handleFetchSummaryData();
+    //   console.log('from date changed:', newVal)
+    // },
     dateToSummary(newVal, oldVal) {
       this.handleFetchSummaryData();
       console.log('to date changed:', newVal)

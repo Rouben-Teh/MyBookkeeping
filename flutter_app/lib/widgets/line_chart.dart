@@ -14,8 +14,10 @@ class PlaceholderLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
+          width: double.infinity,
           height: 200,
           child: CustomPaint(
             painter: _LineChartPainter(data),

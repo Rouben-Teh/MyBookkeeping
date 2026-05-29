@@ -5,7 +5,7 @@ import 'package:my_bookkeeping/pages/record_page.dart';
 import 'package:my_bookkeeping/pages/profile_page.dart';
 import 'package:my_bookkeeping/pages/chat_page.dart';
 import 'package:my_bookkeeping/pages/summary_page.dart';
-import 'package:my_bookkeeping/pages/Plans.dart';
+import 'package:my_bookkeeping/pages/plans.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
             right: 20,
             bottom: 20,
             child: FloatingActionButton(
+              heroTag: 'chatbot',
               mini: true,
               shape: CircleBorder(),
               onPressed: () {
@@ -96,6 +97,7 @@ class _HomePageState extends State<HomePage> {
         width: 70,
         height: 70,
         child: FloatingActionButton(
+          heroTag: 'add',
           onPressed: () => RecordBottomSheet.open(context), // 打开底部抽屉
           child: Icon(Icons.add, size: 30, color: Colors.white),
           backgroundColor: Color(0xFFFF5A5A), // 设置按钮背景颜色

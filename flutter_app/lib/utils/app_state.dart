@@ -16,6 +16,13 @@ class AppState extends ChangeNotifier {
 
   DateTime currentMonth = DateTime.now();
 
+  int lastSummaryTab = 0;
+  DateTime summaryYearDate = DateTime.now();
+  DateTime summaryMonthDate = DateTime.now();
+  DateTime summaryWeekDate = DateTime.now();
+  List<Map<String, dynamic>> summaryCache =
+      []; //-year,month,week, -start -end, -list
+
   void login(String _token, String _userId, String _email) {
     token = _token;
     userId = _userId;
@@ -43,6 +50,31 @@ class AppState extends ChangeNotifier {
     transactions = data;
     print('Transaction records updated: ${transactions}');
     notifyListeners(); // 通知所有UI刷新
+  }
+
+  void setSummaryCache(String key, int start, int end, dynamic transaction) {
+    final index = summaryCache.indexWhere(
+      (e) => e['key'] == key,
+    );
+
+    final data = {
+      'key': key,
+      'start': start,
+      'end': end,
+      'transaction': transaction,
+    };
+
+    if (index != -1) {
+      summaryCache[index] = data;
+    } else {
+      summaryCache.add(data);
+    }
+
+    notifyListeners();
+  }
+
+  void setLastSummaryTab(int index) {
+    lastSummaryTab = index;
   }
 
   void setCurrentMonth(DateTime dt) {

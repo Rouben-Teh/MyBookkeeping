@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/pages/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:my_bookkeeping/pages/home_page.dart';
+import 'package:my_bookkeeping/pages/summary_page.dart';
 import 'package:my_bookkeeping/utils/app_state.dart';
 import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,13 +30,20 @@ class _SplashPageState extends State<SplashPage> {
     await Future.delayed(Duration(seconds: 1)); // 可选
 
     if (token != null) {
-      Provider.of<AppState>(context, listen: false)
-          .login(token, userId ?? '', email ?? '');
+      final appState = Provider.of<AppState>(context, listen: false);
+
+      appState.login(token, userId ?? '', email ?? '');
 
       NetService().setToken(token);
 
       // APIService().fetchMonthTransactions(DateTime.now());
-      APIService().fetchLocalMonthTransactions(DateTime.now());
+      await APIService().fetchLocalMonthTransactions(DateTime.now());
+
+      //summary
+      final dt = DateTime.now();
+      setYearSummary(dt);
+      setMothSummary(dt);
+      setWeekSummary(dt);
 
       Navigator.pushReplacement(
         context,

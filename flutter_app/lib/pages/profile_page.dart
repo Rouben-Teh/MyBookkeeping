@@ -66,28 +66,106 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Widget _Card({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget profileWidget(BuildContext context) {
+    final stats = [
+      _Card(
+        title: 'Streak',
+        value: '1',
+        icon: Icons.fireplace,
+        color: Colors.deepOrange,
+      ),
+      _Card(
+        title: 'Days',
+        value: '2',
+        icon: Icons.search,
+        color: Colors.redAccent,
+      ),
+      _Card(
+        title: 'Entries',
+        value: '3',
+        icon: Icons.receipt_rounded,
+        color: Colors.green,
+      ),
+    ];
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 用户ID显示
-          Text(
-            'User ID:',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          SizedBox(height: 5),
+          Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              color: const Color.fromARGB(255, 255, 225, 225),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "My'Book'keeper",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      emailCtrl.text,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    GridView.count(
+                      crossAxisCount: 3,
+                      childAspectRatio: 0.85,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: stats,
+                    ),
+                  ],
+                ),
+              )),
 
-          Text(
-            emailCtrl.text,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          SizedBox(height: 40),
+          SizedBox(height: 20),
 
           // 登出按钮
           SizedBox(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/pages/home_page.dart';
+import 'package:my_bookkeeping/widgets/loading_animation.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
@@ -7,6 +8,7 @@ import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_bookkeeping/utils/app_state.dart';
 import 'package:my_bookkeeping/pages/register_page.dart';
+import 'package:my_bookkeeping/pages/summary_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -19,6 +21,8 @@ class _LoginPageState extends State<LoginPage> {
   final emailCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
 
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +31,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> login() async {
     try {
+      isLoading = true;
+
       String email = emailCtrl.text;
       String password = passwordCtrl.text;
 
@@ -57,13 +63,21 @@ class _LoginPageState extends State<LoginPage> {
       await APIService().fetchTransactionsAndSync();
       await APIService().fetchLocalMonthTransactions(DateTime.now());
 
+      final dt = DateTime.now();
+      setYearSummary(dt);
+      setMothSummary(dt);
+      setWeekSummary(dt);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => HomePage()),
       );
 
       print('Attempting login: $email $password');
+
+      isLoading = false;
     } catch (e) {
+      isLoading = false;
       print('post error: $e');
     }
   }
@@ -111,16 +125,19 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('个人资料',
-            style: TextStyle(
-                color: Colors.white, // 设置标题文字颜色
-                fontSize: 20, // 设置标题文字大小
-                fontWeight: FontWeight.bold)), // 设置标题文字加粗
-        backgroundColor: Color(0xFFFF5A5A), // 设置AppBar背景颜色
+    return Stack(children: [
+      Scaffold(
+        appBar: AppBar(
+          title: Text('个人资料',
+              style: TextStyle(
+                  color: Colors.white, // 设置标题文字颜色
+                  fontSize: 20, // 设置标题文字大小
+                  fontWeight: FontWeight.bold)), // 设置标题文字加粗
+          backgroundColor: Color(0xFFFF5A5A), // 设置AppBar背景颜色
+        ),
+        body: loginWidget(context),
       ),
-      body: loginWidget(context),
-    );
+      if (isLoading) LoadingAnimation(),
+    ]);
   }
 }

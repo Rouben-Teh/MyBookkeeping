@@ -327,12 +327,14 @@ class _PlansPageState extends State<PlansPage> {
                                     },
                                     // color: Colors.amber,
                                     child: Container(
+                                      color: const Color.fromARGB(
+                                          0, 255, 255, 255),
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 6, vertical: 6),
                                       child: Icon(
                                         Icons.edit,
                                         color: Color.fromARGB(255, 61, 61, 61),
-                                        size: 20,
+                                        size: 16,
                                       ),
                                     )),
                               ],

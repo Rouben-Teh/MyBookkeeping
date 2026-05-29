@@ -2,24 +2,67 @@
   <div>
     <h1 class="text-2xl font-semibold mb-4">Summary</h1>
 
-    <div class="flex flex-row items-center">
-      <button 
-        class="text-black px-4 shadow bg-white py-2 rounded-lg hover:bg-slate-100"
-        @click="showMonthFromPicker = true"
-      >
-        {{formattedMonth(dateFrom)}}
-      </button>
-
-      <p class="px-4"> - </p>
-
-      <button 
-        class="text-black px-4 shadow bg-white py-2 rounded-lg hover:bg-slate-100"
-        @click="showMonthToPicker = true"
-      >
-        {{formattedMonth(dateTo)}}
-      </button>
+    <div class="mb-4">
+      <div class="inline-flex rounded-full  bg-red-100 overflow-hidden">
+        <button
+          @click="setActiveType('year')"
+          :class="[
+            'px-4 py-2 text-sm font-medium transition-colors rounded-full w-30',
+            activeType === 'year'
+              ? 'bg-red-500 text-white shadow'
+              : 'text-slate-700 hover:bg-red-200'
+          ]"
+        >
+          Year
+        </button>
+        <button
+          @click="setActiveType('month')"
+          :class="[
+            'px-4 py-2 text-sm font-medium transition-colors rounded-full w-30',
+            activeType === 'month'
+              ? 'bg-red-500 text-white shadow'
+              : 'text-slate-700 hover:bg-red-200'
+          ]"
+        >
+          Month
+        </button>
+        <button
+          @click="setActiveType('week')"
+          :class="[
+            'px-4 py-2 text-sm font-medium transition-colors rounded-full w-30',
+            activeType === 'week'
+              ? 'bg-red-500 text-white shadow'
+              : 'text-slate-700 hover:bg-red-200'
+          ]"
+        >
+          Week
+        </button>
+      </div>
     </div>
-    
+
+    <div class="flex flex-row items-center">
+        <button 
+          @click="previousDate"
+          class="shadow bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
+        >
+          <ArrowLeft class="w-5 h-5"/>
+        </button>
+
+        <div class="w-60 inline-flex justify-center self-center">
+          <p>{{formattedDate(dateFrom)}}</p>
+
+          <p class="px-4"> - </p>
+
+          <p>{{formattedDate(dateTo)}}</p>
+        </div>
+
+        <button 
+          @click="nextDate"
+          class="shadow bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
+        >
+          <ArrowRight class="w-5 h-5"/>
+        </button>
+      </div>
 
     <div class="my-4"></div>
 
@@ -60,27 +103,10 @@
 
   </div>
 
-  <DatePicker
-    v-if="showMonthFromPicker"
-    :date="false"
-    :value="dateFrom"
-    :limitMax="dateTo"
-    @select="onMonthFromSelected"
-    @close="showMonthFromPicker = false"
-  />
-
-  <DatePicker
-    v-if="showMonthToPicker"
-    :date="false"
-    :value="dateTo"
-    :limitMin="dateFrom"
-    @select="onMonthToSelected"
-    @close="showMonthToPicker = false"
-  />
-
 </template>
 
 <script setup>
+import { ArrowRight, ArrowLeft } from "lucide-vue-next";
 import 'chart.js/auto'
 import { Line } from 'vue-chartjs'
 import { Pie } from 'vue-chartjs'
@@ -93,23 +119,23 @@ const chartOptions = {
 </script>
 
 <script>
-import DatePicker from '../components/DatePicker.vue';
 import dayjs from 'dayjs';
 
 export default {
   components: {
-    DatePicker,
+    ArrowRight,
+    ArrowLeft,
   },
   props: {
+    activeSummaryType: {type: String, required: true},
     dateFrom: {type: Number, required: true},
     dateTo: {type: Number, required: true},
     transactions: { type: Array, required: true },
   },
-  emits: ["selectMonthFromSummary", "selectMonthToSummary"],
+  emits: ["activeSummaryType", "selectMonthFromSummary", "selectMonthToSummary"],
   data() {
     return { 
-      showMonthFromPicker: false,
-      showMonthToPicker: false,
+      activeType: this.activeSummaryType,
      };
   },
   computed: {
@@ -134,8 +160,79 @@ export default {
     window.removeEventListener('resize', this.handleResizeCharts);
   },
   methods: {
-    formattedMonth(timestamp) {
-      return dayjs(timestamp).format('YYYY-MM');
+    setActiveType(type) {
+      this.activeType = type;
+      let timestampStart;
+      let timestampEnd;
+      switch(type)
+      {
+        case 'year':
+          timestampStart=dayjs().startOf('year').valueOf();
+          timestampEnd=dayjs().endOf('year').valueOf();
+          break;
+        case 'month':
+          timestampStart=dayjs().startOf('month').valueOf();
+          timestampEnd=dayjs().endOf('month').valueOf();
+          break;
+        case 'week':
+          timestampStart=dayjs().startOf('week').valueOf();
+          timestampEnd=dayjs().endOf('week').valueOf();
+          break;
+      }
+
+      this.$emit('selectMonthFromSummary', timestampStart);
+      this.$emit('selectMonthToSummary', timestampEnd);
+      
+      this.$emit("activeSummaryType", type);
+    },
+    previousDate() {
+      let timestampStart;
+      let timestampEnd;
+      switch(this.activeType)
+      {
+        case 'year':
+          timestampStart=dayjs(this.dateFrom).subtract(1, 'year').valueOf();
+          timestampEnd=dayjs(this.dateTo).subtract(1, 'year').valueOf();
+          break;
+        case 'month':
+          timestampStart=dayjs(this.dateFrom).subtract(1, 'month').valueOf();
+          timestampEnd=dayjs(this.dateTo).subtract(1, 'month').valueOf();
+          timestampEnd=dayjs(timestampEnd).endOf('month').valueOf();
+          break;
+        case 'week':
+          timestampStart=dayjs(this.dateFrom).subtract(1, 'week').valueOf();
+          timestampEnd=dayjs(this.dateTo).subtract(1, 'week').valueOf();
+          break;
+      }
+
+      this.$emit('selectMonthFromSummary', timestampStart);
+      this.$emit('selectMonthToSummary', timestampEnd);
+    },
+    nextDate() {
+      let timestampStart;
+      let timestampEnd;
+      switch(this.activeType)
+      {
+        case 'year':
+          timestampStart=dayjs(this.dateFrom).add(1, 'year').valueOf();
+          timestampEnd=dayjs(this.dateTo).add(1, 'year').valueOf();
+          break;
+        case 'month':
+          timestampStart=dayjs(this.dateFrom).add(1, 'month').valueOf();
+          timestampEnd=dayjs(this.dateTo).add(1, 'month').valueOf();
+          timestampEnd=dayjs(timestampEnd).endOf('month').valueOf();
+          break;
+        case 'week':
+          timestampStart=dayjs(this.dateFrom).add(1, 'week').valueOf();
+          timestampEnd=dayjs(this.dateTo).add(1, 'week').valueOf();
+          break;
+      }
+
+      this.$emit('selectMonthFromSummary', timestampStart);
+      this.$emit('selectMonthToSummary', timestampEnd);
+    },
+    formattedDate(timestamp) {
+      return dayjs(timestamp).format('YYYY-MM-DD');
     },
     handleResizeCharts() {
       this.$nextTick(() => {
@@ -143,41 +240,75 @@ export default {
         this.$refs.pieChart?.chart?.resize?.();
       });
     },
-    onMonthFromSelected(timestamp) {
-      this.showMonthFromPicker = false;
-      this.$emit('selectMonthFromSummary', timestamp);
-    },
-    onMonthToSelected(timestamp) {
-      this.showMonthToPicker = false;
-      this.$emit('selectMonthToSummary', timestamp);
-    },
     buildChartData(transactions) {
-      const monthMap = {}
+      const visibleTransactions = (transactions || []).filter(tx => tx.deleted !== 1)
+      const timeRangeMap = {}
+      const labels = []
+      const startDate = dayjs(this.dateFrom)
+      const endDate = dayjs(this.dateTo)
 
-      transactions.forEach(item => {
-        const date = new Date(item.timestamp)
-
-        const month = date.toLocaleString('en-US', {
-          month: 'short'
-        })
-
-        if (!monthMap[month]) {
-          monthMap[month] = {
+      if (this.activeType === 'year') {
+        for (let month = 1; month <= 12; month++) {
+          const label = dayjs().month(month - 1).format('MMM')
+          labels.push(label)
+          timeRangeMap[label] = {
             income: 0,
             expense: 0
           }
         }
+      } else if (this.activeType === 'month') {
+        let current = startDate.startOf('day')
+
+        while (current.isBefore(endDate) || current.isSame(endDate, 'day')) {
+          const label = current.format('YYYY-MM-DD')
+          labels.push(label)
+          timeRangeMap[label] = {
+            income: 0,
+            expense: 0
+          }
+          current = current.add(7, 'day')
+        }
+      } else if (this.activeType === 'week') {
+        let current = startDate.startOf('day')
+
+        while (current.isBefore(endDate) || current.isSame(endDate, 'day')) {
+          const label = current.format('YYYY-MM-DD')
+          labels.push(label)
+          timeRangeMap[label] = {
+            income: 0,
+            expense: 0
+          }
+          current = current.add(1, 'day')
+        }
+      }
+
+      visibleTransactions.forEach(item => {
+        const date = dayjs(item.timestamp)
+
+        if (!date.isValid()) {
+          return
+        }
+
+        if (date.isBefore(startDate, 'day') || date.isAfter(endDate, 'day')) {
+          return
+        }
+
+        const label = this.activeType === 'year'
+          ? date.format('MMM')
+          : date.format('YYYY-MM-DD')
+
+        if (!timeRangeMap[label]) {
+          return
+        }
 
         if (item.type === 'income') {
-          monthMap[month].income += Number(item.amount)
+          timeRangeMap[label].income += Number(item.amount || 0)
         }
 
         if (item.type === 'expense') {
-          monthMap[month].expense += Number(item.amount)
+          timeRangeMap[label].expense += Number(item.amount || 0)
         }
       })
-
-      const labels = Object.keys(monthMap)
 
       return {
         labels,
@@ -185,13 +316,13 @@ export default {
         datasets: [
           {
             label: 'Expense',
-            data: labels.map(m => monthMap[m].expense),
+            data: labels.map(label => timeRangeMap[label].expense),
             borderWidth: 2
           },
 
           {
             label: 'Income',
-            data: labels.map(m => monthMap[m].income),
+            data: labels.map(label => timeRangeMap[label].income),
             borderWidth: 2
           }
         ]

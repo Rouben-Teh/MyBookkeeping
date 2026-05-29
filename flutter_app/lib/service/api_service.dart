@@ -115,6 +115,26 @@ class APIService {
     }
   }
 
+  Future<dynamic> fetchLocalTimeRangeTransactions(int start, int end) async {
+    try {
+      print('year start: ' + start.toString() + '-' + end.toString());
+
+      final db = Global.appDatabase;
+      final query = db.select(db.transactions)
+        ..where((t) => t.timestamp.isBetweenValues(start, end))
+        ..where((t) => t.deleted.equals(false))
+        ..orderBy([
+          (t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc),
+        ]);
+      final list = await query.get();
+      // print('time range list:$list');
+      final jsonList = list.map((row) => row.toJson()).toList();
+      return jsonList;
+    } catch (e) {
+      print('fetch error: $e');
+    }
+  }
+
   Future<void> addLocalTransaction(
       String _type,
       String _category,
