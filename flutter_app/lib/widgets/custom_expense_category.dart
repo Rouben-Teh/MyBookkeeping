@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/enum/enum.dart';
-import 'package:my_bookkeeping/utils/app_state.dart';
-import 'package:provider/provider.dart';
 
 class CategoryPage extends StatefulWidget {
   final ScrollController scrollController;
+  final bool isExpense;
   final String selectedCategory;
   final Function(String) onKeyTap;
   final int? jumpItemIndex;
@@ -12,6 +11,7 @@ class CategoryPage extends StatefulWidget {
   CategoryPage({
     Key? key,
     required this.scrollController,
+    required this.isExpense,
     required this.selectedCategory,
     required this.onKeyTap,
     this.jumpItemIndex,
@@ -62,12 +62,8 @@ class _CategoryPageState extends State<CategoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appState = Provider.of<AppState>(context, listen: true);
-
     final List<GlobalKey> itemKeys = List.generate(
-        appState.type == 'expense'
-            ? ExpenseCategories.length
-            : IncomeCategories.length,
+        widget.isExpense ? ExpenseCategories.length : IncomeCategories.length,
         (_) => GlobalKey());
 
     // void _scrollToItem(int index) {
@@ -88,7 +84,7 @@ class _CategoryPageState extends State<CategoryPage> {
       padding: EdgeInsets.all(12),
       child: GridView.builder(
         controller: widget.scrollController,
-        itemCount: appState.type == 'expense'
+        itemCount: widget.isExpense
             ? ExpenseCategories.length
             : IncomeCategories.length,
         // shrinkWrap:
@@ -102,7 +98,7 @@ class _CategoryPageState extends State<CategoryPage> {
           childAspectRatio: 0.9, // 控制高宽比例
         ),
         itemBuilder: (context, index) {
-          final item = appState.type == 'expense'
+          final item = widget.isExpense
               ? ExpenseCategories[index]
               : IncomeCategories[index];
 

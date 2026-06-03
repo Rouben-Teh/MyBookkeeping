@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/pages/record_page.dart';
+import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'package:my_bookkeeping/widgets/dual_direction_material.dart';
 import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
 import 'package:provider/provider.dart';
@@ -129,7 +130,8 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                   return const Color.fromARGB(255, 255, 255, 255);
                 }),
               ),
-              initialSelection: 'expense',
+              initialSelection:
+                  Global.appState.type == 'expense' ? 'expense' : 'income',
               dropdownMenuEntries: const [
                 DropdownMenuEntry(value: 'expense', label: 'Expenses'),
                 DropdownMenuEntry(value: 'income', label: 'Income'),
