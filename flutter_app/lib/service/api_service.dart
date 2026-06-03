@@ -4,6 +4,7 @@ import 'package:my_bookkeeping/database/app_database.dart';
 import 'package:my_bookkeeping/utils/datetime.dart';
 import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:my_bookkeeping/singleton/singleton.dart';
+import 'package:my_bookkeeping/pages/profile_page.dart';
 
 class APIService {
   Future<void> fetchTransactions() async {
@@ -36,6 +37,8 @@ class APIService {
     }
 
     fetchLocalMonthTransactions(Global.appState.currentMonth);
+
+    ProfileStats();
   }
 
   Future<void> addTransaction(
@@ -135,6 +138,48 @@ class APIService {
     }
   }
 
+  Future<List> fetchLocalTransactionStreak() async {
+    try {
+      final db = Global.appDatabase;
+      final result = await db.customSelect(
+        '''
+        SELECT DISTINCT DATE(created_at) as day
+        FROM transactions 
+        WHERE deleted != 1 
+        ORDER BY day DESC
+        ''',
+      ).get();
+
+      final days = result.map((row) {
+        return row.read<String>('day');
+      }).toList();
+      // print('streak: ' + days.toString());
+      return days;
+    } catch (e) {
+      print('fetch error: $e');
+      return [];
+    }
+  }
+
+  Future<int> fetchLocalTransactionCount() async {
+    try {
+      final db = Global.appDatabase;
+      final countExp = db.transactions.id.count();
+
+      final query = db.selectOnly(db.transactions)
+        ..addColumns([countExp])
+        ..where(db.transactions.deleted.equals(false));
+
+      final result = await query.getSingle();
+
+      final totalEntries = result.read(countExp) ?? 0;
+      return totalEntries;
+    } catch (e) {
+      print('fetch error: $e');
+      return 0;
+    }
+  }
+
   Future<void> addLocalTransaction(
       String _type,
       String _category,
@@ -169,6 +214,14 @@ class APIService {
         ),
       );
     });
+
+    Global.appState
+        .addSummaryTransactions('week', date.millisecondsSinceEpoch, item);
+    Global.appState
+        .addSummaryTransactions('month', date.millisecondsSinceEpoch, item);
+    Global.appState
+        .addSummaryTransactions('year', date.millisecondsSinceEpoch, item);
+    ProfileStats();
 
     callback?.call(null);
   }
@@ -211,9 +264,10 @@ class APIService {
     }
   }
 
-  Future<void> markDeleteLocalTransactions(String id, bool value) async {
+  Future<void> markDeleteLocalTransactions(dynamic data, bool value) async {
     final db = Global.appDatabase;
-    await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
+    await (db.update(db.transactions)..where((t) => t.id.equals(data['id'])))
+        .write(
       TransactionsCompanion(
         synced: Value(false),
         deleted: Value(value),
@@ -221,6 +275,21 @@ class APIService {
     );
 
     fetchLocalMonthTransactions(Global.appState.currentMonth);
+
+    if (value) {
+      Global.appState
+          .removeSummaryTransactions('week', data['timestamp'], data);
+      Global.appState
+          .removeSummaryTransactions('month', data['timestamp'], data);
+      Global.appState
+          .removeSummaryTransactions('year', data['timestamp'], data);
+    } else {
+      Global.appState.addSummaryTransactions('week', data['timestamp'], data);
+      Global.appState.addSummaryTransactions('month', data['timestamp'], data);
+      Global.appState.addSummaryTransactions('year', data['timestamp'], data);
+    }
+
+    ProfileStats();
   }
 
   Future<void> editLocalTransactions(
@@ -244,6 +313,10 @@ class APIService {
     await fetchLocalMonthTransactions(Global.appState.currentMonth);
 
     syncUnsyncTransactions();
+
+    Global.appState.updateSummaryTransactions('week', data['timestamp']);
+    Global.appState.updateSummaryTransactions('month', data['timestamp']);
+    Global.appState.updateSummaryTransactions('year', data['timestamp']);
 
     callback?.call(null);
   }

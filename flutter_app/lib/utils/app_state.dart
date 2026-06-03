@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/pages/summary_page.dart';
 
 class AppState extends ChangeNotifier {
   bool isLoggedIn = false;
@@ -22,6 +23,10 @@ class AppState extends ChangeNotifier {
   DateTime summaryWeekDate = DateTime.now();
   List<Map<String, dynamic>> summaryCache =
       []; //-year,month,week, -start -end, -list
+
+  int streak = 0;
+  int totalStreak = 0;
+  int totalEntries = 0;
 
   void login(String _token, String _userId, String _email) {
     token = _token;
@@ -79,6 +84,79 @@ class AppState extends ChangeNotifier {
 
   void setCurrentMonth(DateTime dt) {
     currentMonth = dt;
+    notifyListeners();
+  }
+
+  void addSummaryTransactions(String key, int timestamp, dynamic data) {
+    final index = summaryCache.indexWhere(
+      (e) => e['key'] == key,
+    );
+
+    if (index != -1) {
+      int start = summaryCache[index]['start'];
+      int end = summaryCache[index]['end'];
+      if (timestamp >= start && timestamp <= end) {
+        final transactions = summaryCache[index]['transaction'] as List;
+        transactions.add(data);
+        // print('added $key summary');
+        notifyListeners();
+      }
+    }
+  }
+
+  void removeSummaryTransactions(String key, int timestamp, dynamic data) {
+    final index = summaryCache.indexWhere(
+      (e) => e['key'] == key,
+    );
+
+    if (index != -1) {
+      int start = summaryCache[index]['start'];
+      int end = summaryCache[index]['end'];
+      if (timestamp >= start && timestamp <= end) {
+        final transactions = summaryCache[index]['transaction'] as List;
+        final txIndex = transactions.indexWhere((e) => e['id'] == data['id']);
+
+        if (txIndex != -1) {
+          transactions[txIndex]['deleted'] = 1;
+          // print('remove $key summary');
+          notifyListeners();
+        }
+      }
+    }
+  }
+
+  void updateSummaryTransactions(String key, int timestamp) {
+    final index = summaryCache.indexWhere(
+      (e) => e['key'] == key,
+    );
+
+    if (index != -1) {
+      int start = summaryCache[index]['start'];
+      int end = summaryCache[index]['end'];
+      if (timestamp >= start && timestamp <= end) {
+        switch (key) {
+          case 'year':
+            setYearSummary(summaryYearDate);
+            // print('update year summary');
+            break;
+          case 'month':
+            setMonthSummary(summaryMonthDate);
+            // print('update month summary');
+            break;
+          case 'week':
+            setWeekSummary(summaryWeekDate);
+            // print('update week summary');
+            break;
+        }
+        notifyListeners();
+      }
+    }
+  }
+
+  void setProfileStats(int streak, int totalStreak, int totalEntries) {
+    this.streak = streak;
+    this.totalStreak = totalStreak;
+    this.totalEntries = totalEntries;
     notifyListeners();
   }
 

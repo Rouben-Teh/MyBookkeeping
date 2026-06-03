@@ -1,5 +1,24 @@
 import 'package:intl/intl.dart';
 
+String formatDateNum(DateTime date) {
+  final String yyyy = date.year.toString();
+  final String mm = date.month.toString().padLeft(2, '0');
+  final String dd = date.day.toString().padLeft(2, '0');
+
+  return '$yyyy-$mm-$dd';
+}
+
+String formatStartOfTheWeek(DateTime date) {
+  final startOfWeek = date.subtract(Duration(days: date.weekday));
+  return '${startOfWeek.month}/${startOfWeek.day}';
+}
+
+String subsequentWeekDay(DateTime date, int day) {
+  final startOfWeek = date.subtract(Duration(days: date.weekday));
+  final subsequentDay = startOfWeek.add(Duration(days: day));
+  return '${subsequentDay.month}/${subsequentDay.day}';
+}
+
 String formatDate(int timestamp) {
   DateTime dt = DateTime.fromMillisecondsSinceEpoch(timestamp);
 

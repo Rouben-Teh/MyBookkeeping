@@ -259,8 +259,8 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                                     onPressed: (context) {
                                       bool isRestored = false;
 
-                                      APIService().markDeleteLocalTransactions(
-                                          t['id'], true);
+                                      APIService()
+                                          .markDeleteLocalTransactions(t, true);
 
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
@@ -278,7 +278,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
 
                                               APIService()
                                                   .markDeleteLocalTransactions(
-                                                      t['id'], false);
+                                                      t, false);
                                               print('restore');
                                             },
                                           ),

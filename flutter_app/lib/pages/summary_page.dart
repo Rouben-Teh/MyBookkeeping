@@ -66,6 +66,14 @@ class _SummaryPageState extends State<SummaryPage>
     return '${startOfWeek.month}/${startOfWeek.day} - ${endOfWeek.month}/${endOfWeek.day}';
   }
 
+  String _formatWeekRangeDay(DateTime date, int index) {
+    if (index == 0) {
+      return formatStartOfTheWeek(date);
+    } else {
+      return subsequentWeekDay(date, index);
+    }
+  }
+
   String _formatMonthTitle(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}';
   }
@@ -88,7 +96,7 @@ class _SummaryPageState extends State<SummaryPage>
           Global.appState.summaryMonthDate.day,
         );
         Global.appState.summaryMonthDate = newDt;
-        setMothSummary(newDt);
+        setMonthSummary(newDt);
       } else {
         DateTime newDt = DateTime(
           Global.appState.summaryYearDate.year + delta,
@@ -226,7 +234,11 @@ class _SummaryPageState extends State<SummaryPage>
 
     // Month view: more than 7 entries -> show day numbers (1..N)
     if (axisDates.length > 7) {
-      return axisDates.map((date) => date.day.toString()).toList();
+      return axisDates.map((date) {
+        final day = date.day;
+
+        return (day == 1 || day % 5 == 0) ? day.toString() : '';
+      }).toList();
     }
 
     // Week view: show weekday short names Sun..Sat
@@ -316,7 +328,7 @@ class _SummaryPageState extends State<SummaryPage>
                 return SideTitleWidget(
                   meta: meta,
                   child:
-                      Text(labels[index], style: const TextStyle(fontSize: 9)),
+                      Text(labels[index], style: const TextStyle(fontSize: 10)),
                 );
               },
             ),
@@ -341,8 +353,12 @@ class _SummaryPageState extends State<SummaryPage>
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
+            fitInsideHorizontally: true,
+            tooltipBorderRadius: BorderRadius.circular(8),
             getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+              int index = 0;
               return touchedBarSpots.map((barSpot) {
+                index++;
                 final flSpot = barSpot;
 
                 TextAlign textAlign = switch (flSpot.x.toInt()) {
@@ -352,11 +368,22 @@ class _SummaryPageState extends State<SummaryPage>
                 };
 
                 return LineTooltipItem(
-                  '${flSpot.bar.color == Colors.redAccent ? 'Expenses' : 'Income'}\n',
+                  index == 1
+                      ? _tabController.index == 0
+                          ? '${_formatWeekRangeDay(Global.appState.summaryWeekDate, flSpot.x.toInt())}\n'
+                          : '${_currentDateText}-${flSpot.x.toInt() + 1}\n'
+                      : '',
                   TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                   children: [
+                    TextSpan(
+                      text:
+                          '${flSpot.bar.color == Colors.redAccent ? 'Expenses' : 'Income'}\n',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const TextSpan(
                       text: '\$',
                       style: TextStyle(
@@ -711,7 +738,7 @@ Future<void> setYearSummary(DateTime dt) async {
       'year', yearDt['start']!, yearDt['end']!, yearTransaction);
 }
 
-Future<void> setMothSummary(DateTime dt) async {
+Future<void> setMonthSummary(DateTime dt) async {
   final monthDt = getMonthStartEnd(dt);
   final monthTransaction = await APIService()
       .fetchLocalTimeRangeTransactions(monthDt['start']!, monthDt['end']!);

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:my_bookkeeping/utils/datetime.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -107,19 +108,19 @@ class _ProfilePageState extends State<ProfilePage> {
     final stats = [
       _Card(
         title: 'Streak',
-        value: '1',
+        value: Global.appState.streak.toString(),
         icon: Icons.fireplace,
         color: Colors.deepOrange,
       ),
       _Card(
         title: 'Days',
-        value: '2',
+        value: Global.appState.totalStreak.toString(),
         icon: Icons.search,
         color: Colors.redAccent,
       ),
       _Card(
         title: 'Entries',
-        value: '3',
+        value: Global.appState.totalEntries.toString(),
         icon: Icons.receipt_rounded,
         color: Colors.green,
       ),
@@ -172,8 +173,9 @@ class _ProfilePageState extends State<ProfilePage> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
+                alignment: Alignment.centerLeft,
                 backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(vertical: 15),
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               ),
               onPressed: () {
                 logout();
@@ -190,8 +192,9 @@ class _ProfilePageState extends State<ProfilePage> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
+                alignment: Alignment.centerLeft,
                 backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(vertical: 15),
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               ),
               onPressed: () async {
                 await APIService().fetchTransactionsAndSync();
@@ -208,8 +211,9 @@ class _ProfilePageState extends State<ProfilePage> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
+                alignment: Alignment.centerLeft,
                 backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(vertical: 15),
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               ),
               onPressed: () async {
                 await APIService().syncUnsyncTransactions();
@@ -226,8 +230,9 @@ class _ProfilePageState extends State<ProfilePage> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
+                alignment: Alignment.centerLeft,
                 backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(vertical: 15),
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               ),
               onPressed: () {
                 Provider.of<AppState>(context, listen: false).checkVariables();
@@ -243,6 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<AppState>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile',
@@ -255,4 +261,30 @@ class _ProfilePageState extends State<ProfilePage> {
       body: profileWidget(context),
     );
   }
+}
+
+Future<void> ProfileStats() async {
+  print('get profile stats');
+  List streakDate = await APIService().fetchLocalTransactionStreak();
+  Global.appState.setProfileStats(calculateStreak(streakDate),
+      streakDate.length, await APIService().fetchLocalTransactionCount());
+}
+
+int calculateStreak(List list) {
+  final Set<String> set = list.map((item) => item as String).toSet();
+
+  int streak = 0;
+  DateTime current = new DateTime.now();
+
+  // 如果今天没记，从昨天开始
+  if (!set.contains(formatDateNum(current))) {
+    current = current.subtract(const Duration(days: 1));
+  }
+
+  while (set.contains(formatDateNum(current))) {
+    streak++;
+    current = current.subtract(const Duration(days: 1));
+  }
+
+  return streak;
 }

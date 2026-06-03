@@ -120,6 +120,7 @@ const chartOptions = {
 
 <script>
 import dayjs from 'dayjs';
+import { weekdays }from '../enum/enum';
 
 export default {
   components: {
@@ -266,13 +267,13 @@ export default {
             income: 0,
             expense: 0
           }
-          current = current.add(7, 'day')
+          current = current.add(1, 'day')
         }
       } else if (this.activeType === 'week') {
         let current = startDate.startOf('day')
 
         while (current.isBefore(endDate) || current.isSame(endDate, 'day')) {
-          const label = current.format('YYYY-MM-DD')
+          const label = weekdays[current.day()]
           labels.push(label)
           timeRangeMap[label] = {
             income: 0,
@@ -295,7 +296,7 @@ export default {
 
         const label = this.activeType === 'year'
           ? date.format('MMM')
-          : date.format('YYYY-MM-DD')
+          : this.activeType === 'week' ? weekdays[date.day()] : date.format('YYYY-MM-DD')
 
         if (!timeRangeMap[label]) {
           return

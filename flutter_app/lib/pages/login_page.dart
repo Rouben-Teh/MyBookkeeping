@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
 
       final dt = DateTime.now();
       setYearSummary(dt);
-      setMothSummary(dt);
+      setMonthSummary(dt);
       setWeekSummary(dt);
 
       Navigator.pushReplacement(

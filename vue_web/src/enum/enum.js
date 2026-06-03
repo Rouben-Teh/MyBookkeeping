@@ -76,3 +76,5 @@ export const incomeCategories = [
   { name: "Bonus", icon: BadgeDollarSign },
   { name: "Subsidy", icon: HeartPlus },
 ];
+
+export const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
