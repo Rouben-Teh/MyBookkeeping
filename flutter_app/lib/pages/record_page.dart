@@ -133,7 +133,16 @@ class _RecordPageState extends State<RecordPage>
                             flex: 3,
                             child: TextField(
                                 controller: _noteCtrl,
-                                decoration: InputDecoration(labelText: 'Note')),
+                                decoration: InputDecoration(
+                                  labelText: 'Note',
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color.fromARGB(255, 255, 79,
+                                          79), // Your desired focus color
+                                      width: 2.0, // Optional thickness change
+                                    ),
+                                  ),
+                                )),
                           ),
                           SizedBox(width: 12),
                           Expanded(
@@ -142,8 +151,16 @@ class _RecordPageState extends State<RecordPage>
                                 readOnly: true,
                                 controller: _amountCtrl,
                                 keyboardType: TextInputType.none,
-                                decoration:
-                                    InputDecoration(labelText: 'Amount')),
+                                decoration: InputDecoration(
+                                  labelText: 'Amount',
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color.fromARGB(255, 255, 79,
+                                          79), // Your desired focus color
+                                      width: 2.0, // Optional thickness change
+                                    ),
+                                  ),
+                                )),
                           ),
                           SizedBox(width: 12),
                         ],

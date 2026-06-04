@@ -79,6 +79,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
         appBar: AppBar(
           title: const Text('Select time'),
           backgroundColor: const Color(0xFFFF5A5A),
+          foregroundColor: Colors.white,
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () => Navigator.pop(context),
@@ -176,7 +177,8 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                   widget.onConfirm(result);
                   Navigator.pop(context);
                 },
-                child: const Text('Confirm'),
+                child: const Text('Confirm',
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
             )
           ],

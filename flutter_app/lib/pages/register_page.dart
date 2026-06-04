@@ -50,6 +50,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 fontSize: 20,
                 fontWeight: FontWeight.bold)),
         backgroundColor: Color(0xFFFF5A5A),
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: EdgeInsets.all(20),
@@ -57,17 +58,34 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             TextField(
               controller: emailCtrl,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                ),
+              ),
             ),
+            SizedBox(height: 20),
             TextField(
               controller: passwordCtrl,
               obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                ),
+              ),
             ),
+            SizedBox(height: 20),
             TextField(
               controller: confirmCtrl,
               obscureText: true,
-              decoration: InputDecoration(labelText: 'Confirm Password'),
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                ),
+              ),
             ),
             SizedBox(height: 20),
             SizedBox(

@@ -168,25 +168,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
           SizedBox(height: 20),
 
-          // 登出按钮
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                alignment: Alignment.centerLeft,
-                backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-              ),
-              onPressed: () {
-                logout();
-              },
-              child: Text('Logout',
-                  style: TextStyle(fontSize: 16, color: Colors.white)),
-            ),
-          ),
-
-          SizedBox(height: 12),
-
           // 获取后端的数据并同步至本地数据库
           SizedBox(
             width: double.infinity,
@@ -225,7 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
           SizedBox(height: 12),
 
-          // Bug check button (临时)
+          // 登出按钮
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -235,12 +216,29 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               ),
               onPressed: () {
-                Provider.of<AppState>(context, listen: false).checkVariables();
+                logout();
               },
-              child: Text('Check',
+              child: Text('Logout',
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
+
+          // // Bug check button (临时)
+          // SizedBox(
+          //   width: double.infinity,
+          //   child: ElevatedButton(
+          //     style: ElevatedButton.styleFrom(
+          //       alignment: Alignment.centerLeft,
+          //       backgroundColor: Colors.red,
+          //       padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          //     ),
+          //     onPressed: () {
+          //       Provider.of<AppState>(context, listen: false).checkVariables();
+          //     },
+          //     child: Text('Check',
+          //         style: TextStyle(fontSize: 16, color: Colors.white)),
+          //   ),
+          // ),
         ],
       ),
     );

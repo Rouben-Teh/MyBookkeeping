@@ -5,7 +5,7 @@ import 'package:my_bookkeeping/pages/record_page.dart';
 import 'package:my_bookkeeping/pages/profile_page.dart';
 import 'package:my_bookkeeping/pages/chat_page.dart';
 import 'package:my_bookkeeping/pages/summary_page.dart';
-import 'package:my_bookkeeping/pages/plans.dart';
+import 'package:my_bookkeeping/pages/plan_page.dart';
 
 class HomePage extends StatefulWidget {
   @override

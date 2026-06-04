@@ -87,14 +87,45 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.all(20),
       child: Column(
         children: [
+          Container(
+            width: 50,
+            height: 250,
+            child: const Icon(
+              Icons.account_balance_wallet,
+              color: Color.fromARGB(255, 255, 79, 79),
+              size: 60,
+            ),
+          ),
           TextField(
             controller: emailCtrl,
-            decoration: InputDecoration(labelText: 'Email'),
+            decoration: InputDecoration(
+              labelText: 'Email',
+              focusColor: Color.fromARGB(255, 255, 79, 79),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(50)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(50)),
+                borderSide: BorderSide(
+                    color: Color.fromARGB(255, 255, 79, 79), width: 2.0),
+              ),
+            ),
           ),
+          SizedBox(height: 20),
           TextField(
             controller: passwordCtrl,
             obscureText: true,
-            decoration: InputDecoration(labelText: 'Password'),
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(50)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(50)),
+                borderSide: BorderSide(
+                    color: Color.fromARGB(255, 255, 79, 79), width: 2.0),
+              ),
+            ),
           ),
           SizedBox(height: 20),
           SizedBox(
@@ -116,7 +147,9 @@ class _LoginPageState extends State<LoginPage> {
                 MaterialPageRoute(builder: (_) => RegisterPage()),
               );
             },
-            child: Text('Don\'t have an account? Register'),
+            child: Text('Don\'t have an account? Register',
+                style:
+                    TextStyle(color: const Color.fromARGB(255, 131, 131, 131))),
           )
         ],
       ),
@@ -128,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
     return Stack(children: [
       Scaffold(
         appBar: AppBar(
-          title: Text('个人资料',
+          title: Text('MyBookkeeping',
               style: TextStyle(
                   color: Colors.white, // 设置标题文字颜色
                   fontSize: 20, // 设置标题文字大小

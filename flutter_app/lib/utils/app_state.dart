@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/pages/plan_page.dart';
 import 'package:my_bookkeeping/pages/summary_page.dart';
 
 class AppState extends ChangeNotifier {
@@ -14,6 +15,27 @@ class AppState extends ChangeNotifier {
   List messages = [];
 
   bool isLoading = false;
+
+  List<PlanEntry> plans = [
+    PlanEntry(
+      name: 'iPhone 14 分期付款',
+      direction: PlanDirection.expense,
+      totalAmount: 6999,
+      totalInstallments: 12,
+      intervals: 30,
+      paidInstallments: 3,
+      autoAddToLedger: true,
+    ),
+    PlanEntry(
+      name: '借给小王',
+      direction: PlanDirection.income,
+      totalAmount: 3000,
+      totalInstallments: 6,
+      intervals: 30,
+      paidInstallments: 1,
+      autoAddToLedger: false,
+    ),
+  ];
 
   DateTime currentMonth = DateTime.now();
 
@@ -38,9 +60,9 @@ class AppState extends ChangeNotifier {
   }
 
   void logout() {
-    token = "";
-    userId = "";
-    email = "";
+    token = '';
+    userId = '';
+    email = '';
     isLoggedIn = false;
     notifyListeners();
     print('Logged out $userId $email $isLoggedIn');
@@ -55,6 +77,63 @@ class AppState extends ChangeNotifier {
     transactions = data;
     print('Transaction records updated: ${transactions}');
     notifyListeners(); // 通知所有UI刷新
+  }
+
+  void addPlan(String name, PlanDirection direction, double totalAmount,
+      int totalInstallments, int intervals, bool autoAddToLedger) {
+    plans.add(PlanEntry(
+      name: name.trim(),
+      direction: direction,
+      totalAmount: totalAmount,
+      totalInstallments: totalInstallments,
+      intervals: intervals,
+      autoAddToLedger: autoAddToLedger,
+    ));
+    notifyListeners();
+  }
+
+  void markPlanPaid(String id) {
+    final plan = plans.firstWhere((p) => p.id == id);
+    if (plan.paidInstallments < plan.totalInstallments) {
+      plan.paidInstallments += 1;
+    }
+    notifyListeners();
+  }
+
+  void updatePlan(
+    String id, {
+    String? name,
+    PlanDirection? direction,
+    double? totalAmount,
+    int? totalInstallments,
+    int? intervals,
+    bool? autoAddToLedger,
+  }) {
+    final plan = plans.firstWhere((p) => p.id == id);
+    if (name != null) {
+      plan.name = name;
+    }
+    if (direction != null) {
+      plan.direction = direction;
+    }
+    if (totalAmount != null) {
+      plan.totalAmount = totalAmount;
+    }
+    if (totalInstallments != null) {
+      plan.totalInstallments = totalInstallments;
+    }
+    if (intervals != null) {
+      plan.intervals = intervals;
+    }
+    if (autoAddToLedger != null) {
+      plan.autoAddToLedger = autoAddToLedger;
+    }
+    notifyListeners();
+  }
+
+  void removePlan(String id) {
+    plans.removeWhere((p) => p.id == id);
+    notifyListeners();
   }
 
   void setSummaryCache(String key, int start, int end, dynamic transaction) {

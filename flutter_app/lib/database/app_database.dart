@@ -26,12 +26,32 @@ class Transactions extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Transactions])
+class Plans extends Table {
+  TextColumn get id => text()();
+  IntColumn get userId => integer()();
+  TextColumn get name => text()();
+  TextColumn get direction => text()();
+  RealColumn get totalAmount => real()();
+  IntColumn get totalInstallments => integer()();
+  BoolColumn get autoAddToLedger => boolean().withDefault(Constant(false))();
+  IntColumn get paidInstallments => integer()();
+
+  IntColumn get timestamp => integer()();
+  TextColumn get createdAt => text()();
+
+  BoolColumn get synced => boolean().withDefault(Constant(false))();
+  BoolColumn get deleted => boolean().withDefault(Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(tables: [Transactions, Plans])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 }
 
 LazyDatabase _openConnection() {
