@@ -4,7 +4,7 @@ import 'package:my_bookkeeping/database/app_database.dart';
 import 'package:my_bookkeeping/utils/datetime.dart';
 import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:my_bookkeeping/singleton/singleton.dart';
-import 'package:my_bookkeeping/pages/profile_page.dart';
+import 'package:my_bookkeeping/service/profile_service.dart';
 
 class APIService {
   Future<void> fetchTransactions() async {

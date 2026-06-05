@@ -8,7 +8,7 @@ import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_bookkeeping/utils/app_state.dart';
 import 'package:my_bookkeeping/pages/register_page.dart';
-import 'package:my_bookkeeping/pages/summary_page.dart';
+import 'package:my_bookkeeping/service/summary_service.dart';
 
 class LoginPage extends StatefulWidget {
   @override

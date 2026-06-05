@@ -1,42 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:my_bookkeeping/utils/datetime.dart';
+import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
 import 'package:provider/provider.dart';
-
-enum PlanDirection { expense, income }
-
-class PlanEntry {
-  PlanEntry({
-    required this.name,
-    required this.direction,
-    required this.totalAmount,
-    required this.totalInstallments,
-    required this.intervals,
-    required this.autoAddToLedger,
-    this.paidInstallments = 0,
-  });
-
-  final String id =
-      '${Global.appState.userId}${DateTime.now().millisecondsSinceEpoch}';
-  int userId = int.parse(Global.appState.userId);
-  String name;
-  PlanDirection direction;
-  double totalAmount;
-  int totalInstallments;
-  int intervals; // default 30 days
-  bool autoAddToLedger;
-  int paidInstallments;
-
-  int get remainingInstallments =>
-      (totalInstallments - paidInstallments).clamp(0, totalInstallments);
-
-  double get remainingBalance =>
-      ((totalAmount / totalInstallments) * remainingInstallments)
-          .clamp(0, totalAmount);
-
-  double get progress =>
-      totalInstallments == 0 ? 0 : paidInstallments / totalInstallments;
-}
+import 'package:my_bookkeeping/service/plan_service.dart';
 
 class PlansPage extends StatefulWidget {
   const PlansPage({super.key});
@@ -64,9 +31,12 @@ class _PlansPageState extends State<PlansPage> {
     String name = plan?.name ?? '';
     String amount = plan?.totalAmount.toString() ?? '';
     String installments = plan?.totalInstallments.toString() ?? '6';
+    bool fixPayment = plan?.fixPayment ?? false;
+    int intervalFormat = plan?.intervalFormat ?? 0;
     String intervals = plan?.intervals.toString() ?? '30';
+    int timestamp = plan?.timestamp ?? DateTime.now().millisecondsSinceEpoch;
     PlanDirection direction = plan?.direction ?? PlanDirection.expense;
-    bool autoAddToLedger = plan?.autoAddToLedger ?? true;
+    bool autoAddToLedger = plan?.autoAddToLedger ?? false;
 
     final nameController = TextEditingController(text: name);
     final amountController = TextEditingController(text: amount);
@@ -81,6 +51,7 @@ class _PlansPageState extends State<PlansPage> {
         final appState = Provider.of<AppState>(context, listen: false);
         final dialogTitle =
             plan == null ? 'Add New Plan Card' : 'Edit Plan Card';
+        DateTime startDate = DateTime.fromMillisecondsSinceEpoch(timestamp);
 
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -138,30 +109,35 @@ class _PlansPageState extends State<PlansPage> {
                     const SizedBox(height: 16),
                     const Text('Type'),
                     const SizedBox(height: 8),
-                    SegmentedButton<PlanDirection>(
-                      style: SegmentedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFF4F4),
-                        selectedForegroundColor: Colors.white,
-                        selectedBackgroundColor: const Color(0xFFFF5A5A),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 12),
+                    SizedBox(
+                      width: double
+                          .infinity, // Forces the container to take full width
+                      child: SegmentedButton<PlanDirection>(
+                        style: SegmentedButton.styleFrom(
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          backgroundColor: const Color(0xFFFFF4F4),
+                          selectedForegroundColor: Colors.white,
+                          selectedBackgroundColor: const Color(0xFFFF5A5A),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 12),
+                        ),
+                        segments: const [
+                          ButtonSegment<PlanDirection>(
+                            value: PlanDirection.expense,
+                            label: Text('Expense'),
+                          ),
+                          ButtonSegment<PlanDirection>(
+                            value: PlanDirection.income,
+                            label: Text('Income'),
+                          ),
+                        ],
+                        selected: <PlanDirection>{direction},
+                        onSelectionChanged: (selection) {
+                          setModalState(() {
+                            direction = selection.first;
+                          });
+                        },
                       ),
-                      segments: const [
-                        ButtonSegment<PlanDirection>(
-                          value: PlanDirection.expense,
-                          label: Text('Expense'),
-                        ),
-                        ButtonSegment<PlanDirection>(
-                          value: PlanDirection.income,
-                          label: Text('Income'),
-                        ),
-                      ],
-                      selected: <PlanDirection>{direction},
-                      onSelectionChanged: (selection) {
-                        setModalState(() {
-                          direction = selection.first;
-                        });
-                      },
                     ),
                     const SizedBox(height: 16),
                     const Text('Amount'),
@@ -204,40 +180,123 @@ class _PlansPageState extends State<PlansPage> {
                       onChanged: (value) => installments = value,
                     ),
                     const SizedBox(height: 16),
-                    const Text('Payment Interval (days)'),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: intervalsController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        hintText: 'e.g.: 6',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(50)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(50)),
-                          borderSide: BorderSide(
-                              color: Color.fromARGB(255, 255, 79, 79),
-                              width: 2.0),
-                        ),
-                      ),
-                      onChanged: (value) => installments = value,
-                    ),
-                    const SizedBox(height: 16),
                     CheckboxListTile(
-                      title: const Text('auto add to ledger'),
+                      title: const Text('Fix payment period'),
                       checkboxShape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50),
                       ),
                       activeColor: const Color(0xFFFF5A5A),
-                      value: autoAddToLedger,
+                      value: fixPayment,
                       onChanged: (value) {
                         setModalState(() {
-                          autoAddToLedger = value ?? true;
+                          fixPayment = value ?? true;
+                          if (value == false) autoAddToLedger = false;
                         });
                       },
                       contentPadding: EdgeInsets.zero,
                     ),
+                    if (fixPayment) ...[
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double
+                            .infinity, // Forces the container to take full width
+                        child: SegmentedButton<int>(
+                          style: SegmentedButton.styleFrom(
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            backgroundColor: const Color(0xFFFFF4F4),
+                            selectedForegroundColor: Colors.white,
+                            selectedBackgroundColor: const Color(0xFFFF5A5A),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
+                          ),
+                          segments: const [
+                            ButtonSegment<int>(
+                              value: 0,
+                              label: Text('Days'),
+                            ),
+                            ButtonSegment<int>(
+                              value: 1,
+                              label: Text('Weeks'),
+                            ),
+                            ButtonSegment<int>(
+                              value: 2,
+                              label: Text('Months'),
+                            ),
+                          ],
+                          selected: <int>{intervalFormat},
+                          onSelectionChanged: (selection) {
+                            setModalState(() {
+                              intervalFormat = selection.first;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('Payment Interval (days)'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: intervalsController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          hintText: 'e.g.: 30',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(50)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(50)),
+                            borderSide: BorderSide(
+                                color: Color.fromARGB(255, 255, 79, 79),
+                                width: 2.0),
+                          ),
+                        ),
+                        onChanged: (value) => intervals = value,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('Installment Start Date'),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () => TimePickerBottomSheet.open(
+                            context, startDate, true, true, true,
+                            onConfirm: (date) {
+                          setModalState(() {
+                            startDate = date;
+                          });
+                        }),
+                        child: Container(
+                            width: double.infinity,
+                            height: double.tryParse('50'),
+                            alignment: AlignmentGeometry.centerLeft,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(999),
+                              color: const Color.fromARGB(255, 255, 199, 199),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: Text(
+                              '${formatDateNum(startDate)}',
+                              style: TextStyle(
+                                color: const Color.fromARGB(255, 0, 0, 0),
+                                fontSize: 18,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            )),
+                      ),
+                      const SizedBox(height: 16),
+                      CheckboxListTile(
+                        title: const Text('auto add to ledger'),
+                        checkboxShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        activeColor: const Color(0xFFFF5A5A),
+                        value: autoAddToLedger,
+                        onChanged: (value) {
+                          setModalState(() {
+                            autoAddToLedger = value ?? true;
+                          });
+                        },
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
@@ -257,9 +316,7 @@ class _PlansPageState extends State<PlansPage> {
                           if (name.trim().isEmpty ||
                               parsedAmount == null ||
                               parsedInstallments == null ||
-                              parsedInstallments <= 0 ||
-                              parsedIntervals == null ||
-                              parsedIntervals <= 0) {
+                              parsedInstallments <= 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
@@ -275,7 +332,10 @@ class _PlansPageState extends State<PlansPage> {
                               direction,
                               parsedAmount,
                               parsedInstallments,
-                              parsedIntervals,
+                              fixPayment,
+                              intervalFormat,
+                              parsedIntervals!,
+                              startDate.millisecondsSinceEpoch,
                               autoAddToLedger,
                             );
                           } else {
@@ -285,7 +345,10 @@ class _PlansPageState extends State<PlansPage> {
                               direction: direction as PlanDirection?,
                               totalAmount: parsedAmount,
                               totalInstallments: parsedInstallments,
+                              fixPayment: fixPayment,
+                              intervalFormat: intervalFormat,
                               intervals: parsedIntervals,
+                              timestamp: startDate.millisecondsSinceEpoch,
                               autoAddToLedger: autoAddToLedger,
                             );
                           }
@@ -293,7 +356,9 @@ class _PlansPageState extends State<PlansPage> {
                           Navigator.pop(context);
                           _closePlanMenu();
                         },
-                        child: Text(plan == null ? 'save plan' : 'update plan'),
+                        child: Text(plan == null ? 'save plan' : 'update plan',
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.white)),
                       ),
                     ),
                   ],
@@ -385,6 +450,14 @@ class _PlansPageState extends State<PlansPage> {
                         isExpense ? Colors.redAccent : Colors.green;
                     final remainText =
                         '${plan.remainingInstallments} remaining terms';
+                    final totalPaymentDate =
+                        plan.intervals * plan.paidInstallments;
+                    final nextPaymentDate = plan.remainingInstallments != 0
+                        ? formatDateNum(
+                            DateTime.fromMillisecondsSinceEpoch(plan.timestamp)
+                                .add(Duration(days: totalPaymentDate)))
+                        : 'Completed';
+
                     final isExpanded = _expandedPlanId == plan.id;
 
                     return Card(
@@ -507,8 +580,12 @@ class _PlansPageState extends State<PlansPage> {
                               children: [
                                 Expanded(
                                   child: _infoBox(
-                                    title: 'remaining terms',
-                                    value: remainText,
+                                    title: plan.fixPayment
+                                        ? 'next payment date'
+                                        : 'remaining terms',
+                                    value: plan.fixPayment
+                                        ? nextPaymentDate
+                                        : remainText,
                                     icon: Icons.schedule,
                                   ),
                                 ),

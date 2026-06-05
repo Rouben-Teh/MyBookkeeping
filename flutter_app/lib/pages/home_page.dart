@@ -6,6 +6,7 @@ import 'package:my_bookkeeping/pages/profile_page.dart';
 import 'package:my_bookkeeping/pages/chat_page.dart';
 import 'package:my_bookkeeping/pages/summary_page.dart';
 import 'package:my_bookkeeping/pages/plan_page.dart';
+import 'package:my_bookkeeping/service/profile_service.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -27,6 +28,29 @@ class _HomePageState extends State<HomePage> {
   ];
 
   int currentIndex = 0;
+
+  Widget button(int index, IconData icon) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: currentIndex == index
+            ? const Color.fromARGB(255, 255, 103, 103)
+            : const Color.fromARGB(0, 255, 255, 255),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+          icon: Icon(icon,
+              color: currentIndex == index
+                  ? Colors.white
+                  : const Color.fromARGB(255, 255, 103, 103)),
+          onPressed: () {
+            setState(() {
+              currentIndex = index;
+            });
+          }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,35 +87,11 @@ class _HomePageState extends State<HomePage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            IconButton(
-                icon: Icon(Icons.savings, color: Colors.black),
-                onPressed: () {
-                  setState(() {
-                    currentIndex = 0;
-                  });
-                }),
-            IconButton(
-                icon: Icon(Icons.event_note, color: Colors.black),
-                onPressed: () {
-                  setState(() {
-                    currentIndex = 1;
-                  });
-                }),
+            button(0, Icons.savings),
+            button(1, Icons.event_note),
             SizedBox(width: 40), // 给中间按钮留空间
-            IconButton(
-                icon: Icon(Icons.bar_chart, color: Colors.black),
-                onPressed: () {
-                  setState(() {
-                    currentIndex = 2;
-                  });
-                }),
-            IconButton(
-                icon: Icon(Icons.person, color: Colors.black),
-                onPressed: () {
-                  setState(() {
-                    currentIndex = 3;
-                  });
-                }),
+            button(2, Icons.bar_chart),
+            button(3, Icons.person),
           ],
         ),
         color: Color.fromARGB(255, 255, 252, 252),

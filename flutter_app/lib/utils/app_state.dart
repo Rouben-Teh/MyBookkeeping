@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_bookkeeping/pages/plan_page.dart';
-import 'package:my_bookkeeping/pages/summary_page.dart';
+import 'package:my_bookkeeping/service/plan_service.dart';
+import 'package:my_bookkeeping/service/summary_service.dart';
 
 class AppState extends ChangeNotifier {
   bool isLoggedIn = false;
@@ -18,20 +18,30 @@ class AppState extends ChangeNotifier {
 
   List<PlanEntry> plans = [
     PlanEntry(
+      id: 'userId0',
+      userId: 0,
       name: 'iPhone 14 分期付款',
       direction: PlanDirection.expense,
       totalAmount: 6999,
       totalInstallments: 12,
+      fixPayment: true,
+      intervalFormat: 2,
       intervals: 30,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
       paidInstallments: 3,
       autoAddToLedger: true,
     ),
     PlanEntry(
+      id: 'userId1',
+      userId: 0,
       name: '借给小王',
       direction: PlanDirection.income,
       totalAmount: 3000,
       totalInstallments: 6,
+      fixPayment: false,
+      intervalFormat: 2,
       intervals: 30,
+      timestamp: DateTime.now().millisecondsSinceEpoch,
       paidInstallments: 1,
       autoAddToLedger: false,
     ),
@@ -79,16 +89,31 @@ class AppState extends ChangeNotifier {
     notifyListeners(); // 通知所有UI刷新
   }
 
-  void addPlan(String name, PlanDirection direction, double totalAmount,
-      int totalInstallments, int intervals, bool autoAddToLedger) {
-    plans.add(PlanEntry(
-      name: name.trim(),
-      direction: direction,
-      totalAmount: totalAmount,
-      totalInstallments: totalInstallments,
-      intervals: intervals,
-      autoAddToLedger: autoAddToLedger,
-    ));
+  void addPlan(
+      String name,
+      PlanDirection direction,
+      double totalAmount,
+      int totalInstallments,
+      bool fixPayment,
+      int intervalFormat,
+      int intervals,
+      int timestamp,
+      bool autoAddToLedger) {
+    plans.insert(
+        0,
+        PlanEntry(
+          id: '${userId}${DateTime.now().millisecondsSinceEpoch}',
+          userId: int.parse(userId),
+          name: name.trim(),
+          direction: direction,
+          totalAmount: totalAmount,
+          totalInstallments: totalInstallments,
+          fixPayment: fixPayment,
+          intervalFormat: intervalFormat,
+          intervals: intervals,
+          timestamp: timestamp,
+          autoAddToLedger: autoAddToLedger,
+        ));
     notifyListeners();
   }
 
@@ -106,28 +131,22 @@ class AppState extends ChangeNotifier {
     PlanDirection? direction,
     double? totalAmount,
     int? totalInstallments,
+    bool? fixPayment,
+    int? intervalFormat,
     int? intervals,
+    int? timestamp,
     bool? autoAddToLedger,
   }) {
     final plan = plans.firstWhere((p) => p.id == id);
-    if (name != null) {
-      plan.name = name;
-    }
-    if (direction != null) {
-      plan.direction = direction;
-    }
-    if (totalAmount != null) {
-      plan.totalAmount = totalAmount;
-    }
-    if (totalInstallments != null) {
-      plan.totalInstallments = totalInstallments;
-    }
-    if (intervals != null) {
-      plan.intervals = intervals;
-    }
-    if (autoAddToLedger != null) {
-      plan.autoAddToLedger = autoAddToLedger;
-    }
+    if (name != null) plan.name = name;
+    if (direction != null) plan.direction = direction;
+    if (totalAmount != null) plan.totalAmount = totalAmount;
+    if (totalInstallments != null) plan.totalInstallments = totalInstallments;
+    if (fixPayment != null) plan.fixPayment = fixPayment;
+    if (intervalFormat != null) plan.intervalFormat = intervalFormat;
+    if (intervals != null) plan.intervals = intervals;
+    if (timestamp != null) plan.timestamp = timestamp;
+    if (autoAddToLedger != null) plan.autoAddToLedger = autoAddToLedger;
     notifyListeners();
   }
 
