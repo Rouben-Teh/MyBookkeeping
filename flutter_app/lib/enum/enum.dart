@@ -31,6 +31,7 @@ final ExpenseCategories = [
   {'name': 'Bonus', 'icon': Icons.card_membership},
   {'name': 'Subsidy', 'icon': Icons.support},
   {'name': 'Fine', 'icon': Icons.warning},
+  {'name': 'Plan', 'icon': Icons.event},
 ];
 
 final IncomeCategories = [
@@ -40,6 +41,7 @@ final IncomeCategories = [
   {'name': 'Lottery', 'icon': Icons.confirmation_number},
   {'name': 'Bonus', 'icon': Icons.card_membership},
   {'name': 'Subsidy', 'icon': Icons.support},
+  {'name': 'Plan', 'icon': Icons.event},
 ];
 
 class ChatMessage {

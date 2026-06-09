@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:my_bookkeeping/database/app_database.dart';
+import 'package:my_bookkeeping/service/plan_service.dart';
 import 'package:my_bookkeeping/utils/datetime.dart';
 import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:my_bookkeeping/singleton/singleton.dart';
@@ -33,7 +34,7 @@ class APIService {
     final list = List<Map<String, dynamic>>.from(data['transactions']);
 
     for (final item in list) {
-      await saveToDrift(item);
+      await saveTransaction(item);
     }
 
     fetchLocalMonthTransactions(Global.appState.currentMonth);
@@ -50,7 +51,8 @@ class APIService {
       DateTime date,
       void Function(dynamic data)? callback) async {
     final category = _category;
-    final amount = double.tryParse(_amount) ?? 0.0;
+    final value = double.tryParse(_amount) ?? 0.00;
+    final amount = double.parse(value.toStringAsFixed(2));
     final note = _note;
     try {
       final res = await NetService().httpPost('add', {
@@ -189,12 +191,14 @@ class APIService {
       void Function(dynamic data)? callback) async {
     final _id =
         '${Global.appState.userId}${DateTime.now().millisecondsSinceEpoch}';
+    final value = double.tryParse(_amount) ?? 0.00;
+    final amount = double.parse(value.toStringAsFixed(2));
     final item = {
       'id': _id,
       'type': _type,
       'user_id': int.parse(Global.appState.userId),
       'category': _category,
-      'amount': double.tryParse(_amount) ?? 0.0,
+      'amount': amount,
       'note': _note,
       'timestamp': date.millisecondsSinceEpoch,
       'created_at': formatCreatedAt(date),
@@ -203,7 +207,7 @@ class APIService {
     };
     final db = Global.appDatabase;
 
-    await saveToDrift(item);
+    await saveTransaction(item);
 
     await fetchLocalMonthTransactions(Global.appState.currentMonth);
 
@@ -319,6 +323,133 @@ class APIService {
     Global.appState.updateSummaryTransactions('year', data['timestamp']);
 
     callback?.call(null);
+  }
+
+  Future<void> addLocalPlan(
+      String name,
+      PlanDirection direction,
+      double totalAmount,
+      int totalInstallments,
+      int fixPayment,
+      int intervalFormat,
+      int intervals,
+      int timestamp,
+      int autoAddToLedger) async {
+    PlanEntry newPlan = PlanEntry(
+      id: '${Global.appState.userId}${DateTime.now().millisecondsSinceEpoch}',
+      user_id: int.parse(Global.appState.userId),
+      name: name.trim(),
+      direction: direction,
+      totalAmount: totalAmount,
+      totalInstallments: totalInstallments,
+      fixPayment: fixPayment,
+      intervalFormat: intervalFormat,
+      intervals: intervals,
+      timestamp: timestamp,
+      autoAddToLedger: autoAddToLedger,
+      created_at: formatCreatedAt(DateTime.now()),
+    );
+
+    await savePlan(newPlan.toJson());
+
+    Global.appState.addPlan(newPlan);
+  }
+
+  Future<void> fetchLocalPlans() async {
+    try {
+      final db = Global.appDatabase;
+      final query = db.select(db.plans)
+        ..where((p) => p.deleted.equals(false))
+        ..orderBy([
+          (p) => OrderingTerm(expression: p.timestamp, mode: OrderingMode.desc),
+        ]);
+      final list = await query.get();
+      print('load cache plan list:$list');
+      final jsonList = list.map((row) => row.toJson()).toList();
+      Global.appState.setPlans(jsonList);
+    } catch (e) {
+      print('fetch error: $e');
+    }
+  }
+
+  Future<void> updatePlan(
+    String id,
+    String name,
+    PlanDirection direction,
+    double totalAmount,
+    int totalInstallments,
+    int fixPayment,
+    int intervalFormat,
+    int intervals,
+    int timestamp,
+    int autoAddToLedger,
+    String created_at,
+    int synced,
+    int deleted,
+  ) async {
+    Map<String, dynamic> newPlan = {
+      'id': id,
+      'user_id': int.parse(Global.appState.userId),
+      'name': name.trim(),
+      'direction': direction.toString(),
+      'totalAmount': totalAmount,
+      'totalInstallments': totalInstallments,
+      'fixPayment': fixPayment,
+      'intervalFormat': intervalFormat,
+      'intervals': intervals,
+      'timestamp': timestamp,
+      'autoAddToLedger': autoAddToLedger,
+      'created_at': created_at,
+      'synced': synced,
+      'deleted': deleted,
+    };
+
+    await savePlan(newPlan);
+
+    Global.appState.updatePlan(
+      id,
+      name: name,
+      direction: direction,
+      totalAmount: totalAmount,
+      totalInstallments: totalInstallments,
+      fixPayment: fixPayment == 0 ? false : true,
+      intervalFormat: intervalFormat,
+      intervals: intervals,
+      timestamp: timestamp,
+      autoAddToLedger: autoAddToLedger == 0 ? false : true,
+    );
+  }
+
+  Future<void> markPlanPaid(dynamic plan) async {
+    final db = Global.appDatabase;
+    await (db.update(db.plans)..where((t) => t.id.equals(plan.id)))
+        .write(PlansCompanion(
+      paidInstallments: Value(plan.paidInstallments + 1),
+      synced: Value(false),
+    ));
+
+    Global.appState.markPlanPaid(plan.id);
+
+    APIService().addLocalTransaction(
+        plan.direction == PlanDirection.expense ? 'expense' : 'income',
+        'Plan',
+        (plan.totalAmount / plan.totalInstallments).toString(),
+        plan.name,
+        DateTime.now(),
+        null);
+  }
+
+  Future<void> removePlan(
+    String id,
+  ) async {
+    final db = Global.appDatabase;
+    await (db.update(db.plans)..where((t) => t.id.equals(id)))
+        .write(PlansCompanion(
+      synced: Value(false),
+      deleted: Value(true),
+    ));
+
+    Global.appState.removePlan(id);
   }
 
   Future<String> chat(String message) async {

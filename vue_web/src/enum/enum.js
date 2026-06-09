@@ -29,6 +29,7 @@ import {
   BadgeDollarSign,
   HeartPlus,
   AlertTriangle,
+  Calendar1,
 } from "lucide-vue-next";
 
 export const expenseCategories = [
@@ -62,6 +63,7 @@ export const expenseCategories = [
   { name: "Bonus", icon: BadgeDollarSign },
   { name: "Subsidy", icon: HeartPlus },
   { name: "Fine", icon: AlertTriangle },
+  { name: "Plan", icon: Calendar1 },
 ];
 
 export const categoryMap = Object.fromEntries(
@@ -75,6 +77,7 @@ export const incomeCategories = [
   { name: "Lottery", icon: Ticket },
   { name: "Bonus", icon: BadgeDollarSign },
   { name: "Subsidy", icon: HeartPlus },
+  { name: "Plan", icon: Calendar1 },
 ];
 
 export const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

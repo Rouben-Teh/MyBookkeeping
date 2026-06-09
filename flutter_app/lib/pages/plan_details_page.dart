@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:my_bookkeeping/service/api_service.dart';
 import 'package:my_bookkeeping/utils/datetime.dart';
 import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
-import 'package:provider/provider.dart';
 import 'package:my_bookkeeping/service/plan_service.dart';
 
 class PlanBottomSheet {
-  static void open(BuildContext context, {PlanEntry? plan}) {
+  static void open(BuildContext context,
+      {PlanEntry? plan, required Function() onConfirm}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -16,10 +17,13 @@ class PlanBottomSheet {
           top: Radius.circular(20),
         ),
       ),
-      builder: (_) => FractionallySizedBox(
-        heightFactor: 0.9,
+      builder: (_) => ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
+        ),
         child: PlanDetailsPage(
           plan: plan,
+          onConfirm: onConfirm,
         ),
       ),
     );
@@ -28,8 +32,9 @@ class PlanBottomSheet {
 
 class PlanDetailsPage extends StatefulWidget {
   final PlanEntry? plan;
+  final Function onConfirm;
 
-  const PlanDetailsPage({super.key, this.plan});
+  const PlanDetailsPage({super.key, this.plan, required this.onConfirm});
 
   @override
   State<PlanDetailsPage> createState() => _PlanDetailsPageState();
@@ -41,15 +46,14 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
     String name = widget.plan?.name ?? '';
     String amount = widget.plan?.totalAmount.toString() ?? '';
     String installments = widget.plan?.totalInstallments.toString() ?? '6';
-    bool fixPayment = widget.plan?.fixPayment ?? false;
+    bool fixPayment = widget.plan?.fixPayment == 0 ? false : true;
     int intervalFormat = widget.plan?.intervalFormat ?? 0;
     String intervals = widget.plan?.intervals.toString() ?? '30';
     int timestamp =
         widget.plan?.timestamp ?? DateTime.now().millisecondsSinceEpoch;
     PlanDirection direction = widget.plan?.direction ?? PlanDirection.expense;
-    bool autoAddToLedger = widget.plan?.autoAddToLedger ?? false;
+    bool autoAddToLedger = widget.plan?.autoAddToLedger == 0 ? false : true;
 
-    final appState = Provider.of<AppState>(context, listen: false);
     final dialogTitle =
         widget.plan == null ? 'Add New Plan Card' : 'Edit Plan Card';
     DateTime startDate = DateTime.fromMillisecondsSinceEpoch(timestamp);
@@ -230,12 +234,24 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                       onSelectionChanged: (selection) {
                         setModalState(() {
                           intervalFormat = selection.first;
+                          switch (selection.first) {
+                            case 0:
+                              intervalsController.text = '30';
+                              break;
+                            case 1:
+                              intervalsController.text = '4';
+                              break;
+                            case 2:
+                              intervalsController.text = '1';
+                              break;
+                          }
                         });
                       },
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text('Payment Interval (days)'),
+                  Text(
+                      'Payment Interval (${intervalFormat == 0 ? 'days' : intervalFormat == 1 ? 'weeks' : 'months'})'),
                   const SizedBox(height: 8),
                   TextField(
                     controller: intervalsController,
@@ -320,44 +336,44 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                           parsedAmount == null ||
                           parsedInstallments == null ||
                           parsedInstallments <= 0) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Please fill in the complete and valid name, amount, number of terms, and payment interval'),
-                          ),
-                        );
+                        Fluttertoast.showToast(
+                            msg:
+                                'Please fill in the complete and valid name, amount, and number of terms');
                         return;
                       }
 
                       if (widget.plan == null) {
-                        appState.addPlan(
+                        APIService().addLocalPlan(
                           name,
                           direction,
                           parsedAmount,
                           parsedInstallments,
-                          fixPayment,
+                          fixPayment ? 1 : 0,
                           intervalFormat,
                           parsedIntervals!,
                           startDate.millisecondsSinceEpoch,
-                          autoAddToLedger,
+                          autoAddToLedger ? 1 : 0,
                         );
                       } else {
-                        appState.updatePlan(
-                          widget.plan!.id,
-                          name: name,
-                          direction: direction as PlanDirection?,
-                          totalAmount: parsedAmount,
-                          totalInstallments: parsedInstallments,
-                          fixPayment: fixPayment,
-                          intervalFormat: intervalFormat,
-                          intervals: parsedIntervals,
-                          timestamp: startDate.millisecondsSinceEpoch,
-                          autoAddToLedger: autoAddToLedger,
-                        );
+                        print('dasafasf ${widget.plan!.created_at}');
+                        APIService().updatePlan(
+                            widget.plan!.id,
+                            name,
+                            direction,
+                            parsedAmount,
+                            parsedInstallments,
+                            fixPayment ? 1 : 0,
+                            intervalFormat,
+                            parsedIntervals!,
+                            startDate.millisecondsSinceEpoch,
+                            autoAddToLedger ? 1 : 0,
+                            widget.plan!.created_at,
+                            widget.plan!.synced,
+                            widget.plan!.deleted);
                       }
 
                       Navigator.pop(context);
-                      _closePlanMenu();
+                      widget.onConfirm();
                     },
                     child: Text(
                         widget.plan == null ? 'save plan' : 'update plan',

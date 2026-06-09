@@ -33,12 +33,14 @@ class Plans extends Table {
   TextColumn get direction => text()();
   RealColumn get totalAmount => real()();
   IntColumn get totalInstallments => integer()();
+  BoolColumn get fixPayment => boolean().withDefault(Constant(false))();
+  IntColumn get intervalFormat => integer()();
+  IntColumn get intervals => integer()();
+  IntColumn get timestamp => integer()();
   BoolColumn get autoAddToLedger => boolean().withDefault(Constant(false))();
   IntColumn get paidInstallments => integer()();
 
-  IntColumn get timestamp => integer()();
   TextColumn get createdAt => text()();
-
   BoolColumn get synced => boolean().withDefault(Constant(false))();
   BoolColumn get deleted => boolean().withDefault(Constant(false))();
 
@@ -84,7 +86,7 @@ Future<File> copyDatabase(File file) async {
   return file;
 }
 
-Future<void> saveToDrift(dynamic item) async {
+Future<void> saveTransaction(dynamic item) async {
   final db = Global.appDatabase;
   print('data to save: $item');
   await db.into(db.transactions).insertOnConflictUpdate(
@@ -96,6 +98,30 @@ Future<void> saveToDrift(dynamic item) async {
           amount: Value((item['amount'] as num).toDouble()),
           note: Value(item['note'] ?? ''),
           timestamp: Value(item['timestamp']),
+          createdAt: Value(item['created_at']),
+          synced: Value(item['synced'] == 1),
+          deleted: Value(item['deleted'] == 1),
+        ),
+      );
+}
+
+Future<void> savePlan(dynamic item) async {
+  final db = Global.appDatabase;
+  print('data to save: $item');
+  await db.into(db.plans).insertOnConflictUpdate(
+        PlansCompanion(
+          id: Value(item['id']),
+          userId: Value(item['user_id']),
+          name: Value(item['name']),
+          direction: Value(item['direction']),
+          totalAmount: Value((item['totalAmount'] as num).toDouble()),
+          totalInstallments: Value(item['totalInstallments'] ?? 0),
+          fixPayment: Value(item['fixPayment'] == 1),
+          intervalFormat: Value(item['intervalFormat'] ?? 0),
+          intervals: Value(item['intervals'] ?? 0),
+          timestamp: Value(item['timestamp']),
+          autoAddToLedger: Value(item['autoAddToLedger'] == 1),
+          paidInstallments: Value(item['paidInstallments'] ?? 0),
           createdAt: Value(item['created_at']),
           synced: Value(item['synced'] == 1),
           deleted: Value(item['deleted'] == 1),

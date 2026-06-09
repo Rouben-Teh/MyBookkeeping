@@ -68,3 +68,27 @@ Map<String, int> getWeekStartEnd(DateTime dt) {
           .millisecondsSinceEpoch;
   return {'start': weekStart, 'end': weekEnd};
 }
+
+DateTime calculateNextDate(
+  DateTime baseDate,
+  int format,
+  int totalPaymentDate,
+) {
+  switch (format) {
+    case 0:
+      return baseDate.add(Duration(days: totalPaymentDate));
+
+    case 1:
+      return baseDate.add(Duration(days: totalPaymentDate * 7));
+
+    case 2:
+      return DateTime(
+        baseDate.year,
+        baseDate.month + totalPaymentDate,
+        baseDate.day,
+      );
+
+    default:
+      return baseDate;
+  }
+}

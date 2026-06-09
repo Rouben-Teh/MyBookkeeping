@@ -1,64 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/service/api_service.dart';
 import 'package:my_bookkeeping/service/plan_service.dart';
 import 'package:my_bookkeeping/service/summary_service.dart';
+import 'package:my_bookkeeping/utils/datetime.dart';
 
 class AppState extends ChangeNotifier {
+  //login
   bool isLoggedIn = false;
   String token = '';
   String userId = '';
   String email = '';
 
+  //transaction
   String type = 'expense';
-
   List transactions = [];
-
-  List messages = [];
-
-  bool isLoading = false;
-
-  List<PlanEntry> plans = [
-    PlanEntry(
-      id: 'userId0',
-      userId: 0,
-      name: 'iPhone 14 分期付款',
-      direction: PlanDirection.expense,
-      totalAmount: 6999,
-      totalInstallments: 12,
-      fixPayment: true,
-      intervalFormat: 2,
-      intervals: 30,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
-      paidInstallments: 3,
-      autoAddToLedger: true,
-    ),
-    PlanEntry(
-      id: 'userId1',
-      userId: 0,
-      name: '借给小王',
-      direction: PlanDirection.income,
-      totalAmount: 3000,
-      totalInstallments: 6,
-      fixPayment: false,
-      intervalFormat: 2,
-      intervals: 30,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
-      paidInstallments: 1,
-      autoAddToLedger: false,
-    ),
-  ];
-
   DateTime currentMonth = DateTime.now();
 
+  //plan
+  List<PlanEntry> plans = [];
+
+  //summary
   int lastSummaryTab = 0;
   DateTime summaryYearDate = DateTime.now();
   DateTime summaryMonthDate = DateTime.now();
   DateTime summaryWeekDate = DateTime.now();
-  List<Map<String, dynamic>> summaryCache =
-      []; //-year,month,week, -start -end, -list
+  //-year,month,week, -start -end, -list
+  List<Map<String, dynamic>> summaryCache = [];
 
+  //profile
   int streak = 0;
   int totalStreak = 0;
   int totalEntries = 0;
+
+  //chatbot
+  List messages = [];
+  bool isLoading = false;
 
   void login(String _token, String _userId, String _email) {
     token = _token;
@@ -89,32 +65,42 @@ class AppState extends ChangeNotifier {
     notifyListeners(); // 通知所有UI刷新
   }
 
-  void addPlan(
-      String name,
-      PlanDirection direction,
-      double totalAmount,
-      int totalInstallments,
-      bool fixPayment,
-      int intervalFormat,
-      int intervals,
-      int timestamp,
-      bool autoAddToLedger) {
-    plans.insert(
-        0,
-        PlanEntry(
-          id: '${userId}${DateTime.now().millisecondsSinceEpoch}',
-          userId: int.parse(userId),
-          name: name.trim(),
-          direction: direction,
-          totalAmount: totalAmount,
-          totalInstallments: totalInstallments,
-          fixPayment: fixPayment,
-          intervalFormat: intervalFormat,
-          intervals: intervals,
-          timestamp: timestamp,
-          autoAddToLedger: autoAddToLedger,
-        ));
+  void setPlans(List data) {
+    plans = (data).map((e) => PlanEntry.fromJson(e)).toList();
+    _checkAutoAddPlan();
     notifyListeners();
+  }
+
+  void addPlan(PlanEntry newPlan) {
+    plans.insert(0, newPlan);
+    _checkAutoAddPlan();
+    notifyListeners();
+  }
+
+  void _checkAutoAddPlan() {
+    final now = DateTime.now();
+
+    for (final plan in plans) {
+      int total = plan.intervals * plan.paidInstallments;
+
+      DateTime next = calculateNextDate(
+        DateTime.fromMillisecondsSinceEpoch(plan.timestamp),
+        plan.intervalFormat,
+        total,
+      );
+
+      while (next.isBefore(now)) {
+        APIService().markPlanPaid(plan);
+
+        total += plan.intervals;
+
+        next = calculateNextDate(
+          DateTime.fromMillisecondsSinceEpoch(plan.timestamp),
+          plan.intervalFormat,
+          total,
+        );
+      }
+    }
   }
 
   void markPlanPaid(String id) {
@@ -142,11 +128,11 @@ class AppState extends ChangeNotifier {
     if (direction != null) plan.direction = direction;
     if (totalAmount != null) plan.totalAmount = totalAmount;
     if (totalInstallments != null) plan.totalInstallments = totalInstallments;
-    if (fixPayment != null) plan.fixPayment = fixPayment;
+    if (fixPayment != null) plan.fixPayment = fixPayment ? 1 : 0;
     if (intervalFormat != null) plan.intervalFormat = intervalFormat;
     if (intervals != null) plan.intervals = intervals;
     if (timestamp != null) plan.timestamp = timestamp;
-    if (autoAddToLedger != null) plan.autoAddToLedger = autoAddToLedger;
+    if (autoAddToLedger != null) plan.autoAddToLedger = autoAddToLedger ? 1 : 0;
     notifyListeners();
   }
 
@@ -251,11 +237,21 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  void clearSummaryCache() {
+    summaryCache.clear();
+  }
+
   void setProfileStats(int streak, int totalStreak, int totalEntries) {
     this.streak = streak;
     this.totalStreak = totalStreak;
     this.totalEntries = totalEntries;
     notifyListeners();
+  }
+
+  void clearProfileStats() {
+    this.streak = 0;
+    this.totalStreak = 0;
+    this.totalEntries = 0;
   }
 
   void setMessage(List data) {

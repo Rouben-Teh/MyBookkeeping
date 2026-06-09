@@ -41,6 +41,9 @@ class _ProfilePageState extends State<ProfilePage> {
       }
 
       Global.appState.setTransactions([]);
+      Global.appState.setPlans([]);
+      Global.appState.clearSummaryCache();
+      Global.appState.clearProfileStats();
       Global.appState.setMessage([]);
 
       await prefs.remove('token');

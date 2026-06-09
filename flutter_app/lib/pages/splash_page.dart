@@ -38,6 +38,7 @@ class _SplashPageState extends State<SplashPage> {
 
       // APIService().fetchMonthTransactions(DateTime.now());
       await APIService().fetchLocalMonthTransactions(DateTime.now());
+      await APIService().fetchLocalPlans();
 
       //summary
       final dt = DateTime.now();
