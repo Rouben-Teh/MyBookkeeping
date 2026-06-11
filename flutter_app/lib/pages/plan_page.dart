@@ -102,7 +102,7 @@ class _PlansPageState extends State<PlansPage> {
                   itemCount: appState.plans.length,
                   itemBuilder: (context, index) {
                     final plan = appState.plans[index];
-                    final isExpense = plan.direction == PlanDirection.expense;
+                    final isExpense = plan.type == 'expense';
                     final accentColor =
                         isExpense ? Colors.redAccent : Colors.green;
                     final remainText =
@@ -275,7 +275,7 @@ class _PlansPageState extends State<PlansPage> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'already paid: ${plan.paidInstallments}/${plan.totalInstallments} installments',
+                              'already paid: ${plan.paidInstallments}/${plan.installments} installments',
                               style: const TextStyle(
                                   fontSize: 12, color: Colors.black54),
                             ),
@@ -296,7 +296,7 @@ class _PlansPageState extends State<PlansPage> {
                                         ? ElevatedButton.icon(
                                             onPressed: () {
                                               if (plan.paidInstallments <
-                                                  plan.totalInstallments) {
+                                                  plan.installments) {
                                                 APIService().markPlanPaid(plan);
                                               }
                                             },

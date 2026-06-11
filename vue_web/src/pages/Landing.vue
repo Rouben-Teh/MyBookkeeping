@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-white text-black">
-    <header class="container mx-auto px-6 py-6 flex items-center justify-between bg-red-400 text-white sticky top-0 z-10">
+    <header class="mx-auto px-6 py-6 flex items-center justify-between bg-red-400 text-white sticky top-0 z-10">
       <h1 class="text-3xl font-bold">MyBookkeeping</h1>
       <nav class="space-x-4">
         <router-link class="hover:underline" :to="{ path: '/', hash: '#home' }">Home</router-link>
@@ -72,7 +72,7 @@
 
           <div class="flex w-full h-80 items-center gap-4 mb-4 shadow-lg backdrop-blur bg-white/50 rounded-xl p-8">
             <Clipboard class="w-25 h-auto text-red-500" />
-            <h3 class="text-xl font-semibold">Monthly Reports, Charts, and Trend Analysis</h3>
+            <h3 class="text-xl font-semibold">Weekly, Monthly & Yearly Reports</h3>
           </div>
 
           <div class="flex w-full h-80 items-center gap-4 mb-4 shadow-lg backdrop-blur bg-white/50 rounded-xl p-8">
@@ -86,21 +86,42 @@
           </div>
 
           <div class="flex w-full h-80 items-center gap-4 mb-4 shadow-lg backdrop-blur bg-white/50 rounded-xl p-8">
-            <Layers2 class="w-25 h-auto text-red-500" />
-            <h3 class="text-xl font-semibold">Fast Category Management</h3>
+            <Calendar1 class="w-25 h-auto text-red-500" />
+            <h3 class="text-xl font-semibold">Scheduled Tasks<br>*App feature</h3>
           </div>
 
         </div>
         
       </section>
 
-      <section id="contact" class="bg-white/10 rounded-xl p-8 shadow-lg backdrop-blur">
-        <h2 class="text-3xl font-bold mb-4">Contact</h2>
-        <p class="text-lg mb-4">If you have any questions or suggestions, please feel free to contact us.
-          <br>
-          Email: rouben0216@gmail.com
-        </p>
-        
+      <section id="contact" class="p-8 rounded-xl backdrop-blur bg-white/10">
+        <div class="flex flex-col h-full">
+          <h2 class="text-3xl font-bold mb-4">Contact</h2>
+          
+          <div class="flex flex-1 gap-4 flex-col md:flex-row">
+            <div class="w-full md:w-1/2 h-full md:h-1/2 flex items-center justify-center">
+              <img src="@/assets/images/contact.png" alt="Contact" class="h-full object-contain" />
+            </div>
+
+            <div class="w-full md:w-1/2 h-full flex flex-col px-4 md:px-8">
+            
+              <form v-if="!isSentContact" class="flex flex-col h-full">
+                <input v-model="inputName" type="text" placeholder="Your name" class="mb-3 px-4 py-3 border rounded-lg bg-white/80" />
+                <input v-model="inputEmail" type="email" placeholder="Your email" class="mb-3 px-4 py-3 border rounded-lg bg-white/80" />
+                <textarea v-model="inputMessage" placeholder="Your message" class="h-70 mb-3 p-4 border rounded-lg bg-white/80 resize-none"></textarea>
+                <div class="flex justify-end">
+                  <button @click="submit" :disabled="isSending" type="button" class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-full cursor-pointer disabled:bg-red-300">Send</button>
+                </div>
+              </form>
+              
+              <div v-else class="flex flex-col h-90 items-center justify-center">
+                <CircleCheck class="w-25 h-25 text-green-500"/>
+                <p class="mt-6">You have sent the message.</p>
+              </div>
+              
+            </div>
+          </div>
+        </div>
       </section>
     </main>
 
@@ -109,11 +130,50 @@
 </template>
 
 <script setup>
-import { CloudSync, FunnelPlus, Clipboard, ShieldAlert, Bot, Layers2 } from 'lucide-vue-next';
+import { CloudSync, FunnelPlus, Clipboard, ShieldAlert, Bot, Layers2, Calendar1, CircleCheck } from 'lucide-vue-next';
 </script>
 
 <script>
+import { httpPost } from '../utils/NetUtils';
+
 export default {
   name: 'Landing',
+  data() {
+    return{
+      isSending: false,
+      isSentContact: false,
+      inputName: '',
+      inputEmail: '',
+      inputMessage: '',
+    }
+  },
+  methods: {
+    async submit(){
+      try {
+        if(!this.inputName?.trim() || !this.inputEmail?.trim() || !this.inputMessage?.trim()) {
+          alert('Please fill in all fields.')
+          return;
+        }
+
+        this.isSending = true;
+
+        const res = await httpPost('contact', {
+          device_type: "WEB",
+          name: this.inputName,
+          email: this.inputEmail,
+          message: this.inputMessage
+        });
+        const data = res.data;
+
+        if(data.ok){
+          this.isSending = false;
+          this.isSentContact = true;
+        }
+        
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
 };
 </script>

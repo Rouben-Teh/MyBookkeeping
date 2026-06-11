@@ -44,14 +44,14 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
   @override
   Widget build(BuildContext context) {
     String name = widget.plan?.name ?? '';
-    String amount = widget.plan?.totalAmount.toString() ?? '';
-    String installments = widget.plan?.totalInstallments.toString() ?? '6';
+    String amount = widget.plan?.amount.toString() ?? '';
+    String installments = widget.plan?.installments.toString() ?? '6';
     bool fixPayment = widget.plan?.fixPayment == 0 ? false : true;
     int intervalFormat = widget.plan?.intervalFormat ?? 0;
     String intervals = widget.plan?.intervals.toString() ?? '30';
     int timestamp =
         widget.plan?.timestamp ?? DateTime.now().millisecondsSinceEpoch;
-    PlanDirection direction = widget.plan?.direction ?? PlanDirection.expense;
+    String type = widget.plan?.type ?? 'expense';
     bool autoAddToLedger = widget.plan?.autoAddToLedger == 0 ? false : true;
 
     final dialogTitle =
@@ -121,7 +121,7 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                 SizedBox(
                   width: double
                       .infinity, // Forces the container to take full width
-                  child: SegmentedButton<PlanDirection>(
+                  child: SegmentedButton<String>(
                     style: SegmentedButton.styleFrom(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       backgroundColor: const Color(0xFFFFF4F4),
@@ -131,19 +131,19 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                           vertical: 8, horizontal: 12),
                     ),
                     segments: const [
-                      ButtonSegment<PlanDirection>(
-                        value: PlanDirection.expense,
+                      ButtonSegment<String>(
+                        value: 'expense',
                         label: Text('Expense'),
                       ),
-                      ButtonSegment<PlanDirection>(
-                        value: PlanDirection.income,
+                      ButtonSegment<String>(
+                        value: 'income',
                         label: Text('Income'),
                       ),
                     ],
-                    selected: <PlanDirection>{direction},
+                    selected: <String>{type},
                     onSelectionChanged: (selection) {
                       setModalState(() {
-                        direction = selection.first;
+                        type = selection.first;
                       });
                     },
                   ),
@@ -237,12 +237,15 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                           switch (selection.first) {
                             case 0:
                               intervalsController.text = '30';
+                              intervals = '30';
                               break;
                             case 1:
                               intervalsController.text = '4';
+                              intervals = '4';
                               break;
                             case 2:
                               intervalsController.text = '1';
+                              intervals = '1';
                               break;
                           }
                         });
@@ -345,7 +348,7 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                       if (widget.plan == null) {
                         APIService().addLocalPlan(
                           name,
-                          direction,
+                          type,
                           parsedAmount,
                           parsedInstallments,
                           fixPayment ? 1 : 0,
@@ -355,11 +358,10 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                           autoAddToLedger ? 1 : 0,
                         );
                       } else {
-                        print('dasafasf ${widget.plan!.created_at}');
                         APIService().updatePlan(
                             widget.plan!.id,
                             name,
-                            direction,
+                            type,
                             parsedAmount,
                             parsedInstallments,
                             fixPayment ? 1 : 0,
@@ -367,7 +369,8 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                             parsedIntervals!,
                             startDate.millisecondsSinceEpoch,
                             autoAddToLedger ? 1 : 0,
-                            widget.plan!.created_at,
+                            widget.plan!.paidInstallments,
+                            widget.plan!.createdAt,
                             widget.plan!.synced,
                             widget.plan!.deleted);
                       }

@@ -178,7 +178,7 @@ export default {
     },
     async handleUpdateTransaction(tx) {
       try {
-        const res = await httpPost('sync', tx);
+        const res = await httpPost('sync-transaction', tx);
         const data = res.data;
         if (data.ok) {
           this.fetchCurrentMonthTransactions();

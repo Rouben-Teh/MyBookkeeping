@@ -524,23 +524,21 @@ class $PlansTable extends Plans with TableInfo<$PlansTable, Plan> {
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _directionMeta =
-      const VerificationMeta('direction');
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
-  late final GeneratedColumn<String> direction = GeneratedColumn<String>(
-      'direction', aliasedName, false,
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _totalAmountMeta =
-      const VerificationMeta('totalAmount');
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
-  late final GeneratedColumn<double> totalAmount = GeneratedColumn<double>(
-      'total_amount', aliasedName, false,
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _totalInstallmentsMeta =
-      const VerificationMeta('totalInstallments');
+  static const VerificationMeta _installmentsMeta =
+      const VerificationMeta('installments');
   @override
-  late final GeneratedColumn<int> totalInstallments = GeneratedColumn<int>(
-      'total_installments', aliasedName, false,
+  late final GeneratedColumn<int> installments = GeneratedColumn<int>(
+      'installments', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _fixPaymentMeta =
       const VerificationMeta('fixPayment');
@@ -616,9 +614,9 @@ class $PlansTable extends Plans with TableInfo<$PlansTable, Plan> {
         id,
         userId,
         name,
-        direction,
-        totalAmount,
-        totalInstallments,
+        type,
+        amount,
+        installments,
         fixPayment,
         intervalFormat,
         intervals,
@@ -656,27 +654,25 @@ class $PlansTable extends Plans with TableInfo<$PlansTable, Plan> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('direction')) {
-      context.handle(_directionMeta,
-          direction.isAcceptableOrUnknown(data['direction']!, _directionMeta));
-    } else if (isInserting) {
-      context.missing(_directionMeta);
-    }
-    if (data.containsKey('total_amount')) {
+    if (data.containsKey('type')) {
       context.handle(
-          _totalAmountMeta,
-          totalAmount.isAcceptableOrUnknown(
-              data['total_amount']!, _totalAmountMeta));
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     } else if (isInserting) {
-      context.missing(_totalAmountMeta);
+      context.missing(_typeMeta);
     }
-    if (data.containsKey('total_installments')) {
-      context.handle(
-          _totalInstallmentsMeta,
-          totalInstallments.isAcceptableOrUnknown(
-              data['total_installments']!, _totalInstallmentsMeta));
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
     } else if (isInserting) {
-      context.missing(_totalInstallmentsMeta);
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('installments')) {
+      context.handle(
+          _installmentsMeta,
+          installments.isAcceptableOrUnknown(
+              data['installments']!, _installmentsMeta));
+    } else if (isInserting) {
+      context.missing(_installmentsMeta);
     }
     if (data.containsKey('fix_payment')) {
       context.handle(
@@ -747,12 +743,12 @@ class $PlansTable extends Plans with TableInfo<$PlansTable, Plan> {
           .read(DriftSqlType.int, data['${effectivePrefix}user_id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      direction: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}direction'])!,
-      totalAmount: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}total_amount'])!,
-      totalInstallments: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}total_installments'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      installments: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}installments'])!,
       fixPayment: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}fix_payment'])!,
       intervalFormat: attachedDatabase.typeMapping
@@ -784,9 +780,9 @@ class Plan extends DataClass implements Insertable<Plan> {
   final String id;
   final int userId;
   final String name;
-  final String direction;
-  final double totalAmount;
-  final int totalInstallments;
+  final String type;
+  final double amount;
+  final int installments;
   final bool fixPayment;
   final int intervalFormat;
   final int intervals;
@@ -800,9 +796,9 @@ class Plan extends DataClass implements Insertable<Plan> {
       {required this.id,
       required this.userId,
       required this.name,
-      required this.direction,
-      required this.totalAmount,
-      required this.totalInstallments,
+      required this.type,
+      required this.amount,
+      required this.installments,
       required this.fixPayment,
       required this.intervalFormat,
       required this.intervals,
@@ -818,9 +814,9 @@ class Plan extends DataClass implements Insertable<Plan> {
     map['id'] = Variable<String>(id);
     map['user_id'] = Variable<int>(userId);
     map['name'] = Variable<String>(name);
-    map['direction'] = Variable<String>(direction);
-    map['total_amount'] = Variable<double>(totalAmount);
-    map['total_installments'] = Variable<int>(totalInstallments);
+    map['type'] = Variable<String>(type);
+    map['amount'] = Variable<double>(amount);
+    map['installments'] = Variable<int>(installments);
     map['fix_payment'] = Variable<bool>(fixPayment);
     map['interval_format'] = Variable<int>(intervalFormat);
     map['intervals'] = Variable<int>(intervals);
@@ -838,9 +834,9 @@ class Plan extends DataClass implements Insertable<Plan> {
       id: Value(id),
       userId: Value(userId),
       name: Value(name),
-      direction: Value(direction),
-      totalAmount: Value(totalAmount),
-      totalInstallments: Value(totalInstallments),
+      type: Value(type),
+      amount: Value(amount),
+      installments: Value(installments),
       fixPayment: Value(fixPayment),
       intervalFormat: Value(intervalFormat),
       intervals: Value(intervals),
@@ -860,9 +856,9 @@ class Plan extends DataClass implements Insertable<Plan> {
       id: serializer.fromJson<String>(json['id']),
       userId: serializer.fromJson<int>(json['userId']),
       name: serializer.fromJson<String>(json['name']),
-      direction: serializer.fromJson<String>(json['direction']),
-      totalAmount: serializer.fromJson<double>(json['totalAmount']),
-      totalInstallments: serializer.fromJson<int>(json['totalInstallments']),
+      type: serializer.fromJson<String>(json['type']),
+      amount: serializer.fromJson<double>(json['amount']),
+      installments: serializer.fromJson<int>(json['installments']),
       fixPayment: serializer.fromJson<bool>(json['fixPayment']),
       intervalFormat: serializer.fromJson<int>(json['intervalFormat']),
       intervals: serializer.fromJson<int>(json['intervals']),
@@ -881,9 +877,9 @@ class Plan extends DataClass implements Insertable<Plan> {
       'id': serializer.toJson<String>(id),
       'userId': serializer.toJson<int>(userId),
       'name': serializer.toJson<String>(name),
-      'direction': serializer.toJson<String>(direction),
-      'totalAmount': serializer.toJson<double>(totalAmount),
-      'totalInstallments': serializer.toJson<int>(totalInstallments),
+      'type': serializer.toJson<String>(type),
+      'amount': serializer.toJson<double>(amount),
+      'installments': serializer.toJson<int>(installments),
       'fixPayment': serializer.toJson<bool>(fixPayment),
       'intervalFormat': serializer.toJson<int>(intervalFormat),
       'intervals': serializer.toJson<int>(intervals),
@@ -900,9 +896,9 @@ class Plan extends DataClass implements Insertable<Plan> {
           {String? id,
           int? userId,
           String? name,
-          String? direction,
-          double? totalAmount,
-          int? totalInstallments,
+          String? type,
+          double? amount,
+          int? installments,
           bool? fixPayment,
           int? intervalFormat,
           int? intervals,
@@ -916,9 +912,9 @@ class Plan extends DataClass implements Insertable<Plan> {
         id: id ?? this.id,
         userId: userId ?? this.userId,
         name: name ?? this.name,
-        direction: direction ?? this.direction,
-        totalAmount: totalAmount ?? this.totalAmount,
-        totalInstallments: totalInstallments ?? this.totalInstallments,
+        type: type ?? this.type,
+        amount: amount ?? this.amount,
+        installments: installments ?? this.installments,
         fixPayment: fixPayment ?? this.fixPayment,
         intervalFormat: intervalFormat ?? this.intervalFormat,
         intervals: intervals ?? this.intervals,
@@ -934,12 +930,11 @@ class Plan extends DataClass implements Insertable<Plan> {
       id: data.id.present ? data.id.value : this.id,
       userId: data.userId.present ? data.userId.value : this.userId,
       name: data.name.present ? data.name.value : this.name,
-      direction: data.direction.present ? data.direction.value : this.direction,
-      totalAmount:
-          data.totalAmount.present ? data.totalAmount.value : this.totalAmount,
-      totalInstallments: data.totalInstallments.present
-          ? data.totalInstallments.value
-          : this.totalInstallments,
+      type: data.type.present ? data.type.value : this.type,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      installments: data.installments.present
+          ? data.installments.value
+          : this.installments,
       fixPayment:
           data.fixPayment.present ? data.fixPayment.value : this.fixPayment,
       intervalFormat: data.intervalFormat.present
@@ -965,9 +960,9 @@ class Plan extends DataClass implements Insertable<Plan> {
           ..write('id: $id, ')
           ..write('userId: $userId, ')
           ..write('name: $name, ')
-          ..write('direction: $direction, ')
-          ..write('totalAmount: $totalAmount, ')
-          ..write('totalInstallments: $totalInstallments, ')
+          ..write('type: $type, ')
+          ..write('amount: $amount, ')
+          ..write('installments: $installments, ')
           ..write('fixPayment: $fixPayment, ')
           ..write('intervalFormat: $intervalFormat, ')
           ..write('intervals: $intervals, ')
@@ -986,9 +981,9 @@ class Plan extends DataClass implements Insertable<Plan> {
       id,
       userId,
       name,
-      direction,
-      totalAmount,
-      totalInstallments,
+      type,
+      amount,
+      installments,
       fixPayment,
       intervalFormat,
       intervals,
@@ -1005,9 +1000,9 @@ class Plan extends DataClass implements Insertable<Plan> {
           other.id == this.id &&
           other.userId == this.userId &&
           other.name == this.name &&
-          other.direction == this.direction &&
-          other.totalAmount == this.totalAmount &&
-          other.totalInstallments == this.totalInstallments &&
+          other.type == this.type &&
+          other.amount == this.amount &&
+          other.installments == this.installments &&
           other.fixPayment == this.fixPayment &&
           other.intervalFormat == this.intervalFormat &&
           other.intervals == this.intervals &&
@@ -1023,9 +1018,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
   final Value<String> id;
   final Value<int> userId;
   final Value<String> name;
-  final Value<String> direction;
-  final Value<double> totalAmount;
-  final Value<int> totalInstallments;
+  final Value<String> type;
+  final Value<double> amount;
+  final Value<int> installments;
   final Value<bool> fixPayment;
   final Value<int> intervalFormat;
   final Value<int> intervals;
@@ -1040,9 +1035,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
     this.id = const Value.absent(),
     this.userId = const Value.absent(),
     this.name = const Value.absent(),
-    this.direction = const Value.absent(),
-    this.totalAmount = const Value.absent(),
-    this.totalInstallments = const Value.absent(),
+    this.type = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.installments = const Value.absent(),
     this.fixPayment = const Value.absent(),
     this.intervalFormat = const Value.absent(),
     this.intervals = const Value.absent(),
@@ -1058,9 +1053,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
     required String id,
     required int userId,
     required String name,
-    required String direction,
-    required double totalAmount,
-    required int totalInstallments,
+    required String type,
+    required double amount,
+    required int installments,
     this.fixPayment = const Value.absent(),
     required int intervalFormat,
     required int intervals,
@@ -1074,9 +1069,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
   })  : id = Value(id),
         userId = Value(userId),
         name = Value(name),
-        direction = Value(direction),
-        totalAmount = Value(totalAmount),
-        totalInstallments = Value(totalInstallments),
+        type = Value(type),
+        amount = Value(amount),
+        installments = Value(installments),
         intervalFormat = Value(intervalFormat),
         intervals = Value(intervals),
         timestamp = Value(timestamp),
@@ -1086,9 +1081,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
     Expression<String>? id,
     Expression<int>? userId,
     Expression<String>? name,
-    Expression<String>? direction,
-    Expression<double>? totalAmount,
-    Expression<int>? totalInstallments,
+    Expression<String>? type,
+    Expression<double>? amount,
+    Expression<int>? installments,
     Expression<bool>? fixPayment,
     Expression<int>? intervalFormat,
     Expression<int>? intervals,
@@ -1104,9 +1099,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
       if (id != null) 'id': id,
       if (userId != null) 'user_id': userId,
       if (name != null) 'name': name,
-      if (direction != null) 'direction': direction,
-      if (totalAmount != null) 'total_amount': totalAmount,
-      if (totalInstallments != null) 'total_installments': totalInstallments,
+      if (type != null) 'type': type,
+      if (amount != null) 'amount': amount,
+      if (installments != null) 'installments': installments,
       if (fixPayment != null) 'fix_payment': fixPayment,
       if (intervalFormat != null) 'interval_format': intervalFormat,
       if (intervals != null) 'intervals': intervals,
@@ -1124,9 +1119,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
       {Value<String>? id,
       Value<int>? userId,
       Value<String>? name,
-      Value<String>? direction,
-      Value<double>? totalAmount,
-      Value<int>? totalInstallments,
+      Value<String>? type,
+      Value<double>? amount,
+      Value<int>? installments,
       Value<bool>? fixPayment,
       Value<int>? intervalFormat,
       Value<int>? intervals,
@@ -1141,9 +1136,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
       id: id ?? this.id,
       userId: userId ?? this.userId,
       name: name ?? this.name,
-      direction: direction ?? this.direction,
-      totalAmount: totalAmount ?? this.totalAmount,
-      totalInstallments: totalInstallments ?? this.totalInstallments,
+      type: type ?? this.type,
+      amount: amount ?? this.amount,
+      installments: installments ?? this.installments,
       fixPayment: fixPayment ?? this.fixPayment,
       intervalFormat: intervalFormat ?? this.intervalFormat,
       intervals: intervals ?? this.intervals,
@@ -1169,14 +1164,14 @@ class PlansCompanion extends UpdateCompanion<Plan> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (direction.present) {
-      map['direction'] = Variable<String>(direction.value);
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
     }
-    if (totalAmount.present) {
-      map['total_amount'] = Variable<double>(totalAmount.value);
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
     }
-    if (totalInstallments.present) {
-      map['total_installments'] = Variable<int>(totalInstallments.value);
+    if (installments.present) {
+      map['installments'] = Variable<int>(installments.value);
     }
     if (fixPayment.present) {
       map['fix_payment'] = Variable<bool>(fixPayment.value);
@@ -1217,9 +1212,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
           ..write('id: $id, ')
           ..write('userId: $userId, ')
           ..write('name: $name, ')
-          ..write('direction: $direction, ')
-          ..write('totalAmount: $totalAmount, ')
-          ..write('totalInstallments: $totalInstallments, ')
+          ..write('type: $type, ')
+          ..write('amount: $amount, ')
+          ..write('installments: $installments, ')
           ..write('fixPayment: $fixPayment, ')
           ..write('intervalFormat: $intervalFormat, ')
           ..write('intervals: $intervals, ')
@@ -1499,9 +1494,9 @@ typedef $$PlansTableCreateCompanionBuilder = PlansCompanion Function({
   required String id,
   required int userId,
   required String name,
-  required String direction,
-  required double totalAmount,
-  required int totalInstallments,
+  required String type,
+  required double amount,
+  required int installments,
   Value<bool> fixPayment,
   required int intervalFormat,
   required int intervals,
@@ -1517,9 +1512,9 @@ typedef $$PlansTableUpdateCompanionBuilder = PlansCompanion Function({
   Value<String> id,
   Value<int> userId,
   Value<String> name,
-  Value<String> direction,
-  Value<double> totalAmount,
-  Value<int> totalInstallments,
+  Value<String> type,
+  Value<double> amount,
+  Value<int> installments,
   Value<bool> fixPayment,
   Value<int> intervalFormat,
   Value<int> intervals,
@@ -1549,15 +1544,14 @@ class $$PlansTableFilterComposer extends Composer<_$AppDatabase, $PlansTable> {
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get direction => $composableBuilder(
-      column: $table.direction, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<double> get totalAmount => $composableBuilder(
-      column: $table.totalAmount, builder: (column) => ColumnFilters(column));
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get totalInstallments => $composableBuilder(
-      column: $table.totalInstallments,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get installments => $composableBuilder(
+      column: $table.installments, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get fixPayment => $composableBuilder(
       column: $table.fixPayment, builder: (column) => ColumnFilters(column));
@@ -1608,14 +1602,14 @@ class $$PlansTableOrderingComposer
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get direction => $composableBuilder(
-      column: $table.direction, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<double> get totalAmount => $composableBuilder(
-      column: $table.totalAmount, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get totalInstallments => $composableBuilder(
-      column: $table.totalInstallments,
+  ColumnOrderings<int> get installments => $composableBuilder(
+      column: $table.installments,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get fixPayment => $composableBuilder(
@@ -1667,14 +1661,14 @@ class $$PlansTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<String> get direction =>
-      $composableBuilder(column: $table.direction, builder: (column) => column);
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
 
-  GeneratedColumn<double> get totalAmount => $composableBuilder(
-      column: $table.totalAmount, builder: (column) => column);
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
 
-  GeneratedColumn<int> get totalInstallments => $composableBuilder(
-      column: $table.totalInstallments, builder: (column) => column);
+  GeneratedColumn<int> get installments => $composableBuilder(
+      column: $table.installments, builder: (column) => column);
 
   GeneratedColumn<bool> get fixPayment => $composableBuilder(
       column: $table.fixPayment, builder: (column) => column);
@@ -1730,9 +1724,9 @@ class $$PlansTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<int> userId = const Value.absent(),
             Value<String> name = const Value.absent(),
-            Value<String> direction = const Value.absent(),
-            Value<double> totalAmount = const Value.absent(),
-            Value<int> totalInstallments = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<int> installments = const Value.absent(),
             Value<bool> fixPayment = const Value.absent(),
             Value<int> intervalFormat = const Value.absent(),
             Value<int> intervals = const Value.absent(),
@@ -1748,9 +1742,9 @@ class $$PlansTableTableManager extends RootTableManager<
             id: id,
             userId: userId,
             name: name,
-            direction: direction,
-            totalAmount: totalAmount,
-            totalInstallments: totalInstallments,
+            type: type,
+            amount: amount,
+            installments: installments,
             fixPayment: fixPayment,
             intervalFormat: intervalFormat,
             intervals: intervals,
@@ -1766,9 +1760,9 @@ class $$PlansTableTableManager extends RootTableManager<
             required String id,
             required int userId,
             required String name,
-            required String direction,
-            required double totalAmount,
-            required int totalInstallments,
+            required String type,
+            required double amount,
+            required int installments,
             Value<bool> fixPayment = const Value.absent(),
             required int intervalFormat,
             required int intervals,
@@ -1784,9 +1778,9 @@ class $$PlansTableTableManager extends RootTableManager<
             id: id,
             userId: userId,
             name: name,
-            direction: direction,
-            totalAmount: totalAmount,
-            totalInstallments: totalInstallments,
+            type: type,
+            amount: amount,
+            installments: installments,
             fixPayment: fixPayment,
             intervalFormat: intervalFormat,
             intervals: intervals,

@@ -30,9 +30,9 @@ class Plans extends Table {
   TextColumn get id => text()();
   IntColumn get userId => integer()();
   TextColumn get name => text()();
-  TextColumn get direction => text()();
-  RealColumn get totalAmount => real()();
-  IntColumn get totalInstallments => integer()();
+  TextColumn get type => text()();
+  RealColumn get amount => real()();
+  IntColumn get installments => integer()();
   BoolColumn get fixPayment => boolean().withDefault(Constant(false))();
   IntColumn get intervalFormat => integer()();
   IntColumn get intervals => integer()();
@@ -53,7 +53,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 }
 
 LazyDatabase _openConnection() {
@@ -113,15 +113,15 @@ Future<void> savePlan(dynamic item) async {
           id: Value(item['id']),
           userId: Value(item['user_id']),
           name: Value(item['name']),
-          direction: Value(item['direction']),
-          totalAmount: Value((item['totalAmount'] as num).toDouble()),
-          totalInstallments: Value(item['totalInstallments'] ?? 0),
-          fixPayment: Value(item['fixPayment'] == 1),
-          intervalFormat: Value(item['intervalFormat'] ?? 0),
+          type: Value(item['type']),
+          amount: Value((item['amount'] as num).toDouble()),
+          installments: Value(item['installments'] ?? 0),
+          fixPayment: Value(item['fix_payment'] == 1),
+          intervalFormat: Value(item['interval_format'] ?? 0),
           intervals: Value(item['intervals'] ?? 0),
           timestamp: Value(item['timestamp']),
-          autoAddToLedger: Value(item['autoAddToLedger'] == 1),
-          paidInstallments: Value(item['paidInstallments'] ?? 0),
+          autoAddToLedger: Value(item['auto_add_to_ledger'] == 1),
+          paidInstallments: Value(item['paid_installments'] ?? 0),
           createdAt: Value(item['created_at']),
           synced: Value(item['synced'] == 1),
           deleted: Value(item['deleted'] == 1),

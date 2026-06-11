@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 )
 ");
 
+//token
 $db->exec("
 CREATE TABLE IF NOT EXISTS tokens (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,6 +39,40 @@ CREATE TABLE IF NOT EXISTS transactions (
     synced INTEGER DEFAULT 0,
     deleted INTEGER DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES accounts(id)
+)
+");
+
+// plans table
+$db->exec("
+CREATE TABLE IF NOT EXISTS plans (
+    id TEXT NOT NULL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL CHECK(type IN ('expense', 'income')),
+    amount REAL NOT NULL,  
+    installments INTEGER DEFAULT 0,
+    fix_payment INTEGER DEFAULT 0,
+    interval_format INTEGER DEFAULT 0,
+    intervals INTEGER DEFAULT 0,
+    timestamp INTEGER DEFAULT ((strftime('%s','now') * 1000, 'unixepoch', 'localtime')),
+    auto_add_to_ledger INTEGER DEFAULT 0,
+    paid_installments INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now','localtime')),
+    synced INTEGER DEFAULT 0,
+    deleted INTEGER DEFAULT 0,
+    FOREIGN KEY(user_id) REFERENCES accounts(id)
+)
+");
+
+// contact table
+$db->exec("
+CREATE TABLE IF NOT EXISTS contacts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    device_type TEXT,
+    name TEXT,
+    email TEXT,
+    message TEXT,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
 )
 ");
 

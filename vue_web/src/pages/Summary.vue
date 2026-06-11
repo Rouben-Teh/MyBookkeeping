@@ -73,15 +73,15 @@
       </div>
       <div class="bg-white shadow rounded-lg p-4">
         <h2 class="text-lg font-medium">Total Expenses Amount</h2>
-        <p class="text-3xl font-bold mt-2">¥{{ totalExpenseAmount }}</p>
+        <p class="text-3xl font-bold mt-2">¥{{ totalExpenseAmount.toFixed(2) }}</p>
       </div>
       <div class="bg-white shadow rounded-lg p-4">
         <h2 class="text-lg font-medium">Total Income Amount</h2>
-        <p class="text-3xl font-bold mt-2">¥{{ totalIncomeAmount }}</p>
+        <p class="text-3xl font-bold mt-2">¥{{ totalIncomeAmount.toFixed(2) }}</p>
       </div>
       <div class="bg-white shadow rounded-lg p-4">
         <h2 class="text-lg font-medium">Balance</h2>
-        <p class="text-3xl font-bold mt-2">¥{{ totalIncomeAmount - totalExpenseAmount }}</p>
+        <p class="text-3xl font-bold mt-2">¥{{ (totalIncomeAmount - totalExpenseAmount).toFixed(2) }}</p>
       </div>
     </div>
 

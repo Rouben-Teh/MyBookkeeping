@@ -265,7 +265,7 @@ if ($action === 'soft-delete') {
 }
 
 // 同步交易
-if ($action === 'sync') {
+if ($action === 'sync-transaction') {
     $auth = getAuth($db);
     if (!$auth) {
         http_response_code(401);
@@ -299,6 +299,74 @@ if ($action === 'sync') {
         synced = 1,
         deleted = excluded.deleted');
     $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':type' => $body['type'] ?? 'expense', ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp, ':deleted' => $deleted]);
+    
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
+if ($action === 'list-plans') {
+    $auth = getAuth($db);
+    if (!$auth) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+    
+    $stmt = $db->prepare('SELECT * FROM plans WHERE user_id = :user_id ORDER BY created_at ASC');
+    $stmt->execute([':user_id' => $auth['user_id']]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    echo json_encode(['plans' => $rows]);
+    exit;
+}
+
+if ($action === 'sync-plan') {
+    $auth = getAuth($db);
+    if (!$auth) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+    
+    $body = json_decode(file_get_contents('php://input'), true);
+    $id = $body['id'] ?? '';
+    $user_id = $body['user_id'] ?? $auth['user_id'];
+    $name = $body['name'] ?? '';
+    $type = $body['type'] ?? 'expense';
+    $amount = isset($body['amount']) ? (float)$body['amount'] : 0.0;
+    $installments = $body['installments'] ?? 0;
+    $fix_payment = $body['fix_payment'] ?? 0;
+    $interval_format = $body['interval_format'] ?? 0;
+    $intervals = $body['intervals'] ?? 0;
+    $timestamp = $body['timestamp'] ??  round(microtime(true) * 1000);
+    $auto_add_to_ledger = $body['auto_add_to_ledger'] ?? 0;
+    $paid_installments = $body['paid_installments'] ?? 0;
+    $created_at = $body['created_at'] ?? round(microtime(true) * 1000);
+    $deleted = $body['deleted'] ?? false;
+
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'missing id']);
+        exit;
+    }
+    
+    $stmt = $db->prepare('INSERT INTO plans (id, user_id, type, name, amount, installments, fix_payment, interval_format, intervals, timestamp, auto_add_to_ledger, paid_installments, created_at, synced, deleted) 
+    VALUES (:id, :user_id, :type, :name, :amount, :installments, :fix_payment, :interval_format, :intervals, :timestamp, :auto_add_to_ledger, :paid_installments, :created_at, 1, :deleted)
+    ON CONFLICT(id) DO UPDATE SET user_id = excluded.user_id,
+        type = excluded.type,
+        name =  excluded.name,
+        amount = excluded.amount,
+        installments =  excluded.installments,
+        fix_payment =  excluded.fix_payment,
+        interval_format =  excluded.interval_format,
+        intervals =  excluded.intervals,
+        timestamp = excluded.timestamp,
+        auto_add_to_ledger =  excluded.auto_add_to_ledger,
+        paid_installments =  excluded.paid_installments,
+        created_at =  excluded.created_at,
+        synced = 1,
+        deleted = excluded.deleted');
+    $stmt->execute([':id' => $id, ':user_id' => $user_id, ':type' => $body['type'], ':name' => $name, ':amount' => $amount, ':installments' => $installments, ':fix_payment' => $fix_payment, ':interval_format' => $interval_format, ':intervals' => $intervals, ':timestamp' => $timestamp, ':auto_add_to_ledger' => $auto_add_to_ledger, ':paid_installments' => $paid_installments, ':created_at' => $created_at, ':deleted' => $deleted]);
     
     echo json_encode(['ok' => true]);
     exit;
@@ -424,6 +492,20 @@ if($action === 'get_chat_history') {
         ]);
 
     echo json_encode(['ok' => true, 'response' => $response['msg']]);
+    exit;
+}
+
+if($action === 'contact') {
+    $body = json_decode(file_get_contents('php://input'), true);
+    $device_type = $body['device_type'] ?? 'UNKNOWN';
+    $name = $body['name'] ?? '';
+    $email = $body['email'] ?? '';
+    $message = $body['message'] ?? '';
+    
+    $stmt = $db->prepare('INSERT INTO contacts (device_type, name, email, message) VALUES (:device_type, :name, :email, :message)');
+    $stmt->execute(['device_type' => $device_type, 'name' => $name, 'email' => $email, 'message' => $message]);
+    
+    echo json_encode(['ok' => true]);
     exit;
 }
 

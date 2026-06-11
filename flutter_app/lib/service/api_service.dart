@@ -237,7 +237,7 @@ class APIService {
         .get();
     for (final l in list) {
       try {
-        final res = await NetService().httpPost('sync', {
+        final res = await NetService().httpPost('sync-transaction', {
           'id': l.id,
           'type': l.type,
           'category': l.category,
@@ -325,11 +325,24 @@ class APIService {
     callback?.call(null);
   }
 
+  Future<void> fetchPlansAndSync() async {
+    final res = await NetService().httpPost('list-plans', {});
+    final data = json.decode(res.body);
+
+    final list = List<Map<String, dynamic>>.from(data['plans']);
+
+    for (final item in list) {
+      await savePlan(item);
+    }
+
+    fetchLocalPlans();
+  }
+
   Future<void> addLocalPlan(
       String name,
-      PlanDirection direction,
-      double totalAmount,
-      int totalInstallments,
+      String type,
+      double amount,
+      int installments,
       int fixPayment,
       int intervalFormat,
       int intervals,
@@ -337,22 +350,24 @@ class APIService {
       int autoAddToLedger) async {
     PlanEntry newPlan = PlanEntry(
       id: '${Global.appState.userId}${DateTime.now().millisecondsSinceEpoch}',
-      user_id: int.parse(Global.appState.userId),
+      userId: int.parse(Global.appState.userId),
       name: name.trim(),
-      direction: direction,
-      totalAmount: totalAmount,
-      totalInstallments: totalInstallments,
+      type: type,
+      amount: amount,
+      installments: installments,
       fixPayment: fixPayment,
       intervalFormat: intervalFormat,
       intervals: intervals,
       timestamp: timestamp,
       autoAddToLedger: autoAddToLedger,
-      created_at: formatCreatedAt(DateTime.now()),
+      createdAt: formatCreatedAt(DateTime.now()),
     );
 
     await savePlan(newPlan.toJson());
 
     Global.appState.addPlan(newPlan);
+
+    syncUnsyncPlans();
   }
 
   Future<void> fetchLocalPlans() async {
@@ -364,8 +379,9 @@ class APIService {
           (p) => OrderingTerm(expression: p.timestamp, mode: OrderingMode.desc),
         ]);
       final list = await query.get();
-      print('load cache plan list:$list');
+
       final jsonList = list.map((row) => row.toJson()).toList();
+      print('load cache plan list:$jsonList');
       Global.appState.setPlans(jsonList);
     } catch (e) {
       print('fetch error: $e');
@@ -375,14 +391,15 @@ class APIService {
   Future<void> updatePlan(
     String id,
     String name,
-    PlanDirection direction,
-    double totalAmount,
-    int totalInstallments,
+    String type,
+    double amount,
+    int installments,
     int fixPayment,
     int intervalFormat,
     int intervals,
     int timestamp,
     int autoAddToLedger,
+    int paidInstallments,
     String created_at,
     int synced,
     int deleted,
@@ -391,16 +408,17 @@ class APIService {
       'id': id,
       'user_id': int.parse(Global.appState.userId),
       'name': name.trim(),
-      'direction': direction.toString(),
-      'totalAmount': totalAmount,
-      'totalInstallments': totalInstallments,
-      'fixPayment': fixPayment,
-      'intervalFormat': intervalFormat,
+      'type': type.toString(),
+      'amount': amount,
+      'installments': installments,
+      'fix_payment': fixPayment,
+      'interval_format': intervalFormat,
       'intervals': intervals,
       'timestamp': timestamp,
-      'autoAddToLedger': autoAddToLedger,
+      'auto_add_to_ledger': autoAddToLedger,
+      'paid_installments': paidInstallments,
       'created_at': created_at,
-      'synced': synced,
+      'synced': 0,
       'deleted': deleted,
     };
 
@@ -409,18 +427,20 @@ class APIService {
     Global.appState.updatePlan(
       id,
       name: name,
-      direction: direction,
-      totalAmount: totalAmount,
-      totalInstallments: totalInstallments,
+      type: type,
+      amount: amount,
+      installments: installments,
       fixPayment: fixPayment == 0 ? false : true,
       intervalFormat: intervalFormat,
       intervals: intervals,
       timestamp: timestamp,
       autoAddToLedger: autoAddToLedger == 0 ? false : true,
     );
+
+    syncUnsyncPlans();
   }
 
-  Future<void> markPlanPaid(dynamic plan) async {
+  Future<void> markPlanPaid(dynamic plan, {DateTime? dt}) async {
     final db = Global.appDatabase;
     await (db.update(db.plans)..where((t) => t.id.equals(plan.id)))
         .write(PlansCompanion(
@@ -431,12 +451,14 @@ class APIService {
     Global.appState.markPlanPaid(plan.id);
 
     APIService().addLocalTransaction(
-        plan.direction == PlanDirection.expense ? 'expense' : 'income',
+        plan.type,
         'Plan',
-        (plan.totalAmount / plan.totalInstallments).toString(),
+        (plan.amount / plan.installments).toString(),
         plan.name,
-        DateTime.now(),
+        dt != null ? dt : DateTime.now(),
         null);
+
+    syncUnsyncPlans();
   }
 
   Future<void> removePlan(
@@ -450,6 +472,53 @@ class APIService {
     ));
 
     Global.appState.removePlan(id);
+
+    syncUnsyncPlans();
+  }
+
+  Future<void> syncUnsyncPlans() async {
+    final db = Global.appDatabase;
+    final list =
+        await (db.select(db.plans)..where((t) => t.synced.equals(false))).get();
+    for (final l in list) {
+      try {
+        final res = await NetService().httpPost('sync-plan', {
+          'id': l.id,
+          'user_id': l.userId,
+          'name': l.name,
+          'type': l.type,
+          'amount': l.amount,
+          'installments': l.installments,
+          'fix_payment': l.fixPayment,
+          'interval_format': l.intervalFormat,
+          'intervals': l.intervals,
+          'timestamp': l.timestamp,
+          'auto_add_to_ledger': l.autoAddToLedger,
+          'paid_installments': l.paidInstallments,
+          'created_at': l.createdAt,
+          'synced': 1,
+          'deleted': l.deleted
+        });
+
+        final data = json.decode(res.body);
+
+        print('data to php: $data');
+
+        if (data['ok'] != true) {
+          print("Syncing transaction failed: ${data['error']}");
+          return;
+        }
+
+        await (db.update(db.plans)..where((t) => t.id.equals(l.id))).write(
+          PlansCompanion(
+            synced: Value(true),
+          ),
+        );
+        print('Synced successfully');
+      } catch (e) {
+        print('Syncing failed: $e');
+      }
+    }
   }
 
   Future<String> chat(String message) async {
@@ -469,7 +538,7 @@ class APIService {
       if (jsonData['type'] == 'tool') {
         if (jsonData['tool']['name'] == 'add_expense' ||
             jsonData['tool']['name'] == 'add_income') {
-          fetchTransactionsAndSync();
+          fetchTransactionsAndSync(); //fetch all transaction should be fetch the month only for most optimize
         }
       }
 

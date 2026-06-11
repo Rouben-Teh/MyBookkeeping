@@ -1,30 +1,28 @@
-enum PlanDirection { expense, income }
-
 class PlanEntry {
   PlanEntry({
     required this.id,
-    required this.user_id,
+    required this.userId,
     required this.name,
-    required this.direction,
-    required this.totalAmount,
-    required this.totalInstallments,
+    required this.type,
+    required this.amount,
+    required this.installments,
     required this.fixPayment,
     required this.intervalFormat,
     required this.intervals,
     required this.timestamp,
     required this.autoAddToLedger,
-    this.created_at = '',
+    this.createdAt = '',
     this.synced = 0,
     this.deleted = 0,
     this.paidInstallments = 0,
   });
 
   final String id;
-  int user_id;
+  int userId;
   String name;
-  PlanDirection direction;
-  double totalAmount;
-  int totalInstallments;
+  String type;
+  double amount;
+  int installments;
   int fixPayment;
   int intervalFormat;
   int intervals;
@@ -32,35 +30,34 @@ class PlanEntry {
   int autoAddToLedger;
   int paidInstallments;
 
-  String created_at;
+  String createdAt;
   int synced;
   int deleted;
 
   int get remainingInstallments =>
-      (totalInstallments - paidInstallments).clamp(0, totalInstallments);
+      (installments - paidInstallments).clamp(0, installments);
 
   double get remainingBalance =>
-      ((totalAmount / totalInstallments) * remainingInstallments)
-          .clamp(0, totalAmount);
+      ((amount / installments) * remainingInstallments).clamp(0, amount);
 
   double get progress =>
-      totalInstallments == 0 ? 0 : paidInstallments / totalInstallments;
+      installments == 0 ? 0 : paidInstallments / installments;
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'user_id': user_id,
+      'user_id': userId,
       'name': name,
-      'direction': direction.toString(),
-      'totalAmount': totalAmount,
-      'totalInstallments': totalInstallments,
-      'fixPayment': fixPayment,
-      'intervalFormat': intervalFormat,
+      'type': type.toString(),
+      'amount': amount,
+      'installments': installments,
+      'fix_payment': fixPayment,
+      'interval_format': intervalFormat,
       'intervals': intervals,
       'timestamp': timestamp,
-      'autoAddToLedger': autoAddToLedger,
-      'paidInstallments': paidInstallments,
-      'created_at': created_at,
+      'auto_add_to_ledger': autoAddToLedger,
+      'paid_installments': paidInstallments,
+      'created_at': createdAt,
       'synced': synced,
       'deleted': deleted
     };
@@ -69,20 +66,18 @@ class PlanEntry {
   factory PlanEntry.fromJson(Map<String, dynamic> json) {
     return PlanEntry(
         id: json['id'],
-        user_id: json['userId'],
+        userId: json['userId'],
         name: json['name'],
-        direction: json['direction'] == 'PlanDirection.expense'
-            ? PlanDirection.expense
-            : PlanDirection.income,
-        totalAmount: json['totalAmount'],
-        totalInstallments: json['totalInstallments'],
+        type: json['type'] == 'expense' ? 'expense' : 'income',
+        amount: json['amount'],
+        installments: json['installments'],
         fixPayment: json['fixPayment'] == false ? 0 : 1,
         intervalFormat: json['intervalFormat'],
         intervals: json['intervals'],
         timestamp: json['timestamp'],
         autoAddToLedger: json['autoAddToLedger'] == false ? 0 : 1,
         paidInstallments: json['paidInstallments'],
-        created_at: json['createdAt'],
+        createdAt: json['createdAt'],
         synced: json['synced'] == false ? 0 : 1,
         deleted: json['deleted'] == false ? 0 : 1);
   }

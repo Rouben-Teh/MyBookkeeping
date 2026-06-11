@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/pages/contact_page.dart';
 import 'package:my_bookkeeping/pages/login_page.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
 import 'package:my_bookkeeping/singleton/singleton.dart';
@@ -175,15 +176,19 @@ class _ProfilePageState extends State<ProfilePage> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 alignment: Alignment.centerLeft,
-                backgroundColor: Colors.red,
+                backgroundColor: const Color.fromARGB(255, 255, 236, 236),
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               ),
               onPressed: () async {
                 await APIService().fetchTransactionsAndSync();
+                await APIService().fetchPlansAndSync();
               },
               child: Text('Fetch Backup',
-                  style: TextStyle(fontSize: 16, color: Colors.white)),
+                  style: TextStyle(fontSize: 16, color: Colors.black)),
             ),
           ),
 
@@ -194,15 +199,44 @@ class _ProfilePageState extends State<ProfilePage> {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 alignment: Alignment.centerLeft,
-                backgroundColor: Colors.red,
+                backgroundColor: const Color.fromARGB(255, 255, 236, 236),
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               ),
               onPressed: () async {
                 await APIService().syncUnsyncTransactions();
+                await APIService().syncUnsyncPlans();
               },
               child: Text('Sync Data',
-                  style: TextStyle(fontSize: 16, color: Colors.white)),
+                  style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+          ),
+
+          SizedBox(height: 12),
+
+          // Contact
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                alignment: Alignment.centerLeft,
+                backgroundColor: const Color.fromARGB(255, 255, 236, 236),
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ContactPage()),
+                );
+              },
+              child: Text('Feedback',
+                  style: TextStyle(fontSize: 16, color: Colors.black)),
             ),
           ),
 

@@ -81,6 +81,8 @@ class AppState extends ChangeNotifier {
     final now = DateTime.now();
 
     for (final plan in plans) {
+      if (plan.autoAddToLedger == 0) continue;
+
       int total = plan.intervals * plan.paidInstallments;
 
       DateTime next = calculateNextDate(
@@ -90,7 +92,7 @@ class AppState extends ChangeNotifier {
       );
 
       while (next.isBefore(now)) {
-        APIService().markPlanPaid(plan);
+        APIService().markPlanPaid(plan, dt: next);
 
         total += plan.intervals;
 
@@ -105,7 +107,7 @@ class AppState extends ChangeNotifier {
 
   void markPlanPaid(String id) {
     final plan = plans.firstWhere((p) => p.id == id);
-    if (plan.paidInstallments < plan.totalInstallments) {
+    if (plan.paidInstallments < plan.installments) {
       plan.paidInstallments += 1;
     }
     notifyListeners();
@@ -114,9 +116,9 @@ class AppState extends ChangeNotifier {
   void updatePlan(
     String id, {
     String? name,
-    PlanDirection? direction,
-    double? totalAmount,
-    int? totalInstallments,
+    String? type,
+    double? amount,
+    int? installments,
     bool? fixPayment,
     int? intervalFormat,
     int? intervals,
@@ -125,9 +127,9 @@ class AppState extends ChangeNotifier {
   }) {
     final plan = plans.firstWhere((p) => p.id == id);
     if (name != null) plan.name = name;
-    if (direction != null) plan.direction = direction;
-    if (totalAmount != null) plan.totalAmount = totalAmount;
-    if (totalInstallments != null) plan.totalInstallments = totalInstallments;
+    if (type != null) plan.type = type;
+    if (amount != null) plan.amount = amount;
+    if (installments != null) plan.installments = installments;
     if (fixPayment != null) plan.fixPayment = fixPayment ? 1 : 0;
     if (intervalFormat != null) plan.intervalFormat = intervalFormat;
     if (intervals != null) plan.intervals = intervals;
