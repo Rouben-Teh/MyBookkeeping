@@ -8,24 +8,30 @@ import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'package:my_bookkeeping/service/profile_service.dart';
 
 class APIService {
-  Future<void> fetchTransactions() async {
-    try {
-      final res = await NetService().httpPost('list', {});
-      final data = json.decode(res.body);
-
-      if (data['transactions'] == null) {
-        print("获取交易记录失败: ${data['error']}");
-        return;
-      }
-
-      // print("获取交易记录成功: ${data['transactions'].length} 条");
-      // print("交易记录数据: ${data['transactions']}");
-
-      Global.appState.setTransactions(data['transactions'] ?? []);
-    } catch (e) {
-      print('fetch error: $e');
-    }
+  Future<dynamic> validation() async {
+    final res = await NetService().httpPost('validation', {});
+    final data = json.decode(res.body);
+    return data;
   }
+
+  // Future<void> fetchTransactions() async {
+  //   try {
+  //     final res = await NetService().httpPost('list', {});
+  //     final data = json.decode(res.body);
+
+  //     if (data['transactions'] == null) {
+  //       print("获取交易记录失败: ${data['error']}");
+  //       return;
+  //     }
+
+  //     // print("获取交易记录成功: ${data['transactions'].length} 条");
+  //     // print("交易记录数据: ${data['transactions']}");
+
+  //     Global.appState.setTransactions(data['transactions'] ?? []);
+  //   } catch (e) {
+  //     print('fetch error: $e');
+  //   }
+  // }
 
   Future<void> fetchTransactionsAndSync() async {
     final res = await NetService().httpPost('list', {});
@@ -42,40 +48,58 @@ class APIService {
     ProfileStats();
   }
 
-  Future<void> addTransaction(
-      String _id,
-      String _type,
-      String _category,
-      String _amount,
-      String _note,
-      DateTime date,
-      void Function(dynamic data)? callback) async {
-    final category = _category;
-    final value = double.tryParse(_amount) ?? 0.00;
-    final amount = double.parse(value.toStringAsFixed(2));
-    final note = _note;
-    try {
-      final res = await NetService().httpPost('add', {
-        'id': _id,
-        'type': _type,
-        'category': category,
-        'amount': amount,
-        'note': note,
-        'timestamp': date.millisecondsSinceEpoch,
-      });
+  Future<void> fetchUnsyncTransactions() async {
+    final res = await NetService().httpPost('get-unsync-transactions', {});
+    final data = json.decode(res.body);
 
-      final data = json.decode(res.body);
+    final list = List<Map<String, dynamic>>.from(data['transactions']);
 
-      if (data['ok'] != true) {
-        print("Adding transaction failed: ${data['error']}");
-        return;
-      }
-
-      callback?.call(data);
-    } catch (e) {
-      print('post error: $e');
+    for (final item in list) {
+      await saveTransaction(item);
     }
+
+    fetchLocalMonthTransactions(Global.appState.currentMonth);
+
+    syncUnsyncTransactions();
+
+    ProfileStats();
   }
+
+  // Future<void> addTransaction(
+  //     String _id,
+  //     String _type,
+  //     String _category,
+  //     String _amount,
+  //     String _note,
+  //     DateTime date,
+  //     void Function(dynamic data)? callback) async {
+  //   final category = _category;
+  //   final value = double.tryParse(_amount) ?? 0.00;
+  //   final amount = double.parse(value.toStringAsFixed(2));
+  //   final note = _note;
+  //   try {
+  //     final res = await NetService().httpPost('add', {
+  //       'id': _id,
+  //       'type': _type,
+  //       'category': category,
+  //       'amount': amount,
+  //       'note': note,
+  //       'timestamp': date.millisecondsSinceEpoch,
+  //       'synced': 1,
+  //     });
+
+  //     final data = json.decode(res.body);
+
+  //     if (data['ok'] != true) {
+  //       print("Adding transaction failed: ${data['error']}");
+  //       return;
+  //     }
+
+  //     callback?.call(data);
+  //   } catch (e) {
+  //     print('post error: $e');
+  //   }
+  // }
 
   Future<void> fetchMonthTransactions(DateTime dt) async {
     try {
@@ -205,19 +229,12 @@ class APIService {
       'synced': 0,
       'deleted': 0,
     };
-    final db = Global.appDatabase;
 
     await saveTransaction(item);
 
     await fetchLocalMonthTransactions(Global.appState.currentMonth);
 
-    addTransaction(_id, _type, _category, _amount, _note, date, (data) async {
-      await (db.update(db.transactions)..where((t) => t.id.equals(_id))).write(
-        TransactionsCompanion(
-          synced: Value(true),
-        ),
-      );
-    });
+    syncUnsyncTransactions();
 
     Global.appState
         .addSummaryTransactions('week', date.millisecondsSinceEpoch, item);
@@ -245,7 +262,7 @@ class APIService {
           'note': l.note,
           'timestamp': l.timestamp,
           'synced': 1,
-          'deleted': l.deleted
+          'deleted': l.deleted ? 1 : 0,
         });
 
         final data = json.decode(res.body);
@@ -336,6 +353,10 @@ class APIService {
     }
 
     fetchLocalPlans();
+  }
+
+  Future<void> fetchUnsyncPlans() async {
+    //TODO: if future web support add edit plan
   }
 
   Future<void> addLocalPlan(

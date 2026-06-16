@@ -34,8 +34,8 @@ function getAuth($db) {
     if (!$row) return null;
 
     // 可选：检查是否过期 / 已登出
-    // if ($row['is_revoked']) return null;
-    // if ($row['expired_at'] && strtotime($row['expired_at']) < time()) return null;
+    if ($row['is_revoked']) return null;
+    if ($row['expired_at'] && strtotime($row['expired_at']) < time()) return null;
 
     return $row;
 }
@@ -104,6 +104,12 @@ if ($action === 'login') {
         ':token' => $token,
         ':device_type' => $deviceType // 'WEB' or 'APP'
     ]);
+
+    // 如果同一个 user_id 的登录 token 超过 3 个，则保留最新 3 个，其余标记为已撤销
+    $revokeStmt = $db->prepare("UPDATE tokens SET is_revoked = 1 WHERE user_id = :user_id AND id NOT IN (
+        SELECT id FROM tokens WHERE user_id = :user_id ORDER BY datetime(created_at) DESC LIMIT 3
+    )");
+    $revokeStmt->execute([':user_id' => $user['id']]);
     
     echo json_encode(['id' => $user['id'], 'token' => $token]);
     exit;
@@ -124,6 +130,55 @@ if ($action === 'logout') {
     $stmt->execute([':token' => $auth['token']]);
     
     echo json_encode(['ok' => true]);
+    exit;
+}
+
+// Validate token
+if ($action === 'validation') {
+    $token = $_GET['token'] ?? $_POST['token'] ?? (isset($_SERVER['HTTP_AUTHORIZATION']) ? str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']) : null);
+    if (!$token) {
+        return null;
+    }
+
+    $stmt = $db->prepare("
+        SELECT user_id, token, device_type, expired_at, is_revoked
+        FROM tokens
+        WHERE token = :token
+    ");
+    $stmt->execute([':token' => $token]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        echo json_encode([
+            'ok' => false,
+            'reason' => 'not_found'
+        ]);
+        exit;
+    }
+
+    if ($row['is_revoked']) {
+        echo json_encode([
+            'ok' => false,
+            'reason' => 'revoked'
+        ]);
+        exit;
+    }
+
+    if (
+        !empty($row['expired_at']) &&
+        strtotime($row['expired_at']) < time()
+    ) {
+        echo json_encode([
+            'ok' => false,
+            'reason' => 'expired'
+        ]);
+        exit;
+    }
+
+    echo json_encode([
+        'ok' => true
+    ]);
     exit;
 }
 
@@ -180,6 +235,8 @@ if ($action === 'add') {
     $amount = isset($body['amount']) ? (float)$body['amount'] : 0.0;
     $note = $body['note'] ?? '';
     $timestamp = $body['timestamp'] ??  round(microtime(true) * 1000);
+    $synced = $body['synced'] ??  0;
+    $deleted = $body['deleted'] ??  0;
     
     if (!$id) {
         http_response_code(400);
@@ -187,8 +244,8 @@ if ($action === 'add') {
         exit;
     }
     
-    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, type, category, amount, note, timestamp, synced) VALUES (:id, :user_id, :type, :category, :amount, :note, :timestamp, 1)');
-    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':type' => $body['type'] ?? 'expense', ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp]);
+    $stmt = $db->prepare('INSERT INTO transactions (id, user_id, type, category, amount, note, timestamp, synced, deleted) VALUES (:id, :user_id, :type, :category, :amount, :note, :timestamp, :synced, :deleted)');
+    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':type' => $body['type'] ?? 'expense', ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp, ':synced' => $synced, ':deleted' => $deleted]);
     
     echo json_encode(['ok' => true]);
     exit;
@@ -240,6 +297,7 @@ if ($action === 'soft-delete') {
 
     $body = json_decode(file_get_contents('php://input'), true);
     $id = $body['id'] ?? '';
+    $synced = $body['synced'] ??  0;
     if (!$id) {
         http_response_code(400);
         echo json_encode(['error' => 'missing id']);
@@ -257,14 +315,14 @@ if ($action === 'soft-delete') {
         exit;
     }
 
-    $stmt = $db->prepare('UPDATE transactions  SET deleted = 1 WHERE id = :id');
-    $stmt->execute([':id' => $id]);
+    $stmt = $db->prepare('UPDATE transactions  SET synced = :synced, deleted = 1 WHERE id = :id');
+    $stmt->execute([':id' => $id, ':synced' => $synced]);
     
     echo json_encode(['ok' => true]);
     exit;
 }
 
-// 同步交易
+// 同步交易 //更改数据
 if ($action === 'sync-transaction') {
     $auth = getAuth($db);
     if (!$auth) {
@@ -280,7 +338,8 @@ if ($action === 'sync-transaction') {
     $amount = isset($body['amount']) ? (float)$body['amount'] : 0.0;
     $note = $body['note'] ?? '';
     $timestamp = $body['timestamp'] ??  round(microtime(true) * 1000);
-    $deleted = $body['deleted'] ?? false;
+    $synced = $body['synced'] ??  0;
+    $deleted = $body['deleted'] ?? 0;
     
     if (!$id) {
         http_response_code(400);
@@ -289,18 +348,34 @@ if ($action === 'sync-transaction') {
     }
     
     $stmt = $db->prepare('INSERT INTO transactions (id, user_id, type, category, amount, note, timestamp, synced, deleted) 
-    VALUES (:id, :user_id, :type, :category, :amount, :note, :timestamp, 1, :deleted)
+    VALUES (:id, :user_id, :type, :category, :amount, :note, :timestamp, :synced, :deleted)
     ON CONFLICT(id) DO UPDATE SET user_id = excluded.user_id,
         type = excluded.type,
         category = excluded.category,
         amount = excluded.amount,
         note = excluded.note,
         timestamp = excluded.timestamp,
-        synced = 1,
+        synced = excluded.synced,
         deleted = excluded.deleted');
-    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':type' => $body['type'] ?? 'expense', ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp, ':deleted' => $deleted]);
+    $stmt->execute([':id' => $id, ':user_id' => $auth['user_id'], ':type' => $body['type'] ?? 'expense', ':category' => $category, ':amount' => $amount, ':note' => $note, ':timestamp' => $timestamp, ':synced' => $synced, ':deleted' => $deleted]);
     
     echo json_encode(['ok' => true]);
+    exit;
+}
+
+if ($action === 'get-unsync-transactions') {
+    $auth = getAuth($db);
+    if (!$auth) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+    
+    $stmt = $db->prepare('SELECT * FROM transactions WHERE user_id = :user_id and synced = 0 ORDER BY timestamp DESC');
+    $stmt->execute([':user_id' => $auth['user_id']]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    echo json_encode(['transactions' => $rows]);
     exit;
 }
 

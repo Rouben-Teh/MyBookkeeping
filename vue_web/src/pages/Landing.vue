@@ -82,7 +82,7 @@
 
           <div class="flex w-full h-80 items-center gap-4 mb-4 shadow-lg backdrop-blur bg-white/50 rounded-xl p-8">
             <Bot class="w-25 h-auto text-red-500" />
-            <h3 class="text-xl font-semibold">AI-Powered Insights<br>*upcoming</h3>
+            <h3 class="text-xl font-semibold">AI-Powered Insights</h3>
           </div>
 
           <div class="flex w-full h-80 items-center gap-4 mb-4 shadow-lg backdrop-blur bg-white/50 rounded-xl p-8">
@@ -98,9 +98,9 @@
         <div class="flex flex-col h-full">
           <h2 class="text-3xl font-bold mb-4">Contact</h2>
           
-          <div class="flex flex-1 gap-4 flex-col md:flex-row">
+          <div class="flex flex-1 gap-4 flex-col md:flex-row justify-center items-center">
             <div class="w-full md:w-1/2 h-full md:h-1/2 flex items-center justify-center">
-              <img src="@/assets/images/contact.png" alt="Contact" class="h-full object-contain" />
+              <img src="@/assets/images/contact2.png" alt="Contact" class="h-full object-contain" />
             </div>
 
             <div class="w-full md:w-1/2 h-full flex flex-col px-4 md:px-8">

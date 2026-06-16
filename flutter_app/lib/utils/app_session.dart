@@ -4,6 +4,7 @@ import 'package:my_bookkeeping/service/api_service.dart';
 import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'package:my_bookkeeping/enum/enum.dart';
 
+//the class is for open another thread in order to avoid spend too much time on some task in main thread
 class AppSession {
   static bool _initialized = false;
 

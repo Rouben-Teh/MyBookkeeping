@@ -57,6 +57,10 @@ async function logout() {
     console.log("登出成功");
   }
 
+  removeCookie();
+}
+
+function removeCookie() {
   deleteCookie(COOKIE_NAME);
   localStorage.removeItem("email");
   localStorage.removeItem("id");
@@ -89,6 +93,7 @@ function isAuthenticated() {
 export default {
   login,
   logout,
+  removeCookie,
   register,
   getAuthToken,
   isAuthenticated,

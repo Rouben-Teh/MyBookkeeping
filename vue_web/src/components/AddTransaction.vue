@@ -118,6 +118,7 @@ export default {
         amount: Number(this.amount),
         note: this.note,
         timestamp: this.selectedDate,
+        synced: 0,
         deleted: 0,
       };
 

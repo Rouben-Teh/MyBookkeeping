@@ -90,12 +90,13 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         children: [
           Container(
-            width: 50,
+            width: 150,
             height: 250,
-            child: const Icon(
-              Icons.account_balance_wallet,
-              color: Color.fromARGB(255, 255, 79, 79),
-              size: 60,
+            child: Image.asset(
+              'assets/icon.png',
+              width: 60,
+              height: 60,
+              fit: BoxFit.fitWidth,
             ),
           ),
           TextField(

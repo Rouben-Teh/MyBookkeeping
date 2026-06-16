@@ -76,6 +76,8 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
     final grouped = groupByDate(appState.transactions);
 
     Future<void> loadNextMonth() async {
+      APIService().fetchUnsyncTransactions();
+
       final nextMonth = DateTime(
         appState.currentMonth.year,
         appState.currentMonth.month + 1,
@@ -97,6 +99,8 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
     }
 
     Future<void> loadPreviousMonth() async {
+      APIService().fetchUnsyncTransactions();
+
       appState.currentMonth = DateTime(
         appState.currentMonth.year,
         appState.currentMonth.month - 1,

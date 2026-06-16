@@ -109,17 +109,34 @@ export default {
     //   return 'Records';
     // },
   },
-  created() {
+  async created() {
     if (!auth.isAuthenticated()) {
       this.$router.replace({ name: 'Login' });
       return;
     }
+    this.validation();
     this.fetchCurrentMonthTransactions();
     this.fetchCount();
     this.fetchStreak();
     this.handleFetchSummaryData();
   },
   methods: {
+    async validation() {
+      try {
+        const res = await httpPost('validation', {});
+        const data = res.data;
+
+        console.log('validation: ', data);
+
+        if(!data.ok){
+          auth.removeCookie();
+          this.$router.replace({ name: 'Login' });
+        }
+
+      } catch (error) {
+        console.error(error);
+      }
+    },
     async fetchCurrentMonthTransactions() {
       try {
         const res = await httpPost('month-list', {
@@ -164,7 +181,7 @@ export default {
     },
     async handleDeleteTransaction(tx) {
       try {
-        const res = await httpPost('soft-delete', { id: tx.id });
+        const res = await httpPost('soft-delete', { id: tx.id, synced: 0 });
         const data = res.data;
         if (data.ok) {
           this.fetchCurrentMonthTransactions();

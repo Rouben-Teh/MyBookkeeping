@@ -41,7 +41,7 @@ class _AnimatedDotsState extends State<AnimatedDots>
               height: 6,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.black54.withOpacity(0.3 + opacity * 0.7),
+                color: Colors.black54.withValues(alpha: 0.3 + opacity * 0.7),
               ),
             );
           }),

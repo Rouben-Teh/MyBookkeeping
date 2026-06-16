@@ -169,53 +169,113 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               )),
 
-          SizedBox(height: 20),
+          SizedBox(height: 6),
 
-          // 获取后端的数据并同步至本地数据库
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                alignment: Alignment.centerLeft,
-                backgroundColor: const Color.fromARGB(255, 255, 236, 236),
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-              onPressed: () async {
-                await APIService().fetchTransactionsAndSync();
-                await APIService().fetchPlansAndSync();
-              },
-              child: Text('Fetch Backup',
-                  style: TextStyle(fontSize: 16, color: Colors.black)),
-            ),
-          ),
+              color: const Color.fromARGB(255, 255, 225, 225),
+              child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: GridView.count(
+                    crossAxisCount: 3,
+                    childAspectRatio: 1.2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      // 获取后端的数据并同步至本地数据库
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 2),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            alignment: Alignment.center,
+                            backgroundColor:
+                                const Color.fromARGB(255, 255, 236, 236),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 20),
+                          ),
+                          onPressed: () async {
+                            await APIService().fetchTransactionsAndSync();
+                            await APIService().fetchPlansAndSync();
+                          },
+                          child: Column(
+                            children: [
+                              Icon(Icons.backup_outlined,
+                                  color: Colors.red, size: 24),
+                              const SizedBox(height: 12),
+                              Text('Fetch Backup',
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.black)),
+                            ],
+                          ),
+                        ),
+                      ),
 
-          SizedBox(height: 12),
+                      // 获取后端未同步的数据同步至本地数据库
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 2),
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              alignment: Alignment.center,
+                              backgroundColor:
+                                  const Color.fromARGB(255, 255, 236, 236),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 20),
+                            ),
+                            onPressed: () async {
+                              await APIService().fetchUnsyncTransactions();
+                            },
+                            child: Column(
+                              children: [
+                                Icon(Icons.download_for_offline_outlined,
+                                    color: Colors.red, size: 24),
+                                const SizedBox(height: 12),
+                                Text('Fetch Data',
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.black)),
+                              ],
+                            )),
+                      ),
 
-          // 同步本地数据至后端
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                alignment: Alignment.centerLeft,
-                backgroundColor: const Color.fromARGB(255, 255, 236, 236),
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-              ),
-              onPressed: () async {
-                await APIService().syncUnsyncTransactions();
-                await APIService().syncUnsyncPlans();
-              },
-              child: Text('Sync Data',
-                  style: TextStyle(fontSize: 16, color: Colors.black)),
-            ),
-          ),
-
-          SizedBox(height: 12),
+                      // 同步本地数据至后端
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 2),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            alignment: Alignment.center,
+                            backgroundColor:
+                                const Color.fromARGB(255, 255, 236, 236),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 20),
+                          ),
+                          onPressed: () async {
+                            await APIService().syncUnsyncTransactions();
+                            await APIService().syncUnsyncPlans();
+                          },
+                          child: Column(
+                            children: [
+                              Icon(Icons.sync, color: Colors.red, size: 24),
+                              const SizedBox(height: 12),
+                              Text('Sync Data',
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.black)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ))),
 
           // Contact
           SizedBox(

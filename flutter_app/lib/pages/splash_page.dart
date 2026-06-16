@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/pages/login_page.dart';
+import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'package:provider/provider.dart';
 import 'package:my_bookkeeping/pages/home_page.dart';
 import 'package:my_bookkeeping/service/summary_service.dart';
@@ -30,15 +31,45 @@ class _SplashPageState extends State<SplashPage> {
     await Future.delayed(Duration(seconds: 1)); // 可选
 
     if (token != null) {
+      NetService().setToken(token);
+
       final appState = Provider.of<AppState>(context, listen: false);
 
-      appState.login(token, userId ?? '', email ?? '');
+      final res = await APIService().validation();
 
-      NetService().setToken(token);
+      if (!res['ok']) {
+        final prefs = await SharedPreferences.getInstance();
+
+        NetService().setToken('');
+
+        appState.setTransactions([]);
+        appState.setPlans([]);
+        appState.clearSummaryCache();
+        appState.clearProfileStats();
+        appState.setMessage([]);
+
+        await prefs.remove('token');
+        await prefs.remove('userId');
+        await prefs.remove('email');
+
+        final db = Global.appDatabase;
+        await db.delete(db.transactions).go(); // 清空表
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => LoginPage()),
+        );
+        return;
+      }
+
+      appState.login(token, userId ?? '', email ?? '');
 
       // APIService().fetchMonthTransactions(DateTime.now());
       await APIService().fetchLocalMonthTransactions(DateTime.now());
       await APIService().fetchLocalPlans();
+
+      APIService().syncUnsyncTransactions();
+      APIService().syncUnsyncPlans();
 
       //summary
       final dt = DateTime.now();

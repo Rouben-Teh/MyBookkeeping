@@ -28,7 +28,7 @@ const router = createRouter({
     if (to.hash) {
       return { el: to.hash, top: 90, behavior: "smooth" };
     }
-    return { top: 90 };
+    return { top: 0 };
   },
 });
 
