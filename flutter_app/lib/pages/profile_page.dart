@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/pages/contact_page.dart';
 import 'package:my_bookkeeping/pages/login_page.dart';
+import 'package:my_bookkeeping/pages/setttings_page.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
 import 'package:my_bookkeeping/singleton/singleton.dart';
 import 'dart:convert';
@@ -81,7 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -129,6 +130,35 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     ];
 
+    Widget _SmallCard(
+        {required String title,
+        required IconData icon,
+        required Future<void> Function() function}) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 4),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            backgroundColor: const Color.fromARGB(255, 255, 206, 194),
+            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          ),
+          onPressed: () async {
+            await function();
+          },
+          child: Column(
+            children: [
+              Icon(icon, color: Colors.red, size: 24),
+              const SizedBox(height: 12),
+              Text(title, style: TextStyle(fontSize: 10, color: Colors.black)),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -137,9 +167,9 @@ class _ProfilePageState extends State<ProfilePage> {
           Card(
               margin: const EdgeInsets.only(bottom: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(10),
               ),
-              color: const Color.fromARGB(255, 255, 225, 225),
+              color: const Color.fromARGB(255, 255, 236, 236),
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Column(
@@ -174,9 +204,9 @@ class _ProfilePageState extends State<ProfilePage> {
           Card(
               margin: const EdgeInsets.only(bottom: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(10),
               ),
-              color: const Color.fromARGB(255, 255, 225, 225),
+              color: const Color.fromARGB(255, 255, 236, 236),
               child: Padding(
                   padding: EdgeInsets.all(16),
                   child: GridView.count(
@@ -186,94 +216,32 @@ class _ProfilePageState extends State<ProfilePage> {
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
                       // 获取后端的数据并同步至本地数据库
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 2),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            backgroundColor:
-                                const Color.fromARGB(255, 255, 236, 236),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 20),
-                          ),
-                          onPressed: () async {
-                            await APIService().fetchTransactionsAndSync();
-                            await APIService().fetchPlansAndSync();
-                          },
-                          child: Column(
-                            children: [
-                              Icon(Icons.backup_outlined,
-                                  color: Colors.red, size: 24),
-                              const SizedBox(height: 12),
-                              Text('Fetch Backup',
-                                  style: TextStyle(
-                                      fontSize: 10, color: Colors.black)),
-                            ],
-                          ),
-                        ),
-                      ),
+                      _SmallCard(
+                          title: 'Fetch Backup',
+                          icon: Icons.backup_outlined,
+                          function: () async => {
+                                await APIService().fetchTransactionsAndSync(),
+                                await APIService().fetchPlansAndSync()
+                              }),
 
                       // 获取后端未同步的数据同步至本地数据库
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 2),
-                        child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              alignment: Alignment.center,
-                              backgroundColor:
-                                  const Color.fromARGB(255, 255, 236, 236),
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 20),
-                            ),
-                            onPressed: () async {
-                              await APIService().fetchUnsyncTransactions();
-                            },
-                            child: Column(
-                              children: [
-                                Icon(Icons.download_for_offline_outlined,
-                                    color: Colors.red, size: 24),
-                                const SizedBox(height: 12),
-                                Text('Fetch Data',
-                                    style: TextStyle(
-                                        fontSize: 10, color: Colors.black)),
-                              ],
-                            )),
-                      ),
+                      _SmallCard(
+                          title: 'Fetch Data',
+                          icon: Icons.download_for_offline_outlined,
+                          function: () async => {
+                                await APIService().fetchUnsyncTransactions(),
+                                APIService().fetchLocalMonthTransactions(
+                                    Global.appState.currentMonth)
+                              }),
 
                       // 同步本地数据至后端
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 2),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            backgroundColor:
-                                const Color.fromARGB(255, 255, 236, 236),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 20),
-                          ),
-                          onPressed: () async {
-                            await APIService().syncUnsyncTransactions();
-                            await APIService().syncUnsyncPlans();
-                          },
-                          child: Column(
-                            children: [
-                              Icon(Icons.sync, color: Colors.red, size: 24),
-                              const SizedBox(height: 12),
-                              Text('Sync Data',
-                                  style: TextStyle(
-                                      fontSize: 10, color: Colors.black)),
-                            ],
-                          ),
-                        ),
-                      ),
+                      _SmallCard(
+                          title: 'Sync Data',
+                          icon: Icons.sync,
+                          function: () async => {
+                                await APIService().syncUnsyncTransactions(),
+                                await APIService().syncUnsyncPlans()
+                              }),
                     ],
                   ))),
 
@@ -347,10 +315,23 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: Text('Profile',
             style: TextStyle(
-                color: Colors.white, // 设置标题文字颜色
-                fontSize: 20, // 设置标题文字大小
-                fontWeight: FontWeight.bold)), // 设置标题文字加粗
-        backgroundColor: Color(0xFFFF5A5A), // 设置AppBar背景颜色
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold)),
+        actions: [
+          Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: IconButton(
+                icon: const Icon(Icons.settings, color: Colors.white, size: 24),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => SettingsPage()),
+                  );
+                },
+              )),
+        ],
+        backgroundColor: Color(0xFFFF5A5A),
       ),
       body: profileWidget(context),
     );

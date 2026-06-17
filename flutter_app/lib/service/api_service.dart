@@ -54,11 +54,11 @@ class APIService {
 
     final list = List<Map<String, dynamic>>.from(data['transactions']);
 
+    if (list.length == 0) return;
+
     for (final item in list) {
       await saveTransaction(item);
     }
-
-    fetchLocalMonthTransactions(Global.appState.currentMonth);
 
     syncUnsyncTransactions();
 
