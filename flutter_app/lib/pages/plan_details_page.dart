@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
 import 'package:my_bookkeeping/utils/datetime.dart';
 import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
 import 'package:my_bookkeeping/service/plan_service.dart';
+import 'package:provider/provider.dart';
 
 class PlanBottomSheet {
   static void open(BuildContext context,
@@ -63,6 +65,8 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
     final installmentsController = TextEditingController(text: installments);
     final intervalsController = TextEditingController(text: intervals);
 
+    final appState = Provider.of<AppState>(context, listen: true);
+
     return StatefulBuilder(
       builder: (context, setModalState) {
         return Container(
@@ -101,16 +105,16 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText:
                         'e.g.: Learning course installment, lending to friends',
-                    border: OutlineInputBorder(
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(50)),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(50)),
-                      borderSide: BorderSide(
-                          color: Color.fromARGB(255, 255, 79, 79), width: 2.0),
+                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+                      borderSide:
+                          BorderSide(color: appState.selectedColor, width: 2.0),
                     ),
                   ),
                   onChanged: (value) => name = value,
@@ -126,7 +130,7 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       backgroundColor: const Color(0xFFFFF4F4),
                       selectedForegroundColor: Colors.white,
-                      selectedBackgroundColor: const Color(0xFFFF5A5A),
+                      selectedBackgroundColor: appState.selectedColor,
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 12),
                     ),
@@ -154,15 +158,15 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                 TextField(
                   controller: amountController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'e.g.: 1200',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(50)),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(50)),
-                      borderSide: BorderSide(
-                          color: Color.fromARGB(255, 255, 79, 79), width: 2.0),
+                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+                      borderSide:
+                          BorderSide(color: appState.selectedColor, width: 2.0),
                     ),
                   ),
                   onChanged: (value) => amount = value,
@@ -173,15 +177,15 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                 TextField(
                   controller: installmentsController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'e.g.: 6',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(50)),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(50)),
-                      borderSide: BorderSide(
-                          color: Color.fromARGB(255, 255, 79, 79), width: 2.0),
+                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+                      borderSide:
+                          BorderSide(color: appState.selectedColor, width: 2.0),
                     ),
                   ),
                   onChanged: (value) => installments = value,
@@ -192,7 +196,7 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                   checkboxShape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  activeColor: const Color(0xFFFF5A5A),
+                  activeColor: appState.selectedColor,
                   value: fixPayment,
                   onChanged: (value) {
                     setModalState(() {
@@ -212,7 +216,7 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         backgroundColor: const Color(0xFFFFF4F4),
                         selectedForegroundColor: Colors.white,
-                        selectedBackgroundColor: const Color(0xFFFF5A5A),
+                        selectedBackgroundColor: appState.selectedColor,
                         padding: const EdgeInsets.symmetric(
                             vertical: 8, horizontal: 12),
                       ),
@@ -259,16 +263,16 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                   TextField(
                     controller: intervalsController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'e.g.: 30',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(50)),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(50)),
                         borderSide: BorderSide(
-                            color: Color.fromARGB(255, 255, 79, 79),
-                            width: 2.0),
+                            color: appState.selectedColor, width: 2.0),
                       ),
                     ),
                     onChanged: (value) => intervals = value,
@@ -290,7 +294,7 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                         alignment: AlignmentGeometry.centerLeft,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(999),
-                          color: const Color.fromARGB(255, 255, 199, 199),
+                          color: appState.selectedColor.withValues(alpha: 0.2),
                         ),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
@@ -309,7 +313,7 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                     checkboxShape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    activeColor: const Color(0xFFFF5A5A),
+                    activeColor: appState.selectedColor,
                     value: autoAddToLedger,
                     onChanged: (value) {
                       setModalState(() {
@@ -324,7 +328,7 @@ class _PlanDetailsPageState extends State<PlanDetailsPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF5A5A),
+                      backgroundColor: appState.selectedColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(

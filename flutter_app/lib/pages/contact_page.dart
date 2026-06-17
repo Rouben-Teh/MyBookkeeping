@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/singleton/singleton.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
 import 'dart:convert';
 import 'package:my_bookkeeping/utils/net_utils.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 class ContactPage extends StatefulWidget {
   @override
@@ -50,6 +52,7 @@ class _ContactPageState extends State<ContactPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: Text('Feedback',
@@ -57,7 +60,7 @@ class _ContactPageState extends State<ContactPage> {
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold)),
-        backgroundColor: Color(0xFFFF5A5A),
+        backgroundColor: appState.selectedColor,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -85,7 +88,7 @@ class _ContactPageState extends State<ContactPage> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: appState.selectedColor,
                   padding: EdgeInsets.symmetric(vertical: 15),
                 ),
                 onPressed: submit,

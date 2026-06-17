@@ -129,7 +129,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
               menuStyle: MenuStyle(
                 backgroundColor: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.hovered)) {
-                    return const Color.fromARGB(255, 255, 88, 113);
+                    return appState.selectedColor;
                   }
                   return const Color.fromARGB(255, 255, 255, 255);
                 }),
@@ -159,7 +159,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                   child: Container(
                     margin: EdgeInsets.symmetric(horizontal: 0, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Color(0xFFFF5A5A),
+                      color: appState.selectedColor.withValues(alpha: 0),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     alignment: Alignment.center,
@@ -174,7 +174,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                   ),
                 ),
                 Text(
-                  'Total: \$${appState.type == 'expense' ? totalExpensesAmount.toStringAsFixed(2) : totalIncomeAmount.toStringAsFixed(2)}',
+                  'Total: ${appState.selectedCurrency}${appState.type == 'expense' ? totalExpensesAmount.toStringAsFixed(2) : totalIncomeAmount.toStringAsFixed(2)}',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -184,11 +184,11 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
             ),
           ],
         ),
-        backgroundColor: Color(0xFFFF5A5A), // 设置AppBar背景颜色
+        backgroundColor: appState.selectedColor, // 设置AppBar背景颜色
         toolbarHeight: 100,
       ),
       body: Container(
-        color: const Color.fromARGB(255, 255, 223, 223),
+        color: appState.selectedColor.withValues(alpha: 0.2),
         padding: EdgeInsets.all(0),
         child: Column(
           children: [
@@ -214,7 +214,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                     return SliverStickyHeader(
                       header: Container(
                         height: 40,
-                        color: const Color.fromARGB(255, 255, 223, 223),
+                        color: appState.selectedColor.withValues(alpha: 0.15),
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -315,8 +315,8 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                                       width: 50,
                                       height: 50,
                                       decoration: BoxDecoration(
-                                        color: const Color.fromARGB(
-                                            255, 255, 103, 103),
+                                        color: appState.selectedColor
+                                            .withValues(alpha: 0.7),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(

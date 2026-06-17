@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
 import 'package:my_bookkeeping/widgets/custom_expense_category.dart';
 import 'package:my_bookkeeping/widgets/custom_keyboard.dart';
 import 'package:my_bookkeeping/widgets/time_picker_sheet.dart';
 import 'package:my_bookkeeping/utils/calculator.dart';
+import 'package:provider/provider.dart';
 
 class RecordBottomSheet {
   static void open(BuildContext context, {dynamic data, int? jumpItemIndex}) {
@@ -74,12 +76,13 @@ class _RecordPageState extends State<RecordPage>
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context, listen: true);
     return DefaultTabController(
         length: 2,
         child: Column(children: [
           TabBar(
-            indicatorColor: const Color.fromARGB(255, 255, 88, 113),
-            labelColor: const Color.fromARGB(255, 255, 88, 113),
+            indicatorColor: appState.selectedColor,
+            labelColor: appState.selectedColor,
             unselectedLabelColor: const Color.fromARGB(179, 66, 66, 66),
             controller: _tabController,
             tabs: const [
@@ -137,8 +140,8 @@ class _RecordPageState extends State<RecordPage>
                                   labelText: 'Note',
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Color.fromARGB(255, 255, 79,
-                                          79), // Your desired focus color
+                                      color: appState
+                                          .selectedColor, // Your desired focus color
                                       width: 2.0, // Optional thickness change
                                     ),
                                   ),
@@ -155,8 +158,8 @@ class _RecordPageState extends State<RecordPage>
                                   labelText: 'Amount',
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Color.fromARGB(255, 255, 79,
-                                          79), // Your desired focus color
+                                      color: appState
+                                          .selectedColor, // Your desired focus color
                                       width: 2.0, // Optional thickness change
                                     ),
                                   ),

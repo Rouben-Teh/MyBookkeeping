@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:provider/provider.dart';
 
 class CustomKeyboard extends StatelessWidget {
   final Function(String) onKeyTap;
@@ -53,6 +55,7 @@ class CustomKeyboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context, listen: true);
     return Container(
       height: 350,
       padding: EdgeInsets.all(10),
@@ -69,20 +72,20 @@ class CustomKeyboard extends StatelessWidget {
               isSameDay(selectedDate, DateTime.now())
                   ? 'Today'
                   : '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
-              color: Color(0xFFFF5A5A),
+              color: appState.selectedColor,
               onTap: onTime),
 
           // 第二排
           buildButton('4'),
           buildButton('5'),
           buildButton('6'),
-          buildButton('+', color: Color(0xFFFF5A5A), onTap: onPlus),
+          buildButton('+', color: appState.selectedColor, onTap: onPlus),
 
           // 第三排
           buildButton('7'),
           buildButton('8'),
           buildButton('9'),
-          buildButton('-', color: Color(0xFFFF5A5A), onTap: onMinus),
+          buildButton('-', color: appState.selectedColor, onTap: onMinus),
 
           // 第四排
           buildButton('.'),
@@ -94,7 +97,7 @@ class CustomKeyboard extends StatelessWidget {
                   : isEdit
                       ? 'Edit'
                       : 'Add',
-              color: Color(0xFFFF5A5A),
+              color: appState.selectedColor,
               onTap: isCalculatorMode
                   ? onEqual
                   : isEdit

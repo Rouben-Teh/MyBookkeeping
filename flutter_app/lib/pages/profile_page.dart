@@ -109,6 +109,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget profileWidget(BuildContext context) {
+    final appState = Provider.of<AppState>(context, listen: true);
+
     final stats = [
       _Card(
         title: 'Streak',
@@ -142,7 +144,7 @@ class _ProfilePageState extends State<ProfilePage> {
               borderRadius: BorderRadius.circular(10),
             ),
             alignment: Alignment.center,
-            backgroundColor: const Color.fromARGB(255, 255, 206, 194),
+            backgroundColor: Colors.white,
             padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           ),
           onPressed: () async {
@@ -150,7 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
           },
           child: Column(
             children: [
-              Icon(icon, color: Colors.red, size: 24),
+              Icon(icon, color: appState.selectedColor, size: 24),
               const SizedBox(height: 12),
               Text(title, style: TextStyle(fontSize: 10, color: Colors.black)),
             ],
@@ -159,7 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +171,7 @@ class _ProfilePageState extends State<ProfilePage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              color: const Color.fromARGB(255, 255, 236, 236),
+              color: appState.selectedLightColor,
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Column(
@@ -199,14 +201,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               )),
 
-          SizedBox(height: 6),
-
           Card(
               margin: const EdgeInsets.only(bottom: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              color: const Color.fromARGB(255, 255, 236, 236),
+              color: appState.selectedLightColor,
               child: Padding(
                   padding: EdgeInsets.all(16),
                   child: GridView.count(
@@ -254,7 +254,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.centerLeft,
-                backgroundColor: const Color.fromARGB(255, 255, 236, 236),
+                backgroundColor: appState.selectedLightColor,
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               ),
               onPressed: () {
@@ -276,7 +276,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 alignment: Alignment.centerLeft,
-                backgroundColor: Colors.red,
+                backgroundColor: appState.selectedColor,
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               ),
               onPressed: () {
@@ -310,7 +310,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<AppState>(context, listen: true);
+    final appState = Provider.of<AppState>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile',
@@ -331,7 +331,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               )),
         ],
-        backgroundColor: Color(0xFFFF5A5A),
+        backgroundColor: appState.selectedColor,
       ),
       body: profileWidget(context),
     );

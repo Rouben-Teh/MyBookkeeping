@@ -7,6 +7,8 @@ import 'package:my_bookkeeping/pages/chat_page.dart';
 import 'package:my_bookkeeping/pages/summary_page.dart';
 import 'package:my_bookkeeping/pages/plan_page.dart';
 import 'package:my_bookkeeping/service/profile_service.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -30,12 +32,13 @@ class _HomePageState extends State<HomePage> {
   int currentIndex = 0;
 
   Widget button(int index, IconData icon) {
+    final appState = Provider.of<AppState>(context, listen: true);
     return Container(
       width: 40,
       height: 40,
       decoration: BoxDecoration(
         color: currentIndex == index
-            ? const Color.fromARGB(255, 255, 103, 103)
+            ? appState.selectedColor
             : const Color.fromARGB(0, 255, 255, 255),
         shape: BoxShape.circle,
       ),
@@ -43,7 +46,7 @@ class _HomePageState extends State<HomePage> {
           icon: Icon(icon,
               color: currentIndex == index
                   ? Colors.white
-                  : const Color.fromARGB(255, 255, 103, 103)),
+                  : appState.selectedColor),
           onPressed: () {
             setState(() {
               currentIndex = index;
@@ -54,6 +57,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context, listen: true);
     return Scaffold(
       body: Stack(
         children: [
@@ -74,7 +78,7 @@ class _HomePageState extends State<HomePage> {
                   MaterialPageRoute(builder: (_) => ChatPage()),
                 );
               },
-              backgroundColor: Color(0xFFFF5A5A),
+              backgroundColor: appState.selectedColor,
               child: Icon(Icons.chat, color: Colors.white),
             ),
           ),
@@ -106,7 +110,7 @@ class _HomePageState extends State<HomePage> {
           heroTag: 'add',
           onPressed: () => RecordBottomSheet.open(context), // 打开底部抽屉
           child: Icon(Icons.add, size: 30, color: Colors.white),
-          backgroundColor: Color(0xFFFF5A5A), // 设置按钮背景颜色
+          backgroundColor: appState.selectedColor, // 设置按钮背景颜色
           shape: CircleBorder(),
         ),
       ),

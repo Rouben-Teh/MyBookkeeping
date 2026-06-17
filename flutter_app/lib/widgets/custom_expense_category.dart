@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/enum/enum.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:provider/provider.dart';
 
 class CategoryPage extends StatefulWidget {
   final ScrollController scrollController;
@@ -62,6 +64,8 @@ class _CategoryPageState extends State<CategoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context, listen: true);
+
     final List<GlobalKey> itemKeys = List.generate(
         widget.isExpense ? ExpenseCategories.length : IncomeCategories.length,
         (_) => GlobalKey());
@@ -118,8 +122,8 @@ class _CategoryPageState extends State<CategoryPage> {
                   height: 50,
                   decoration: BoxDecoration(
                     color: widget.selectedCategory == item['name']
-                        ? const Color.fromARGB(255, 255, 103, 103)
-                        : const Color.fromARGB(255, 255, 195, 195),
+                        ? appState.selectedColor.withValues(alpha: 1)
+                        : appState.selectedColor.withValues(alpha: 0.25),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

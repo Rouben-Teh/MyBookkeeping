@@ -36,6 +36,11 @@ class AppState extends ChangeNotifier {
   List messages = [];
   bool isLoading = false;
 
+  //settings
+  Color selectedColor = Colors.red;
+  Color selectedLightColor = const Color.fromARGB(255, 255, 209, 206);
+  String selectedCurrency = '\$';
+
   void login(String _token, String _userId, String _email) {
     token = _token;
     userId = _userId;
@@ -263,6 +268,17 @@ class AppState extends ChangeNotifier {
 
   void addMessage(dynamic data) {
     messages.add(data);
+    notifyListeners();
+  }
+
+  void setThemeColor(Color color, Color lightColor) {
+    selectedColor = color;
+    selectedLightColor = lightColor;
+    notifyListeners();
+  }
+
+  void setCurrency(String currency) {
+    selectedCurrency = currency;
     notifyListeners();
   }
 

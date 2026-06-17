@@ -85,7 +85,7 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('AI Assistant'),
-        backgroundColor: Color(0xFFFF5A5A),
+        backgroundColor: appState.selectedColor,
         foregroundColor: Colors.white,
       ),
       body: Column(
@@ -122,6 +122,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildThinkingBubble() {
+    final appState = Provider.of<AppState>(context, listen: true);
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
@@ -130,7 +131,7 @@ class _ChatPageState extends State<ChatPage> {
         constraints:
             BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 255, 172, 172),
+          color: appState.selectedColor.withValues(alpha: 0.25),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -159,6 +160,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildMessageBubble(ChatMessage message) {
+    final appState = Provider.of<AppState>(context, listen: true);
     return Align(
       alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -168,8 +170,8 @@ class _ChatPageState extends State<ChatPage> {
             BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         decoration: BoxDecoration(
           color: message.isUser
-              ? Colors.red
-              : const Color.fromARGB(255, 255, 172, 172),
+              ? appState.selectedColor
+              : appState.selectedColor.withValues(alpha: 0.25),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -183,6 +185,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildInputArea() {
+    final appState = Provider.of<AppState>(context, listen: true);
     return BottomAppBar(
       padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
       color: Color.fromARGB(255, 255, 252, 252),
@@ -198,7 +201,7 @@ class _ChatPageState extends State<ChatPage> {
                     OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide(color: Colors.red)),
+                    borderSide: BorderSide(color: appState.selectedColor)),
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
@@ -207,7 +210,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
           SizedBox(width: 8),
           IconButton(
-            icon: Icon(Icons.send, color: Colors.red),
+            icon: Icon(Icons.send, color: appState.selectedColor),
             onPressed: _sendMessage,
           ),
         ],

@@ -82,7 +82,7 @@ class _PlansPageState extends State<PlansPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: const Color(0xFFFF5A5A),
+        backgroundColor: appState.selectedColor,
         elevation: 0,
         actions: [
           IconButton(
@@ -334,6 +334,7 @@ class _PlansPageState extends State<PlansPage> {
   }
 
   Widget _buildEmptyState() {
+    final appState = Provider.of<AppState>(context, listen: true);
     return Center(
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -342,7 +343,7 @@ class _PlansPageState extends State<PlansPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.event_note, size: 48, color: Color(0xFFFF5A5A)),
+              Icon(Icons.event_note, size: 48, color: appState.selectedColor),
               const SizedBox(height: 16),
               const Text(
                 'The schedule page is used to manage installment payments, lending/borrowing, and transactions that require timely repayment.',
@@ -363,7 +364,7 @@ class _PlansPageState extends State<PlansPage> {
                 icon: const Icon(Icons.add),
                 label: const Text('create my first plan'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF5A5A),
+                  backgroundColor: appState.selectedColor,
                   foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -384,6 +385,7 @@ class _PlansPageState extends State<PlansPage> {
     required String value,
     required IconData icon,
   }) {
+    final appState = Provider.of<AppState>(context, listen: true);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -393,7 +395,7 @@ class _PlansPageState extends State<PlansPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: const Color(0xFFFF5A5A)),
+          Icon(icon, size: 18, color: appState.selectedColor),
           const SizedBox(height: 8),
           Text(title,
               style: const TextStyle(fontSize: 12, color: Colors.black54)),

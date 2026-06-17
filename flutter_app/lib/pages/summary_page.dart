@@ -271,6 +271,8 @@ class _SummaryPageState extends State<SummaryPage>
   }
 
   Widget _buildLineChart(List<Map<String, dynamic>> transactions) {
+    final appState = Provider.of<AppState>(context, listen: true);
+
     final currentIndex = _tabController.index;
     final weekRange = getWeekStartEnd(Global.appState.summaryWeekDate);
     final monthRange = getMonthStartEnd(Global.appState.summaryMonthDate);
@@ -341,7 +343,7 @@ class _SummaryPageState extends State<SummaryPage>
               getTitlesWidget: (value, meta) {
                 return SideTitleWidget(
                   meta: meta,
-                  child: Text('\$${value.toInt()}',
+                  child: Text('${appState.selectedCurrency}${value.toInt()}',
                       style: const TextStyle(fontSize: 10)),
                 );
               },
@@ -384,8 +386,8 @@ class _SummaryPageState extends State<SummaryPage>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const TextSpan(
-                      text: '\$',
+                    TextSpan(
+                      text: '${appState.selectedCurrency}',
                       style: TextStyle(
                         fontWeight: FontWeight.normal,
                       ),
@@ -532,6 +534,7 @@ class _SummaryPageState extends State<SummaryPage>
   }
 
   Widget _buildTabContent(dynamic transaction) {
+    final appState = Provider.of<AppState>(context, listen: true);
     final txList = _normalizeTransactionList(transaction);
     double totalExpensesAmount = 0.0;
     double totalIncomeAmount = 0.0;
@@ -560,20 +563,22 @@ class _SummaryPageState extends State<SummaryPage>
       ),
       _summaryCard(
         title: 'Total expenses',
-        value: '\$${totalExpensesAmount.toStringAsFixed(2)}',
+        value:
+            '${appState.selectedCurrency}${totalExpensesAmount.toStringAsFixed(2)}',
         icon: Icons.arrow_downward,
         color: Colors.redAccent,
       ),
       _summaryCard(
         title: 'Total income',
-        value: '\$${totalIncomeAmount.toStringAsFixed(2)}',
+        value:
+            '${appState.selectedCurrency}${totalIncomeAmount.toStringAsFixed(2)}',
         icon: Icons.arrow_upward,
         color: Colors.green,
       ),
       _summaryCard(
         title: 'Balance',
         value:
-            '\$${(totalIncomeAmount - totalExpensesAmount).toStringAsFixed(2)}',
+            '${appState.selectedCurrency}${(totalIncomeAmount - totalExpensesAmount).toStringAsFixed(2)}',
         icon: Icons.account_balance_wallet,
         color: Colors.indigo,
       ),
@@ -615,7 +620,7 @@ class _SummaryPageState extends State<SummaryPage>
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<AppState>(context, listen: true);
+    final appState = Provider.of<AppState>(context, listen: true);
 
     final yearTransaction = Global.appState.summaryCache.firstWhere(
       (item) => item['key'] == 'year',
@@ -642,7 +647,7 @@ class _SummaryPageState extends State<SummaryPage>
               fontWeight: FontWeight.bold,
             ),
           ),
-          backgroundColor: const Color(0xFFFF5A5A),
+          backgroundColor: appState.selectedColor,
           elevation: 0,
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(48),
@@ -666,7 +671,7 @@ class _SummaryPageState extends State<SummaryPage>
               children: [
                 Container(
                   height: 30,
-                  color: const Color.fromARGB(255, 255, 185, 185),
+                  color: appState.selectedColor.withValues(alpha: 0.5),
                   child: Row(
                     children: [
                       GestureDetector(

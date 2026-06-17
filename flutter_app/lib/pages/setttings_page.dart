@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/utils/app_state.dart';
+import 'package:provider/provider.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -6,14 +8,18 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  Color selectedColor = Colors.red;
-
   final List<Color> colorOptions = [
     Colors.red,
     Colors.green,
     Colors.blue,
     Colors.orange
   ];
+  final Map<Color, Color> lightColorOptions = {
+    Colors.red: const Color.fromARGB(255, 255, 209, 206),
+    Colors.green: const Color.fromARGB(255, 225, 255, 226),
+    Colors.blue: const Color.fromARGB(255, 226, 242, 255),
+    Colors.orange: const Color.fromARGB(255, 255, 237, 213)
+  };
   final Map<Color, String> colorNames = {
     Colors.red: 'Red',
     Colors.green: 'Green',
@@ -22,11 +28,10 @@ class _SettingsPageState extends State<SettingsPage> {
   };
 
   Widget buildColorMenu() {
+    final appState = Provider.of<AppState>(context, listen: true);
     return PopupMenuButton<Color>(
       onSelected: (color) {
-        setState(() {
-          selectedColor = color;
-        });
+        appState.setThemeColor(color, lightColorOptions[color]!);
       },
       itemBuilder: (context) {
         return colorOptions.map((color) {
@@ -52,17 +57,17 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Card(
-            color: const Color.fromARGB(255, 255, 236, 236),
+            color: appState.selectedLightColor,
             margin: EdgeInsets.zero,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             child: ListTile(
-              title: Text('Current color：${colorNames[selectedColor]}',
+              title: Text('Current color：${colorNames[appState.selectedColor]}',
                   style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
                       fontWeight: FontWeight.bold)),
-              trailing: Icon(Icons.color_lens, color: selectedColor),
+              trailing: Icon(Icons.color_lens, color: appState.selectedColor),
             ),
           ),
         ),
@@ -70,16 +75,13 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  String selectedCurrency = '\$';
-
   final List<String> currencyOptions = ['RM', '\$', '￥'];
 
   Widget buildCurrencyMenu() {
+    final appState = Provider.of<AppState>(context, listen: true);
     return PopupMenuButton<String>(
       onSelected: (currency) {
-        setState(() {
-          selectedCurrency = currency;
-        });
+        appState.setCurrency(currency);
       },
       itemBuilder: (context) {
         return currencyOptions.map((currency) {
@@ -98,17 +100,18 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Card(
-            color: const Color.fromARGB(255, 255, 236, 236),
+            color: appState.selectedLightColor,
             margin: EdgeInsets.zero,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             child: ListTile(
-              title: Text('Current currency：${selectedCurrency}',
+              title: Text('Current currency：${appState.selectedCurrency}',
                   style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
                       fontWeight: FontWeight.bold)),
-              trailing: Icon(Icons.currency_exchange, color: selectedColor),
+              trailing:
+                  Icon(Icons.currency_exchange, color: appState.selectedColor),
             ),
           ),
         ),
@@ -118,6 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings',
@@ -126,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
               fontSize: 20,
               fontWeight: FontWeight.bold,
             )),
-        backgroundColor: Color(0xFFFF5A5A),
+        backgroundColor: appState.selectedColor,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -140,7 +144,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Card(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
-              color: const Color.fromARGB(255, 255, 236, 236),
+              color: appState.selectedColor,
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                 child: Column(
