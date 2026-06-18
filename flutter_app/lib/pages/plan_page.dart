@@ -257,7 +257,7 @@ class _PlansPageState extends State<PlansPage> {
                                   child: _infoBox(
                                     title: 'balance',
                                     value:
-                                        '¥${plan.remainingBalance.toStringAsFixed(2)}',
+                                        '${appState.selectedCurrency}${plan.remainingBalance.toStringAsFixed(2)}',
                                     icon: Icons.account_balance_wallet,
                                   ),
                                 ),

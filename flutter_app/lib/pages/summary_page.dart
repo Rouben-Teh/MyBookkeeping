@@ -685,7 +685,7 @@ class _SummaryPageState extends State<SummaryPage>
                                 horizontal: 6, vertical: 6),
                             child: Icon(
                               Icons.arrow_back_ios,
-                              color: Color.fromARGB(255, 255, 255, 255),
+                              color: Colors.black,
                               size: 16,
                             ),
                           )),
@@ -694,7 +694,7 @@ class _SummaryPageState extends State<SummaryPage>
                         _currentDateText,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 18,
                         ),
                       )),
@@ -709,7 +709,7 @@ class _SummaryPageState extends State<SummaryPage>
                                 horizontal: 6, vertical: 6),
                             child: Icon(
                               Icons.arrow_forward_ios,
-                              color: Color.fromARGB(255, 255, 255, 255),
+                              color: Colors.black,
                               size: 16,
                             ),
                           )),

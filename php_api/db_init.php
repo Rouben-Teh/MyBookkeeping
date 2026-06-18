@@ -64,6 +64,15 @@ CREATE TABLE IF NOT EXISTS plans (
 )
 ");
 
+// settings table
+$db->exec("
+CREATE TABLE IF NOT EXISTS settings (
+    user_id INTEGER PRIMARY KEY,
+    metadata TEXT,
+    synced INTEGER DEFAULT 0
+)
+");
+
 // contact table
 $db->exec("
 CREATE TABLE IF NOT EXISTS contacts (

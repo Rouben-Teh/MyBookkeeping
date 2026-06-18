@@ -34,10 +34,11 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
           setState(() {
             isStickHead = false;
           });
-      } else if (pos.pixels >= pos.maxScrollExtent) {
-        setState(() {
-          isStickHead = true;
-        });
+      } else {
+        if (!isStickHead)
+          setState(() {
+            isStickHead = true;
+          });
       }
     });
   }
@@ -126,6 +127,14 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                   color: Colors.white, // 设置标题文字颜色
                   fontSize: 20, // 设置标题文字大小
                   fontWeight: FontWeight.bold), // 设置标题文字加粗
+              trailingIcon: Icon(
+                Icons.arrow_drop_down,
+                color: Colors.white,
+              ),
+              selectedTrailingIcon: Icon(
+                Icons.arrow_drop_up,
+                color: Colors.white,
+              ),
               menuStyle: MenuStyle(
                 backgroundColor: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.hovered)) {
@@ -214,7 +223,7 @@ class _RecordDetailsPageState extends State<RecordDetailsPage> {
                     return SliverStickyHeader(
                       header: Container(
                         height: 40,
-                        color: appState.selectedColor.withValues(alpha: 0.15),
+                        color: appState.selectedLightColor,
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         alignment: Alignment.centerLeft,
                         child: Text(

@@ -9,9 +9,14 @@ import 'package:my_bookkeeping/service/profile_service.dart';
 
 class APIService {
   Future<dynamic> validation() async {
-    final res = await NetService().httpPost('validation', {});
-    final data = json.decode(res.body);
-    return data;
+    try {
+      final res = await NetService()
+          .httpPost('validation', {}).timeout(const Duration(seconds: 2));
+      final data = json.decode(res.body);
+      return data;
+    } catch (e) {
+      return null;
+    }
   }
 
   // Future<void> fetchTransactions() async {
@@ -34,35 +39,43 @@ class APIService {
   // }
 
   Future<void> fetchTransactionsAndSync() async {
-    final res = await NetService().httpPost('list', {});
-    final data = json.decode(res.body);
+    try {
+      final res = await NetService().httpPost('list', {});
+      final data = json.decode(res.body);
 
-    final list = List<Map<String, dynamic>>.from(data['transactions']);
+      final list = List<Map<String, dynamic>>.from(data['transactions']);
 
-    for (final item in list) {
-      await saveTransaction(item);
+      for (final item in list) {
+        await saveTransaction(item);
+      }
+
+      fetchLocalMonthTransactions(Global.appState.currentMonth);
+
+      ProfileStats();
+    } catch (e) {
+      print('fetch transaction failed: $e');
     }
-
-    fetchLocalMonthTransactions(Global.appState.currentMonth);
-
-    ProfileStats();
   }
 
   Future<void> fetchUnsyncTransactions() async {
-    final res = await NetService().httpPost('get-unsync-transactions', {});
-    final data = json.decode(res.body);
+    try {
+      final res = await NetService().httpPost('get-unsync-transactions', {});
+      final data = json.decode(res.body);
 
-    final list = List<Map<String, dynamic>>.from(data['transactions']);
+      final list = List<Map<String, dynamic>>.from(data['transactions']);
 
-    if (list.length == 0) return;
+      if (list.length == 0) return;
 
-    for (final item in list) {
-      await saveTransaction(item);
+      for (final item in list) {
+        await saveTransaction(item);
+      }
+
+      syncUnsyncTransactions();
+
+      ProfileStats();
+    } catch (e) {
+      print('fetch unsync transaction failed: $e');
     }
-
-    syncUnsyncTransactions();
-
-    ProfileStats();
   }
 
   // Future<void> addTransaction(
@@ -278,7 +291,7 @@ class APIService {
             synced: Value(true),
           ),
         );
-        print('Synced successfully');
+        print('Synced transaction successfully');
       } catch (e) {
         print('Syncing failed: $e');
       }
@@ -343,16 +356,20 @@ class APIService {
   }
 
   Future<void> fetchPlansAndSync() async {
-    final res = await NetService().httpPost('list-plans', {});
-    final data = json.decode(res.body);
+    try {
+      final res = await NetService().httpPost('list-plans', {});
+      final data = json.decode(res.body);
 
-    final list = List<Map<String, dynamic>>.from(data['plans']);
+      final list = List<Map<String, dynamic>>.from(data['plans']);
 
-    for (final item in list) {
-      await savePlan(item);
+      for (final item in list) {
+        await savePlan(item);
+      }
+
+      fetchLocalPlans();
+    } catch (e) {
+      print('fetchplans failed: $e');
     }
-
-    fetchLocalPlans();
   }
 
   Future<void> fetchUnsyncPlans() async {
@@ -526,7 +543,7 @@ class APIService {
         print('data to php: $data');
 
         if (data['ok'] != true) {
-          print("Syncing transaction failed: ${data['error']}");
+          print("Syncing plan failed: ${data['error']}");
           return;
         }
 
@@ -539,6 +556,111 @@ class APIService {
       } catch (e) {
         print('Syncing failed: $e');
       }
+    }
+  }
+
+  Future<void> updateSettings(dynamic settings) async {
+    try {
+      Global.appState.setSettings(settings);
+
+      saveSettings({
+        'user_id': int.parse(Global.appState.userId),
+        'metadata': settings,
+        'synced': false
+      });
+
+      final res = await NetService().httpPost('settings', {
+        'user_id': int.parse(Global.appState.userId),
+        'metadata': settings,
+        'synced': 1
+      });
+      final data = json.decode(res.body);
+      print(data);
+
+      if (data['ok']) {
+        final db = Global.appDatabase;
+        await (db.update(db.settings)
+              ..where(
+                  (t) => t.userId.equals(int.parse(Global.appState.userId))))
+            .write(
+          SettingsCompanion(
+            synced: Value(true),
+          ),
+        );
+      }
+    } catch (e) {
+      print('update settings failed: $e');
+    }
+  }
+
+  Future<void> fetchLocalSettings() async {
+    try {
+      final db = Global.appDatabase;
+      final query = db.select(db.settings);
+      final list = await query.get();
+
+      final jsonList = list.map((row) => row.toJson()).toList();
+      print('load cache settings list:$jsonList');
+
+      Global.appState.setSettings(jsonList[0]['metadata']);
+    } catch (e) {
+      print('fetch error: $e');
+    }
+  }
+
+  Future<void> syncUnsyncSettings() async {
+    final db = Global.appDatabase;
+    final list = await (db.select(db.settings)
+          ..where((t) => t.synced.equals(false)))
+        .get();
+    for (final l in list) {
+      try {
+        final res = await NetService().httpPost('settings', {
+          'user_id': l.userId,
+          'metadata': l.metadata,
+          'synced': 1,
+        });
+
+        final data = json.decode(res.body);
+
+        print('data to php: $data');
+
+        if (data['ok'] != true) {
+          print("Syncing settings failed: ${data['error']}");
+          return;
+        }
+
+        await (db.update(db.settings)..where((t) => t.userId.equals(l.userId)))
+            .write(
+          SettingsCompanion(
+            synced: Value(true),
+          ),
+        );
+        print('Synced settings successfully');
+      } catch (e) {
+        print('Syncing failed: $e');
+      }
+    }
+  }
+
+  Future<void> fetchSettingsAndSync() async {
+    try {
+      final res = await NetService().httpPost('list-settings', {});
+      final data = json.decode(res.body);
+      final list = List<Map<String, dynamic>>.from(data['settings']);
+
+      if (list.length == 0) {
+        updateSettings(jsonEncode({'theme_color': 0, 'currency': '\$'}));
+        return;
+      }
+
+      for (final item in list) {
+        await saveSettings(item);
+      }
+
+      fetchLocalSettings();
+    } catch (e) {
+      print('fetch settings failed: $e');
     }
   }
 

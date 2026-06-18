@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:my_bookkeeping/service/settings_service.dart';
+import 'package:my_bookkeeping/service/api_service.dart';
 import 'package:my_bookkeeping/utils/app_state.dart';
 import 'package:provider/provider.dart';
 
@@ -8,30 +11,14 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final List<Color> colorOptions = [
-    Colors.red,
-    Colors.green,
-    Colors.blue,
-    Colors.orange
-  ];
-  final Map<Color, Color> lightColorOptions = {
-    Colors.red: const Color.fromARGB(255, 255, 209, 206),
-    Colors.green: const Color.fromARGB(255, 225, 255, 226),
-    Colors.blue: const Color.fromARGB(255, 226, 242, 255),
-    Colors.orange: const Color.fromARGB(255, 255, 237, 213)
-  };
-  final Map<Color, String> colorNames = {
-    Colors.red: 'Red',
-    Colors.green: 'Green',
-    Colors.blue: 'Blue',
-    Colors.orange: 'Orange',
-  };
-
   Widget buildColorMenu() {
     final appState = Provider.of<AppState>(context, listen: true);
     return PopupMenuButton<Color>(
       onSelected: (color) {
-        appState.setThemeColor(color, lightColorOptions[color]!);
+        APIService().updateSettings(jsonEncode({
+          'theme_color': colorOptions.indexOf(color),
+          'currency': appState.selectedCurrency
+        }));
       },
       itemBuilder: (context) {
         return colorOptions.map((color) {
@@ -75,13 +62,14 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  final List<String> currencyOptions = ['RM', '\$', '￥'];
-
   Widget buildCurrencyMenu() {
     final appState = Provider.of<AppState>(context, listen: true);
     return PopupMenuButton<String>(
       onSelected: (currency) {
-        appState.setCurrency(currency);
+        APIService().updateSettings(jsonEncode({
+          'theme_color': colorOptions.indexOf(appState.selectedColor),
+          'currency': currency
+        }));
       },
       itemBuilder: (context) {
         return currencyOptions.map((currency) {

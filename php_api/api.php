@@ -511,6 +511,43 @@ if($action === 'statistic') {
     exit;
 }
 
+if ($action === 'list-settings') {
+    $auth = getAuth($db);
+    if (!$auth) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+    
+    $stmt = $db->prepare('SELECT * FROM settings WHERE user_id = :user_id');
+    $stmt->execute([':user_id' => $auth['user_id']]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    echo json_encode(['settings' => $rows]);
+    exit;
+}
+
+if($action === 'settings') {
+    $auth = getAuth($db);
+    if (!$auth) {
+        http_response_code(401);
+        echo json_encode(['error' => 'unauthorized']);
+        exit;
+    }
+
+    $body = json_decode(file_get_contents('php://input'), true);
+    $metadata = $body['metadata'] ?? '';
+    $synced = $body['synced'] ?? 0;
+
+    $stmt = $db->prepare('INSERT INTO settings (user_id, metadata, synced) VALUES (:user_id, :metadata, :synced)
+    ON CONFLICT(user_id) DO UPDATE SET metadata = excluded.metadata, synced = excluded.synced');
+    $stmt->execute([':user_id' => $auth['user_id'], ':metadata' => $metadata, ':synced' => $synced]);
+    
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
+
 if($action === 'chat') {
     $auth = getAuth($db);
     if (!$auth) {

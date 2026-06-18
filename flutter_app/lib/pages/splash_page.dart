@@ -37,7 +37,7 @@ class _SplashPageState extends State<SplashPage> {
 
       final res = await APIService().validation();
 
-      if (!res['ok']) {
+      if (res != null && res['ok']) {
         final prefs = await SharedPreferences.getInstance();
 
         NetService().setToken('');
@@ -67,9 +67,11 @@ class _SplashPageState extends State<SplashPage> {
       // APIService().fetchMonthTransactions(DateTime.now());
       await APIService().fetchLocalMonthTransactions(DateTime.now());
       await APIService().fetchLocalPlans();
+      await APIService().fetchLocalSettings();
 
       APIService().syncUnsyncTransactions();
       APIService().syncUnsyncPlans();
+      APIService().syncUnsyncSettings();
 
       //summary
       final dt = DateTime.now();

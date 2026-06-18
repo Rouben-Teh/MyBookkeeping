@@ -1230,16 +1230,230 @@ class PlansCompanion extends UpdateCompanion<Plan> {
   }
 }
 
+class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SettingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _metadataMeta =
+      const VerificationMeta('metadata');
+  @override
+  late final GeneratedColumn<String> metadata = GeneratedColumn<String>(
+      'metadata', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
+  @override
+  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
+      'synced', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
+      defaultValue: Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [userId, metadata, synced];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'settings';
+  @override
+  VerificationContext validateIntegrity(Insertable<Setting> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
+    if (data.containsKey('metadata')) {
+      context.handle(_metadataMeta,
+          metadata.isAcceptableOrUnknown(data['metadata']!, _metadataMeta));
+    } else if (isInserting) {
+      context.missing(_metadataMeta);
+    }
+    if (data.containsKey('synced')) {
+      context.handle(_syncedMeta,
+          synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId};
+  @override
+  Setting map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Setting(
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}user_id'])!,
+      metadata: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}metadata'])!,
+      synced: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+    );
+  }
+
+  @override
+  $SettingsTable createAlias(String alias) {
+    return $SettingsTable(attachedDatabase, alias);
+  }
+}
+
+class Setting extends DataClass implements Insertable<Setting> {
+  final int userId;
+  final String metadata;
+  final bool synced;
+  const Setting(
+      {required this.userId, required this.metadata, required this.synced});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<int>(userId);
+    map['metadata'] = Variable<String>(metadata);
+    map['synced'] = Variable<bool>(synced);
+    return map;
+  }
+
+  SettingsCompanion toCompanion(bool nullToAbsent) {
+    return SettingsCompanion(
+      userId: Value(userId),
+      metadata: Value(metadata),
+      synced: Value(synced),
+    );
+  }
+
+  factory Setting.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Setting(
+      userId: serializer.fromJson<int>(json['userId']),
+      metadata: serializer.fromJson<String>(json['metadata']),
+      synced: serializer.fromJson<bool>(json['synced']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<int>(userId),
+      'metadata': serializer.toJson<String>(metadata),
+      'synced': serializer.toJson<bool>(synced),
+    };
+  }
+
+  Setting copyWith({int? userId, String? metadata, bool? synced}) => Setting(
+        userId: userId ?? this.userId,
+        metadata: metadata ?? this.metadata,
+        synced: synced ?? this.synced,
+      );
+  Setting copyWithCompanion(SettingsCompanion data) {
+    return Setting(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      metadata: data.metadata.present ? data.metadata.value : this.metadata,
+      synced: data.synced.present ? data.synced.value : this.synced,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Setting(')
+          ..write('userId: $userId, ')
+          ..write('metadata: $metadata, ')
+          ..write('synced: $synced')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, metadata, synced);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Setting &&
+          other.userId == this.userId &&
+          other.metadata == this.metadata &&
+          other.synced == this.synced);
+}
+
+class SettingsCompanion extends UpdateCompanion<Setting> {
+  final Value<int> userId;
+  final Value<String> metadata;
+  final Value<bool> synced;
+  const SettingsCompanion({
+    this.userId = const Value.absent(),
+    this.metadata = const Value.absent(),
+    this.synced = const Value.absent(),
+  });
+  SettingsCompanion.insert({
+    this.userId = const Value.absent(),
+    required String metadata,
+    this.synced = const Value.absent(),
+  }) : metadata = Value(metadata);
+  static Insertable<Setting> custom({
+    Expression<int>? userId,
+    Expression<String>? metadata,
+    Expression<bool>? synced,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (metadata != null) 'metadata': metadata,
+      if (synced != null) 'synced': synced,
+    });
+  }
+
+  SettingsCompanion copyWith(
+      {Value<int>? userId, Value<String>? metadata, Value<bool>? synced}) {
+    return SettingsCompanion(
+      userId: userId ?? this.userId,
+      metadata: metadata ?? this.metadata,
+      synced: synced ?? this.synced,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<int>(userId.value);
+    }
+    if (metadata.present) {
+      map['metadata'] = Variable<String>(metadata.value);
+    }
+    if (synced.present) {
+      map['synced'] = Variable<bool>(synced.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SettingsCompanion(')
+          ..write('userId: $userId, ')
+          ..write('metadata: $metadata, ')
+          ..write('synced: $synced')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $TransactionsTable transactions = $TransactionsTable(this);
   late final $PlansTable plans = $PlansTable(this);
+  late final $SettingsTable settings = $SettingsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [transactions, plans];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [transactions, plans, settings];
 }
 
 typedef $$TransactionsTableCreateCompanionBuilder = TransactionsCompanion
@@ -1811,6 +2025,135 @@ typedef $$PlansTableProcessedTableManager = ProcessedTableManager<
     (Plan, BaseReferences<_$AppDatabase, $PlansTable, Plan>),
     Plan,
     PrefetchHooks Function()>;
+typedef $$SettingsTableCreateCompanionBuilder = SettingsCompanion Function({
+  Value<int> userId,
+  required String metadata,
+  Value<bool> synced,
+});
+typedef $$SettingsTableUpdateCompanionBuilder = SettingsCompanion Function({
+  Value<int> userId,
+  Value<String> metadata,
+  Value<bool> synced,
+});
+
+class $$SettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $SettingsTable> {
+  $$SettingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get metadata => $composableBuilder(
+      column: $table.metadata, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnFilters(column));
+}
+
+class $$SettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SettingsTable> {
+  $$SettingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get metadata => $composableBuilder(
+      column: $table.metadata, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SettingsTable> {
+  $$SettingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get metadata =>
+      $composableBuilder(column: $table.metadata, builder: (column) => column);
+
+  GeneratedColumn<bool> get synced =>
+      $composableBuilder(column: $table.synced, builder: (column) => column);
+}
+
+class $$SettingsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SettingsTable,
+    Setting,
+    $$SettingsTableFilterComposer,
+    $$SettingsTableOrderingComposer,
+    $$SettingsTableAnnotationComposer,
+    $$SettingsTableCreateCompanionBuilder,
+    $$SettingsTableUpdateCompanionBuilder,
+    (Setting, BaseReferences<_$AppDatabase, $SettingsTable, Setting>),
+    Setting,
+    PrefetchHooks Function()> {
+  $$SettingsTableTableManager(_$AppDatabase db, $SettingsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SettingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SettingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SettingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> userId = const Value.absent(),
+            Value<String> metadata = const Value.absent(),
+            Value<bool> synced = const Value.absent(),
+          }) =>
+              SettingsCompanion(
+            userId: userId,
+            metadata: metadata,
+            synced: synced,
+          ),
+          createCompanionCallback: ({
+            Value<int> userId = const Value.absent(),
+            required String metadata,
+            Value<bool> synced = const Value.absent(),
+          }) =>
+              SettingsCompanion.insert(
+            userId: userId,
+            metadata: metadata,
+            synced: synced,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SettingsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SettingsTable,
+    Setting,
+    $$SettingsTableFilterComposer,
+    $$SettingsTableOrderingComposer,
+    $$SettingsTableAnnotationComposer,
+    $$SettingsTableCreateCompanionBuilder,
+    $$SettingsTableUpdateCompanionBuilder,
+    (Setting, BaseReferences<_$AppDatabase, $SettingsTable, Setting>),
+    Setting,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1819,4 +2162,6 @@ class $AppDatabaseManager {
       $$TransactionsTableTableManager(_db, _db.transactions);
   $$PlansTableTableManager get plans =>
       $$PlansTableTableManager(_db, _db.plans);
+  $$SettingsTableTableManager get settings =>
+      $$SettingsTableTableManager(_db, _db.settings);
 }

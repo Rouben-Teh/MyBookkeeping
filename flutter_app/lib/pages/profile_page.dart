@@ -42,11 +42,10 @@ class _ProfilePageState extends State<ProfilePage> {
         print('Logout successful');
       }
 
-      Global.appState.setTransactions([]);
-      Global.appState.setPlans([]);
-      Global.appState.clearSummaryCache();
-      Global.appState.clearProfileStats();
-      Global.appState.setMessage([]);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => LoginPage()),
+      );
 
       await prefs.remove('token');
       await prefs.remove('userId');
@@ -62,10 +61,15 @@ class _ProfilePageState extends State<ProfilePage> {
         NetService().setToken('');
       });
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => LoginPage()),
-      );
+      Global.appState.setTransactions([]);
+      Global.appState.setPlans([]);
+      Global.appState.clearSummaryCache();
+      Global.appState.clearProfileStats();
+      Global.appState.setMessage([]);
+      Global.appState
+          .setSettings(jsonEncode({'theme_color': 0, 'currency': '\$'}));
+
+      print('logout logic done');
     } catch (e) {
       print('logout error: $e');
     }
@@ -240,7 +244,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           icon: Icons.sync,
                           function: () async => {
                                 await APIService().syncUnsyncTransactions(),
-                                await APIService().syncUnsyncPlans()
+                                await APIService().syncUnsyncPlans(),
+                                await APIService().syncUnsyncSettings()
                               }),
                     ],
                   ))),

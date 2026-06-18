@@ -48,12 +48,21 @@ class Plans extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Transactions, Plans])
+class Settings extends Table {
+  IntColumn get userId => integer()();
+  TextColumn get metadata => text()();
+  BoolColumn get synced => boolean().withDefault(Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {userId};
+}
+
+@DriftDatabase(tables: [Transactions, Plans, Settings])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 6;
 }
 
 LazyDatabase _openConnection() {
@@ -125,6 +134,18 @@ Future<void> savePlan(dynamic item) async {
           createdAt: Value(item['created_at']),
           synced: Value(item['synced'] == 1),
           deleted: Value(item['deleted'] == 1),
+        ),
+      );
+}
+
+Future<void> saveSettings(dynamic item) async {
+  final db = Global.appDatabase;
+  print('data to save: $item');
+  await db.into(db.settings).insertOnConflictUpdate(
+        SettingsCompanion(
+          userId: Value(item['user_id']),
+          metadata: Value(item['metadata']),
+          synced: Value(item['synced'] == 1),
         ),
       );
 }

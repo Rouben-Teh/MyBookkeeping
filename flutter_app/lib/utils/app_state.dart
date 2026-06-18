@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
 import 'package:my_bookkeeping/service/plan_service.dart';
 import 'package:my_bookkeeping/service/summary_service.dart';
+import 'package:my_bookkeeping/service/settings_service.dart';
 import 'package:my_bookkeeping/utils/datetime.dart';
 
 class AppState extends ChangeNotifier {
@@ -279,6 +282,14 @@ class AppState extends ChangeNotifier {
 
   void setCurrency(String currency) {
     selectedCurrency = currency;
+    notifyListeners();
+  }
+
+  void setSettings(dynamic settings) {
+    final parseSettings = jsonDecode(settings);
+    setThemeColor(colorOptions[parseSettings['theme_color']],
+        lightColorOptions[parseSettings['theme_color']]);
+    setCurrency(parseSettings['currency']);
     notifyListeners();
   }
 

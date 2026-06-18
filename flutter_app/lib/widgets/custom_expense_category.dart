@@ -122,7 +122,7 @@ class _CategoryPageState extends State<CategoryPage> {
                   height: 50,
                   decoration: BoxDecoration(
                     color: widget.selectedCategory == item['name']
-                        ? appState.selectedColor.withValues(alpha: 1)
+                        ? appState.selectedColor.withValues(alpha: 0.7)
                         : appState.selectedColor.withValues(alpha: 0.25),
                     shape: BoxShape.circle,
                   ),

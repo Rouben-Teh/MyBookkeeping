@@ -62,8 +62,8 @@ class _LoginPageState extends State<LoginPage> {
 
       await APIService().fetchTransactionsAndSync();
       await APIService().fetchLocalMonthTransactions(DateTime.now());
-
       await APIService().fetchPlansAndSync();
+      await APIService().fetchSettingsAndSync();
 
       final dt = DateTime.now();
       setYearSummary(dt);
