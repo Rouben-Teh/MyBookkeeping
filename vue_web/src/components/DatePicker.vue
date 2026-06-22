@@ -27,8 +27,8 @@
       <p class='text-red-600 text-xs'>{{ warning }}</p>
 
       <div class="flex justify-end gap-2">
-        <button @click="$emit('close')" class="px-4 py-2 rounded-full shadow hover:bg-slate-100">取消</button>
-        <button @click="confirm" class="px-4 py-2 rounded-full shadow bg-red-500 text-white hover:bg-red-400">确定</button>
+        <button @click="$emit('close')" class="px-4 py-2 rounded-full shadow hover:bg-slate-100">Cancel</button>
+        <button @click="confirm" class="px-4 py-2 rounded-full shadow text-white" :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]">Confirm</button>
       </div>
     </div>
   </div>
@@ -36,6 +36,8 @@
 
 <script>
 import dayjs from 'dayjs';
+import { useSettingsStore } from '../stores/settingsStore';
+import { themeOptions } from '../enum/enum.js';
 
 export default {
   props: {
@@ -72,7 +74,14 @@ export default {
       warning: "",
     };
   },
+  setup() {
+    const settingsStore = useSettingsStore();
+    return { settingsStore };
+  },
   computed: {
+    currentThemeColor() {
+      return themeOptions[this.settingsStore.settings.theme_color] || themeOptions[0];
+    },
     years() {
       const curr = new Date().getFullYear();
       const range = [];

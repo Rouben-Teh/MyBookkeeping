@@ -128,27 +128,27 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             buildColorMenu(),
             buildCurrencyMenu(),
-            SizedBox(height: 20),
-            Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              color: appState.selectedColor,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Current style：Color',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 12),
-                    Text(
-                        'Click the button above to switch to different styles, and click here to open the secondary menu to select a color.',
-                        style: TextStyle(fontSize: 16, color: Colors.black87)),
-                  ],
-                ),
-              ),
-            ),
+            // SizedBox(height: 20),
+            // Card(
+            //   shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(10)),
+            //   color: appState.selectedColor,
+            //   child: Padding(
+            //     padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         Text('Current style：Color',
+            //             style: TextStyle(
+            //                 fontSize: 16, fontWeight: FontWeight.bold)),
+            //         SizedBox(height: 12),
+            //         Text(
+            //             'Click the button above to switch to different styles, and click here to open the secondary menu to select a color.',
+            //             style: TextStyle(fontSize: 16, color: Colors.black87)),
+            //       ],
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

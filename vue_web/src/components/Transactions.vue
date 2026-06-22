@@ -23,13 +23,14 @@
             <div class="flex items-center gap-2">
               <component
                 :is="categoryMap[tx.category]?.icon"
-                class="w-5 h-5 text-red-500"
+                class="w-5 h-5"
+                :class="[`${currentThemeColor.tr}`]"
               />
               <span class="font-medium">{{ categoryMap[tx.category]?.name || 'Unknown' }}</span>
             </div>
             <!-- amount + time -->
             <div class="flex items-center gap-4">
-              <span class="font-medium text-red-600">¥{{ tx.amount }}</span>
+              <span class="font-medium" :class="[`${currentThemeColor.tb}`]">{{currentCurrency}}{{ tx.amount }}</span>
               <span class="text-sm text-slate-500">{{ formattedDate(tx.timestamp) }}</span>
 
               <button
@@ -68,7 +69,8 @@
 
 <script>
 import dayjs from 'dayjs';
-import { categoryMap } from '../enum/enum';
+import { categoryMap, themeOptions, currencyOptions } from '../enum/enum';
+import { useSettingsStore } from '../stores/settingsStore';
 import AddTransaction from './AddTransaction.vue';
 
 export default {
@@ -90,7 +92,17 @@ export default {
       activateItemUpdate: null,
      };
   },
+   setup() {
+    const settingsStore = useSettingsStore();
+    return { settingsStore };
+  },
   computed: {
+    currentThemeColor() {
+      return themeOptions[this.settingsStore.settings.theme_color] || themeOptions[0];
+    },
+    currentCurrency() {
+      return this.settingsStore.settings.currency || '$';
+    },
     categoryMap() {
       return categoryMap;
     },

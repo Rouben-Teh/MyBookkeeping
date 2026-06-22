@@ -1,10 +1,11 @@
 <template>
     <div class="flex flex-col">
         <div class="flex flex-wrap gap-2 mb-4">
-          <div class="relative shadow rounded-full w-30 bg-white">
+          <div class="relative rounded-full w-30 bg-white">
             <select
                 v-model="category"
-                class="px-3 py-2 appearance-none w-full rounded-full bg-transparent focus:outline-none focus:ring-1 focus:ring-red-400"
+                class="px-3 py-2 appearance-none w-full rounded-full border border-slate-200 bg-transparent focus:outline-none focus:ring-2"
+                :class="[`${currentThemeColor.fblr} ${currentThemeColor.frxl}` ]"
             >
                 <option value="">Category</option>
                 <option v-for="cat in categoryList" :key="cat.name" :value="cat.name">
@@ -21,16 +22,19 @@
                 v-model="amount"
                 type="number"
                 placeholder="Amount"
-                class="shadow rounded-full px-3 py-2 w-30 bg-white focus:outline-none focus:ring-1 focus:ring-red-400"
+                class="rounded-full px-3 py-2 w-30 border border-slate-200 bg-white focus:outline-none focus:ring-2"
+                :class="[`${currentThemeColor.fblr} ${currentThemeColor.frxl}`]"
             />
             <input
                 v-model="note"
                 placeholder="Note"
-                class="shadow rounded-full px-3 py-2 flex-1 min-w-30 bg-white focus:outline-none focus:ring-1 focus:ring-red-400"
+                class="rounded-full px-3 py-2 flex-1 min-w-30 border border-slate-200 bg-white focus:outline-none focus:ring-2"
+                :class="[`${currentThemeColor.fblr} ${currentThemeColor.frxl}`]"
             />
             <button
                 @click="showDatePicker = true"
-                class="shadow bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
+                class="shadow text-white px-4 py-2 rounded-full"
+                :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
             >
                 {{isToday(selectedDate) ? 'Today' : formattedDate(selectedDate)}}
             </button>
@@ -43,7 +47,8 @@
             </button>
             <button
                 @click="submit"
-                class="shadow bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-400"
+                class="shadow text-white px-4 py-2 rounded-full"
+                :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
             >
                 {{ initial && initial.id ? 'Update' : 'Add' }}
             </button>
@@ -60,7 +65,8 @@
 </template>
 
 <script>
-import { expenseCategories, incomeCategories } from '../enum/enum';
+import { expenseCategories, incomeCategories, themeOptions, currencyOptions } from '../enum/enum';
+import { useSettingsStore } from '../stores/settingsStore';
 import DatePicker from './DatePicker.vue';
 import dayjs from 'dayjs';
 
@@ -83,6 +89,10 @@ export default {
       showMonthPicker: false,
     };
   },
+  setup() {
+    const settingsStore = useSettingsStore();
+    return { settingsStore };
+  },
   watch: {
     date(newDate) {
       if (!this.initial) {
@@ -99,6 +109,9 @@ export default {
     },
   },
   computed: {
+    currentThemeColor() {
+      return themeOptions[this.settingsStore.settings.theme_color] || themeOptions[0];
+    },
     categoryList() {
       if (this.type === 'expense') {
         return expenseCategories;

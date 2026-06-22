@@ -10,7 +10,7 @@ const routes = [
   { path: "/login", name: "Login", component: Login },
   { path: "/register", name: "Register", component: Register },
   {
-    path: "/dashboard/:tab(records|profile|summary)?",
+    path: "/dashboard/:tab(records|profile|summary|setting|feedback)?",
     name: "Dashboard",
     component: Dashboard,
     meta: { requiresAuth: true },

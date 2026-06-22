@@ -1,23 +1,30 @@
 <template>
   <div class="h-screen flex bg-slate-50 text-slate-900">
-    <aside class="h-screen bg-red-400 text-white w-56 p-4 space-y-4">
+    <aside
+      :class="[`${currentThemeColor.lr} h-screen text-white w-56 p-4 space-y-4`]"
+    >
       <h2 class="text-xl font-bold">MyBookkeeping</h2>
       <nav class="space-y-2">
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'records' } }"
-          class="block px-3 py-2 rounded-full hover:bg-red-500/50"
-          :class="{ 'shadow bg-red-500': selectedTab === 'records' }"
+          :class="[`block px-3 py-2 rounded-full ${currentThemeColor.hxl}`, { [`shadow ${currentThemeColor.r}`]: selectedTab === 'records' } ]"
         ><NotebookPen class="w-5 h-5 inline mr-2" />Records</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'profile' } }"
-          class="block px-3 py-2 rounded-full hover:bg-red-500/50"
-          :class="{ 'shadow bg-red-500': selectedTab === 'profile' }"
+          :class="[`block px-3 py-2 rounded-full ${currentThemeColor.hxl}`, { [`shadow ${currentThemeColor.r}`]: selectedTab === 'profile' } ]"
         ><User class="w-5 h-5 inline mr-2" />Profile</router-link>
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'summary' } }"
-          class="block px-3 py-2 rounded-full hover:bg-red-500/50"
-          :class="{ 'shadow bg-red-500': selectedTab === 'summary' }"
+          :class="[`block px-3 py-2 rounded-full ${currentThemeColor.hxl}`, { [`shadow ${currentThemeColor.r}`]: selectedTab === 'summary' } ]"
         ><ChartNoAxesCombined class="w-5 h-5 inline mr-2" />Summary</router-link>
+        <router-link
+          :to="{ name: 'Dashboard', params: { tab: 'setting' } }"
+          :class="[`block px-3 py-2 rounded-full ${currentThemeColor.hxl}`, { [`shadow ${currentThemeColor.r}`]: selectedTab === 'setting' } ]"
+        ><Settings class="w-5 h-5 inline mr-2" />Setting</router-link>
+        <router-link
+          :to="{ name: 'Dashboard', params: { tab: 'feedback' } }"
+          :class="[`block px-3 py-2 rounded-full ${currentThemeColor.hxl}`, { [`shadow ${currentThemeColor.r}`]: selectedTab === 'feedback' } ]"
+        ><MessageSquare class="w-5 h-5 inline mr-2" />Feedback</router-link>
       </nav>
     </aside>
     <main class="flex-1 p-6 overflow-auto">
@@ -38,6 +45,15 @@
         @activeSummaryType="handleSummaryType"
         @selectMonthFromSummary="handleMonthFromSummary"
         @selectMonthToSummary="handleMonthToSummary"
+      />
+
+      <Setting
+        v-else-if="selectedTab === 'setting'"
+      />
+
+      <Feedback
+        v-else-if="selectedTab === 'feedback'"
+        :settings="settings"
       />
 
       <Records
@@ -70,7 +86,8 @@
       /> -->
     </main>
 
-    <ChatModal @fetchTransaction="handleFetchCurrentMonthTransaction" />
+    <ChatModal 
+    @fetchTransaction="handleFetchCurrentMonthTransaction" />
   </div>
 </template>
 
@@ -78,14 +95,18 @@
 import Records from './Records.vue';
 import Profile from './Profile.vue';
 import Summary from './Summary.vue';
+import Setting from './Setting.vue';
+import Feedback from './Feedback.vue';
 import ChatModal from '../components/ChatModal.vue';
 import auth from '../plugins/auth';
+import { useSettingsStore } from '../stores/settingsStore';
+import { themeOptions, currencyOptions } from '../enum/enum.js';
 import { httpPost } from '../utils/NetUtils';
 import dayjs from 'dayjs';
-import { NotebookPen, User, ChartNoAxesCombined } from 'lucide-vue-next';
+import { NotebookPen, User, ChartNoAxesCombined, Settings, MessageSquare } from 'lucide-vue-next';
 
 export default {
-  components: { Records, Profile, Summary, ChatModal, NotebookPen, User, ChartNoAxesCombined },
+  components: { Records, Profile, Summary, Setting, Feedback, ChatModal, NotebookPen, User, ChartNoAxesCombined, Settings, MessageSquare },
   data() {
     return {
       transactions: [],
@@ -99,15 +120,20 @@ export default {
       summaryData: [],
     };
   },
+  setup() {
+    const settingsStore = useSettingsStore();
+    return { settingsStore };
+  },
   computed: {
     selectedTab() {
       return this.$route.params.tab || 'records';
     },
-    // currentComponent() {
-    //   if (this.selectedTab === 'profile') return 'Profile';
-    //   if (this.selectedTab === 'summary') return 'Summary';
-    //   return 'Records';
-    // },
+    currentThemeColor() {
+      return themeOptions[this.settingsStore.settings.theme_color] || themeOptions[0];
+    },
+    settings() {
+      return this.settingsStore.settings;
+    },
   },
   async created() {
     if (!auth.isAuthenticated()) {
@@ -115,6 +141,7 @@ export default {
       return;
     }
     this.validation();
+    await this.settingsStore.fetchSettings();
     this.fetchCurrentMonthTransactions();
     this.fetchCount();
     this.fetchStreak();
@@ -273,16 +300,12 @@ export default {
       const dd = String(date.getDate()).padStart(2, '0')
 
       return `${yyyy}-${mm}-${dd}`
-    }
+    },
   },
   watch: {
     '$route.params.tab'() {
       // Keep main view consistent; tab changed by router-link.
     },
-    // dateFromSummary(newVal, oldVal) {
-    //   this.handleFetchSummaryData();
-    //   console.log('from date changed:', newVal)
-    // },
     dateToSummary(newVal, oldVal) {
       this.handleFetchSummaryData();
       console.log('to date changed:', newVal)

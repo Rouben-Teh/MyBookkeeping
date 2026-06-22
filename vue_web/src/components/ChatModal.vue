@@ -2,7 +2,8 @@
   <div class="fixed bottom-4 right-4 z-50">
     <button
       @click="toggleChat"
-      class="bg-red-500 hover:bg-red-400 text-white rounded-full p-3 shadow-lg transition-colors"
+      class="text-white rounded-full p-3 shadow-lg transition-colors"
+      :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
     >
       <Bot class="w-10 h-10" />
     </button>
@@ -11,7 +12,7 @@
       v-if="showModal"
       class="absolute bottom-20 right-0 bg-white rounded-lg shadow-xl w-80 h-96 flex flex-col"
     >
-      <div class="flex justify-between items-center p-3 bg-red-500 rounded-t-lg">
+      <div class="flex justify-between items-center p-3 rounded-t-lg" :class="[`${currentThemeColor.r}`]"> 
         <h3 class="text-sm font-semibold text-white">AI Assistant</h3>
         <button @click="showModal = false" class="text-white hover:text-gray-300">
           <X class="w-4 h-4" />
@@ -31,32 +32,34 @@
             :class="[
               'max-w-xs px-3 py-2 rounded-lg text-sm',
               message.role === 'user'
-                ? 'bg-red-600 text-white'
-                : 'bg-red-200 text-gray-800'
+                ? `${currentThemeColor.lb} text-white`
+                : `${currentThemeColor.xl} text-gray-800`
             ]"
           >
             {{ message.content }}
           </div>
         </div>
         <div v-if="isLoading" class="flex justify-start">
-          <div class="bg-red-200 text-gray-800 px-3 py-2 rounded-lg text-sm">
+          <div class="text-gray-800 px-3 py-2 rounded-lg text-sm" :class="[`${currentThemeColor.xl}`]">
             thinking...
           </div>
         </div>
       </div>
 
-      <div class="p-3 border-t border-red-500">
+      <div class="p-3 border-t" :class="[`${currentThemeColor.br}`]">
         <div class="flex gap-2">
           <input
             v-model="inputMessage"
             @keyup.enter="sendMessage"
             placeholder="key in your message..."
-            class="shadow flex-1 rounded-full px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-red-400"
+            class="rounded-full px-2 py-1 flex-1 min-w-30 border border-slate-200 bg-white focus:outline-none focus:ring-2"
+            :class="[`${currentThemeColor.fblr} ${currentThemeColor.frxl}`]"
           />
           <button
             @click="sendMessage"
             :disabled="!inputMessage.trim() || isLoading"
-            class="shadow bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white px-3 py-1 rounded-full text-sm"
+            class="shadow text-white px-3 py-1 rounded-full text-sm"
+            :class="[`${currentThemeColor.r} ${currentThemeColor.hlr} ${currentThemeColor.dxl}`]"
           >
             Send
           </button>
@@ -70,6 +73,8 @@
 import dayjs from 'dayjs';
 import { Bot, X } from 'lucide-vue-next';
 import { httpPost } from '../utils/NetUtils';
+import { themeOptions } from '../enum/enum';
+import { useSettingsStore } from '../stores/settingsStore';
 
 export default {
   components: { Bot, X },
@@ -85,10 +90,19 @@ export default {
       title: "bookkeeping" + dayjs().format('YYYY-MM-DD HH:mm:ss')
     };
   },
+  setup(){
+    const settingsStore = useSettingsStore();
+    return {settingsStore};
+  },
   async mounted() {
     if(this.restoreHis) return;
     await this.restoreChatHistory();
     this.restoreHis = true;
+  },
+  computed: {
+    currentThemeColor() {
+      return themeOptions[this.settingsStore.settings.theme_color] || themeOptions[0];
+    },
   },
   watch: {
     showModal(newVal) {
