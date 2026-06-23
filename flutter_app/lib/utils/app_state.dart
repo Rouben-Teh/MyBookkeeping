@@ -85,7 +85,7 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _checkAutoAddPlan() {
+  Future<void> _checkAutoAddPlan() async {
     final now = DateTime.now();
 
     for (final plan in plans) {
@@ -100,7 +100,7 @@ class AppState extends ChangeNotifier {
       );
 
       while (next.isBefore(now)) {
-        APIService().markPlanPaid(plan, dt: next);
+        await APIService().markPlanPaid(plan, dt: next);
 
         total += plan.intervals;
 

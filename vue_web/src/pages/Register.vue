@@ -6,8 +6,8 @@
       </router-link>
     </header>
 
-    <main class="flex-1 container mx-auto px-6 flex items-center justify-center">
-      <div class="flex-1 px-30 items-center justify-between">
+    <main class="flex-1 container mx-auto px-6 pt-20 md:pt-0 flex items-center justify-center">
+      <div class="flex-1 px-30 items-center justify-between hidden md:inline">
         <img 
               src="@/assets/images/landing-illustration.png" 
               alt="Illustration" 
@@ -15,7 +15,7 @@
             />
       </div>
 
-      <div class="flex-1">
+      <div class="flex md:flex-1">
         <div class="w-full max-w-md">
           <div class="bg-white rounded-3xl shadow p-8 space-y-6">
             <div>

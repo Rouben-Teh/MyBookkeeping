@@ -1,20 +1,20 @@
 <template>
-  <div class="space-y-6">
-    <div class="bg-white rounded-3xl shadow p-6">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <div class="space-y-4 md:space-y-6">
+    <div class="bg-white rounded-2xl md:rounded-3xl shadow p-4 md:p-6">
+      <div class="flex flex-col gap-3 md:gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p class="text-sm uppercase tracking-[0.24em] font-semibold" :class="[`${currentThemeColor.tr}`]">Summary</p>
-          <h1 class="mt-3 text-3xl font-semibold">Financial overview</h1>
-          <p class="mt-2 text-slate-500">Review your transaction trends and performance for the selected period.</p>
+          <p class="text-xs md:text-sm uppercase tracking-[0.24em] font-semibold" :class="[`${currentThemeColor.tr}`]">Summary</p>
+          <h1 class="mt-2 md:mt-3 text-2xl md:text-3xl font-semibold">Financial overview</h1>
+          <p class="mt-1 md:mt-2 text-sm md:text-base text-slate-500">Review your transaction trends and performance for the selected period.</p>
         </div>
-        <div class="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold" :class="[`${currentThemeColor.xl} ${currentThemeColor.tb}`]">
-          <span>{{ capitalize(activeType) }}</span>
+        <div class="inline-flex items-center gap-2 rounded-full px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-semibold" :class="[`${currentThemeColor.xl} ${currentThemeColor.tb}`]">
+          <span class="text-xs md:text-sm">{{ capitalize(activeType) }}</span>
           <span class="h-2 w-2 rounded-full" :class="[`${currentThemeColor.r}`]"></span>
-          <span>{{ formattedDate(dateFrom) }} — {{ formattedDate(dateTo) }}</span>
+          <span class="text-xs md:text-sm">{{ formattedDate(dateFrom) }} — {{ formattedDate(dateTo) }}</span>
         </div>
       </div>
 
-      <div class="mt-6 inline-flex rounded-full p-1 overflow-hidden" :class="[`${currentThemeColor.xl}`]">
+      <div class="mt-4 md:mt-6 inline-flex rounded-full p-1 overflow-hidden" :class="[`${currentThemeColor.xl}`]">
         <button
           @click="setActiveType('year')"
           :class="buttonClass('year')"
@@ -30,74 +30,74 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-3xl p-6 shadow-sm">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-sm">
+      <div class="flex flex-col gap-3 md:gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 class="text-xl font-semibold">Date range</h2>
-          <p class="text-slate-500">Adjust the report window to inspect different periods.</p>
+          <h2 class="text-lg md:text-xl font-semibold">Date range</h2>
+          <p class="text-xs md:text-sm text-slate-500">Adjust the report window to inspect different periods.</p>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2 md:gap-3">
           <button
             @click="previousDate"
-            class="rounded-full px-4 py-2 text-white shadow" :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
-          ><ArrowLeft class="w-5 h-5" /></button>
-          <div class="rounded-3xl bg-slate-100 px-4 py-3 text-slate-700">
+            class="rounded-full px-3 md:px-4 py-2 text-white shadow text-sm md:text-base" :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
+          ><ArrowLeft class="w-4 md:w-5 h-4 md:h-5" /></button>
+          <div class="rounded-2xl md:rounded-3xl bg-slate-100 px-3 md:px-4 py-2 md:py-3 text-slate-700 text-xs md:text-sm">
             {{ formattedDate(dateFrom) }} — {{ formattedDate(dateTo) }}
           </div>
           <button
             @click="nextDate"
-            class="rounded-full px-4 py-2 text-white shadow" :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
-          ><ArrowRight class="w-5 h-5" /></button>
+            class="rounded-full px-3 md:px-4 py-2 text-white shadow text-sm md:text-base" :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
+          ><ArrowRight class="w-4 md:w-5 h-4 md:h-5" /></button>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-      <div class="rounded-3xl bg-white p-6 shadow-sm">
-        <p class="text-sm text-slate-500">Transaction Count</p>
-        <p class="mt-4 text-3xl font-bold text-slate-900">{{ visibleCount }}</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div class="rounded-2xl md:rounded-3xl bg-white p-4 md:p-6 shadow-sm">
+        <p class="text-xs md:text-sm text-slate-500">Transaction Count</p>
+        <p class="mt-3 md:mt-4 text-2xl md:text-3xl font-bold text-slate-900">{{ visibleCount }}</p>
       </div>
-      <div class="rounded-3xl bg-white p-6 shadow-sm">
-        <p class="text-sm text-slate-500">Total Expenses</p>
-        <p class="mt-4 text-3xl font-bold text-slate-900">{{currentCurrency}}{{ totalExpenseAmount.toFixed(2) }}</p>
+      <div class="rounded-2xl md:rounded-3xl bg-white p-4 md:p-6 shadow-sm">
+        <p class="text-xs md:text-sm text-slate-500">Total Expenses</p>
+        <p class="mt-3 md:mt-4 text-2xl md:text-3xl font-bold text-slate-900">{{currentCurrency}}{{ totalExpenseAmount.toFixed(2) }}</p>
       </div>
-      <div class="rounded-3xl bg-white p-6 shadow-sm">
-        <p class="text-sm text-slate-500">Total Income</p>
-        <p class="mt-4 text-3xl font-bold text-slate-900">{{currentCurrency}}{{ totalIncomeAmount.toFixed(2) }}</p>
+      <div class="rounded-2xl md:rounded-3xl bg-white p-4 md:p-6 shadow-sm">
+        <p class="text-xs md:text-sm text-slate-500">Total Income</p>
+        <p class="mt-3 md:mt-4 text-2xl md:text-3xl font-bold text-slate-900">{{currentCurrency}}{{ totalIncomeAmount.toFixed(2) }}</p>
       </div>
-      <div class="rounded-3xl bg-white p-6 shadow-sm">
-        <p class="text-sm text-slate-500">Balance</p>
-        <p class="mt-4 text-3xl font-bold text-slate-900">{{currentCurrency}}{{ balance.toFixed(2) }}</p>
+      <div class="rounded-2xl md:rounded-3xl bg-white p-4 md:p-6 shadow-sm">
+        <p class="text-xs md:text-sm text-slate-500">Balance</p>
+        <p class="mt-3 md:mt-4 text-2xl md:text-3xl font-bold text-slate-900">{{currentCurrency}}{{ balance.toFixed(2) }}</p>
       </div>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-[2fr_1fr]">
-      <div class="rounded-3xl bg-white p-6 shadow-sm">
-        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="grid gap-4 md:gap-6 lg:grid-cols-[2fr_1fr]">
+      <div class="rounded-2xl md:rounded-3xl bg-white p-4 md:p-6 shadow-sm">
+        <div class="mb-4 flex flex-col gap-2 md:gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 class="text-xl font-semibold">Trend chart</h2>
-            <p class="mt-2 text-slate-500">Income and expense movements over time.</p>
+            <h2 class="text-lg md:text-xl font-semibold">Trend chart</h2>
+            <p class="mt-1 md:mt-2 text-xs md:text-sm text-slate-500">Income and expense movements over time.</p>
           </div>
-          <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-sm text-slate-700">
+          <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm text-slate-700">
             {{ activeType === 'year' ? 'Annual view' : activeType === 'month' ? 'Monthly view' : 'Weekly view' }}
           </div>
         </div>
-        <div class="relative h-80">
+        <div class="relative h-64 md:h-80">
           <Line ref="lineChart" class="w-full h-full" :data="lineGraphData" :options="chartOptions" />
         </div>
       </div>
 
-      <div class="space-y-4">
-        <div class="rounded-3xl bg-white p-6 shadow-sm">
-          <h2 class="text-xl font-semibold mb-4">Expense breakdown</h2>
-          <div class="relative h-80">
+      <div class="space-y-4 md:space-y-6">
+        <div class="rounded-2xl md:rounded-3xl bg-white p-4 md:p-6 shadow-sm">
+          <h2 class="text-lg md:text-xl font-semibold mb-4">Expense breakdown</h2>
+          <div class="relative h-64 md:h-80">
             <Pie ref="pieChart" class="w-full h-full" :data="pieChartData" :options="chartOptions" />
           </div>
         </div>
 
-        <div class="rounded-3xl bg-slate-50 p-6 shadow-sm">
-          <h2 class="text-xl font-semibold">Summary tips</h2>
-          <p class="mt-3 text-slate-600">Check your highest expense categories and compare income versus costs to improve your budget planning.</p>
+        <div class="rounded-2xl md:rounded-3xl bg-slate-50 p-4 md:p-6 shadow-sm">
+          <h2 class="text-lg md:text-xl font-semibold">Summary tips</h2>
+          <p class="mt-2 md:mt-3 text-sm md:text-base text-slate-600">Check your highest expense categories and compare income versus costs to improve your budget planning.</p>
         </div>
       </div>
     </div>

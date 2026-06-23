@@ -1,19 +1,19 @@
 <template>
-  <div class="space-y-6">
-    <div class="bg-white rounded-3xl shadow p-6">
+  <div class="space-y-4 md:space-y-6">
+    <div class="bg-white rounded-2xl md:rounded-3xl shadow p-4 md:p-6">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p class="text-sm uppercase tracking-[0.24em] font-semibold" :class="[`${currentThemeColor.tr}`]">Records</p>
-          <h1 class="mt-3 text-3xl font-semibold">Transaction manager</h1>
-          <p class="mt-2 text-slate-500">Add, filter and review your expense and income records with ease.</p>
+          <p class="text-xs md:text-sm uppercase tracking-[0.24em] font-semibold" :class="[`${currentThemeColor.tr}`]">Records</p>
+          <h1 class="mt-2 md:mt-3 text-2xl md:text-3xl font-semibold">Transaction manager</h1>
+          <p class="mt-1 md:mt-2 text-sm md:text-base text-slate-500">Add, filter and review your expense and income records with ease.</p>
         </div>
-        <div class="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold"
+        <div class="inline-flex items-center gap-2 rounded-full px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-semibold"
         :class="[`${currentThemeColor.xl} ${currentThemeColor.tb}`]">
           <span>{{ activeType === 'expense' ? 'Expenses' : 'Income' }}</span>
         </div>
       </div>
 
-      <div class="mt-6 inline-flex rounded-full p-1 overflow-hidden" :class="[`${currentThemeColor.xl}`]">
+      <div class="mt-4 md:mt-6 inline-flex rounded-full p-1 overflow-hidden" :class="[`${currentThemeColor.xl}`]">
         <button
           @click="setActiveType('expense')"
           :class="toggleClass('expense')"
@@ -25,8 +25,42 @@
       </div>
     </div>
 
-    <div class="grid gap-6">
-      <div class="rounded-3xl bg-slate-50 p-6 shadow-sm">
+    <div class="grid gap-4 md:gap-6">
+      
+      <div class="rounded-2xl md:rounded-3xl bg-white p-4 md:p-6 shadow-sm">
+        <div class="flex flex-col gap-3 md:gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs md:text-sm text-slate-500">Selected month</p>
+            <p class="mt-1 md:mt-2 text-base md:text-lg font-semibold">{{ formattedMonth(date) }}</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
+            <button
+              @click="previousMonth"
+              class="rounded-full px-3 md:px-4 py-2 text-white shadow text-sm md:text-base"
+              :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
+            >
+              <ArrowLeft class="w-4 md:w-5 h-4 md:h-5" />
+            </button>
+            <button
+              @click="showMonthPicker = true"
+              class="rounded-full bg-slate-100 px-3 md:px-4 py-2 text-slate-700 hover:bg-slate-200 text-sm md:text-base"
+            >Choose month</button>
+            <button
+              @click="nextMonth"
+              class="rounded-full px-3 md:px-4 py-2 text-white shadow text-sm md:text-base"
+              :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
+            >
+              <ArrowRight class="w-4 md:w-5 h-4 md:h-5" />
+            </button>
+          </div>
+        </div>
+        <div class="mt-4 md:mt-6 rounded-2xl md:rounded-3xl bg-slate-50 p-4 md:p-5">
+          <p class="text-xs md:text-sm text-slate-500">Total {{ activeType === 'expense' ? 'Expenses' : 'Income' }}</p>
+          <p class="mt-2 md:mt-3 text-2xl md:text-3xl font-bold text-slate-900">{{currentCurrency}}{{ totalAmount.toFixed(2) }}</p>
+        </div>
+      </div>
+
+      <div class="rounded-2xl md:rounded-3xl bg-white p-4 md:pt-6 md:px-6 shadow-sm">
         <AddTransaction
           :type="activeType"
           :date="date"
@@ -34,44 +68,21 @@
         />
       </div>
 
-      <div class="rounded-3xl bg-white p-6 shadow-sm">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p class="text-sm text-slate-500">Selected month</p>
-            <p class="mt-2 text-lg font-semibold">{{ formattedMonth(date) }}</p>
-          </div>
-          <div class="flex items-center gap-3 flex-wrap">
-            <button
-              @click="previousMonth"
-              class="rounded-full px-4 py-2 text-white shadow"
-              :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
-            >
-              <ArrowLeft class="w-5 h-5" />
-            </button>
-            <button
-              @click="showMonthPicker = true"
-              class="rounded-full bg-slate-100 px-4 py-2 text-slate-700 hover:bg-slate-200"
-            >Choose month</button>
-            <button
-              @click="nextMonth"
-              class="rounded-full px-4 py-2 text-white shadow"
-              :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
-            >
-              <ArrowRight class="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-        <div class="mt-6 rounded-3xl bg-slate-50 p-5">
-          <p class="text-sm text-slate-500">Total {{ activeType === 'expense' ? 'Expenses' : 'Income' }}</p>
-          <p class="mt-3 text-3xl font-bold text-slate-900">{{currentCurrency}}{{ totalAmount }}</p>
-        </div>
-      </div>
 
-      <div class="rounded-3xl bg-white p-6 shadow-sm">
-        <div class="flex items-center justify-between gap-4 mb-4">
+      <!-- <div v-if="showHeader" class="fixed flex rounded-2xl md:rounded-3xl bg-slate-50 p-4 md:p-6 shadow-sm z-10 top-2">
+        <AddTransaction
+          :type="activeType"
+          :date="date"
+          @add="$emit('add', $event)"
+        />
+      </div> -->
+
+
+      <div id="records" ref="records" class="rounded-2xl md:rounded-3xl bg-white p-4 md:p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-3 md:gap-4 mb-4">
           <div>
-            <h2 class="text-xl font-semibold">{{ activeType === 'expense' ? 'Expense records' : 'Income records' }}</h2>
-            <p class="mt-2 text-slate-500">Swipe through your latest entries for the month.</p>
+            <h2 class="text-lg md:text-xl font-semibold">{{ activeType === 'expense' ? 'Expense records' : 'Income records' }}</h2>
+            <p class="mt-1 md:mt-2 text-sm md:text-base text-slate-500">Swipe through your latest entries for the month.</p>
           </div>
         </div>
         <DatePicker
@@ -115,6 +126,7 @@ export default {
   emits: ['add', 'nextMonth', 'previousMonth', 'selectMonth', 'deleteTransaction', 'updateTransaction'],
   data() {
     return {
+      //showHeader: false,
       showMonthPicker: false,
       activeType: 'expense',
     };
@@ -137,6 +149,23 @@ export default {
       return this.filteredTransactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
     },
   },
+  // mounted() {
+  //   const observer = new IntersectionObserver(
+  //     ([entry]) => {
+  //       this.showHeader = entry.isIntersecting
+  //     },
+  //     {
+  //       threshold: 0.3
+  //     }
+  //   )
+
+  //   observer.observe(this.$refs.records)
+
+  //   this.observer = observer
+  // },
+  // beforeUnmount() {
+  //   this.observer?.disconnect()
+  // },
   methods: {
     setActiveType(type) {
       this.activeType = type;

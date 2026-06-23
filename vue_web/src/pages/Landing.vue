@@ -1,8 +1,9 @@
 <template>
   <div class="min-h-screen bg-white text-black">
     <header class="mx-auto px-6 py-6 flex items-center justify-between bg-red-400 text-white sticky top-0 z-10">
-      <h1 class="text-3xl font-bold">MyBookkeeping</h1>
-      <nav class="space-x-4">
+      <h1 class="md:text-xl lg:text-3xl font-bold">MyBookkeeping</h1>
+
+      <nav class="space-x-4 hidden md:inline">
         <router-link class="hover:underline" :to="{ path: '/', hash: '#home' }">Home</router-link>
         <router-link class="hover:underline" :to="{ path: '/', hash: '#about' }">About</router-link>
         <router-link class="hover:underline" :to="{ path: '/', hash: '#features' }">Features</router-link>
@@ -11,9 +12,30 @@
           Get Started
         </router-link>
       </nav>
+
+      <button 
+        @click="sidebarOpen = !sidebarOpen"
+        class="md:hidden fixed top-4 right-4 z-50 p-2 rounded-lg bg-white shadow"
+      >
+        <Menu class="w-5 h-5 inline stroke-black" />
+      </button>  
     </header>
 
-    <main class="container mx-auto">
+    <div v-if="sidebarOpen" class="fixed inset-0 bg-black/40 z-30 md:hidden" @click="sidebarOpen = false"></div>
+
+    <aside :class="[
+        'bg-red-400 fixed top-0 left-0 md:hidden h-screen text-white w-56 p-4 space-y-4 transition-transform duration-300 z-40',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+    ]">
+      <h2 class="text-xl font-bold mb-4">Menu</h2>
+      <router-link @click="sidebarOpen = false" class="block mb-2 hover:underline" :to="{ path: '/', hash: '#home' }">Home</router-link>
+      <router-link @click="sidebarOpen = false" class="block mb-2 hover:underline" :to="{ path: '/', hash: '#about' }">About</router-link>
+      <router-link @click="sidebarOpen = false" class="block mb-2 hover:underline" :to="{ path: '/', hash: '#features' }">Features</router-link>
+      <router-link @click="sidebarOpen = false" class="block mb-2 hover:underline" :to="{ path: '/', hash: '#contact' }">Contact</router-link>
+      <router-link @click="sidebarOpen = false" to="/login" class="inline-block mt-4 px-4 py-2 bg-red-500 hover:bg-red-100 rounded-full font-Regular text-white">Get Started</router-link>
+    </aside>
+
+    <main class="container mx-auto flex-1">
       <section 
         id="home" 
         class="flex flex-col md:flex-row items-center md:h-150 h-screen justify-center"
@@ -126,11 +148,12 @@
     </main>
 
     <footer class="bg-red-400 py-4 text-center text-sm text-white">© 2026 MyBookkeeping</footer>
+    
   </div>
 </template>
 
 <script setup>
-import { CloudSync, FunnelPlus, Clipboard, ShieldAlert, Bot, Layers2, Calendar1, CircleCheck } from 'lucide-vue-next';
+import { CloudSync, FunnelPlus, Clipboard, ShieldAlert, Bot, Layers2, Calendar1, CircleCheck, Menu } from 'lucide-vue-next';
 </script>
 
 <script>
@@ -140,12 +163,18 @@ export default {
   name: 'Landing',
   data() {
     return{
+      sidebarOpen: false,
       isSending: false,
       isSentContact: false,
       inputName: '',
       inputEmail: '',
       inputMessage: '',
     }
+  },
+  async created() {
+    this.$router.afterEach(() => {
+      this.sidebarOpen = false;
+    });
   },
   methods: {
     async submit(){

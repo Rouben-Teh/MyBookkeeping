@@ -1,9 +1,27 @@
 <template>
-  <div class="h-screen flex bg-slate-50 text-slate-900">
-    <aside
-      :class="[`${currentThemeColor.lr} h-screen text-white w-56 p-4 space-y-4`]"
+  <div class="h-screen flex flex-col md:flex-row bg-slate-50 text-slate-900">
+
+    <div v-if="!isLoadingSetting" class="fixed inset-0 flex bg-slate-100 z-100 items-center justify-center">
+      <div class="flex flex-col items-center justify-center gap-2">
+        <Wallet class="w-10 h-10 mb-1 stroke-red-400"/>
+        <h3 class="text-center">Loading...</h3>
+      </div>
+    </div>
+
+    <button 
+      @click="sidebarOpen = !sidebarOpen"
+      class="md:hidden fixed top-4 right-4 z-80 p-2 rounded-lg bg-white shadow"
     >
-      <h2 class="text-xl font-bold">MyBookkeeping</h2>
+      <Menu class="w-5 h-5 inline stroke-black" />
+    </button>
+    
+    <aside
+      :class="[
+        `${currentThemeColor.lr} fixed md:static h-screen text-white w-56 p-4 space-y-4 transition-transform duration-300 z-50`,
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      ]"
+    >
+      <h2 class="text-xl font-bold mt-8 md:mt-0">MyBookkeeping</h2>
       <nav class="space-y-2">
         <router-link
           :to="{ name: 'Dashboard', params: { tab: 'records' } }"
@@ -27,7 +45,14 @@
         ><MessageSquare class="w-5 h-5 inline mr-2" />Feedback</router-link>
       </nav>
     </aside>
-    <main class="flex-1 p-6 overflow-auto">
+    
+    <div 
+      v-if="sidebarOpen"
+      @click="sidebarOpen = false"
+      class="md:hidden fixed inset-0 bg-black/50 z-40"
+    ></div>
+    
+    <main class="flex-1 p-4 md:p-6 overflow-auto w-full md:w-auto">
       <Profile
         v-if="selectedTab === 'profile'"
         :last_current_streak="currentStreak"
@@ -103,12 +128,14 @@ import { useSettingsStore } from '../stores/settingsStore';
 import { themeOptions, currencyOptions } from '../enum/enum.js';
 import { httpPost } from '../utils/NetUtils';
 import dayjs from 'dayjs';
-import { NotebookPen, User, ChartNoAxesCombined, Settings, MessageSquare } from 'lucide-vue-next';
+import { NotebookPen, User, ChartNoAxesCombined, Settings, MessageSquare, Menu, Wallet } from 'lucide-vue-next';
 
 export default {
-  components: { Records, Profile, Summary, Setting, Feedback, ChatModal, NotebookPen, User, ChartNoAxesCombined, Settings, MessageSquare },
+  components: { Records, Profile, Summary, Setting, Feedback, ChatModal, NotebookPen, User, ChartNoAxesCombined, Settings, MessageSquare, Menu, Wallet },
   data() {
     return {
+      isLoadingSetting: false,
+      sidebarOpen: false,
       transactions: [],
       currentDate: dayjs().valueOf(),
       currentStreak: 0,
@@ -140,8 +167,12 @@ export default {
       this.$router.replace({ name: 'Login' });
       return;
     }
-    this.validation();
+    this.$router.afterEach(() => {
+      this.sidebarOpen = false;
+    });
+    await this.validation();
     await this.settingsStore.fetchSettings();
+    this.isLoadingSetting = true;
     this.fetchCurrentMonthTransactions();
     this.fetchCount();
     this.fetchStreak();

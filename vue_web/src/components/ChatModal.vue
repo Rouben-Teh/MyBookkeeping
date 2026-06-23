@@ -1,25 +1,25 @@
 <template>
-  <div class="fixed bottom-4 right-4 z-50">
+  <div class="fixed bottom-4 right-4 z-30">
     <button
       @click="toggleChat"
-      class="text-white rounded-full p-3 shadow-lg transition-colors"
+      class="text-white rounded-full p-2 md:p-3 shadow-lg transition-colors"
       :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
     >
-      <Bot class="w-10 h-10" />
+      <Bot class="w-6 md:w-10 h-6 md:h-10" />
     </button>
 
     <div
       v-if="showModal"
-      class="absolute bottom-20 right-0 bg-white rounded-lg shadow-xl w-80 h-96 flex flex-col"
+      class="absolute bottom-16 right-0 bg-white rounded-lg shadow-xl w-72 md:w-80 h-80 md:h-96 flex flex-col"
     >
       <div class="flex justify-between items-center p-3 rounded-t-lg" :class="[`${currentThemeColor.r}`]"> 
-        <h3 class="text-sm font-semibold text-white">AI Assistant</h3>
+        <h3 class="text-xs md:text-sm font-semibold text-white">AI Assistant</h3>
         <button @click="showModal = false" class="text-white hover:text-gray-300">
-          <X class="w-4 h-4" />
+          <X class="w-4 md:w-5 h-4 md:h-5" />
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 mb-1" ref="chatContainer">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4 space-y-2 md:space-y-3 mb-1" ref="chatContainer">
         <div
           v-for="message in messages"
           :key="message.id"
@@ -30,7 +30,7 @@
         >
           <div
             :class="[
-              'max-w-xs px-3 py-2 rounded-lg text-sm',
+              'max-w-xs px-3 py-2 rounded-lg text-xs md:text-sm',
               message.role === 'user'
                 ? `${currentThemeColor.lb} text-white`
                 : `${currentThemeColor.xl} text-gray-800`
@@ -40,25 +40,25 @@
           </div>
         </div>
         <div v-if="isLoading" class="flex justify-start">
-          <div class="text-gray-800 px-3 py-2 rounded-lg text-sm" :class="[`${currentThemeColor.xl}`]">
+          <div class="text-gray-800 px-3 py-2 rounded-lg text-xs md:text-sm" :class="[`${currentThemeColor.xl}`]">
             thinking...
           </div>
         </div>
       </div>
 
-      <div class="p-3 border-t" :class="[`${currentThemeColor.br}`]">
+      <div class="p-2 md:p-3 border-t" :class="[`${currentThemeColor.br}`]">
         <div class="flex gap-2">
           <input
             v-model="inputMessage"
             @keyup.enter="sendMessage"
-            placeholder="key in your message..."
-            class="rounded-full px-2 py-1 flex-1 min-w-30 border border-slate-200 bg-white focus:outline-none focus:ring-2"
+            placeholder="message..."
+            class="rounded-full px-2 py-1 flex-1 border border-slate-200 bg-white focus:outline-none focus:ring-2 text-xs md:text-sm"
             :class="[`${currentThemeColor.fblr} ${currentThemeColor.frxl}`]"
           />
           <button
             @click="sendMessage"
             :disabled="!inputMessage.trim() || isLoading"
-            class="shadow text-white px-3 py-1 rounded-full text-sm"
+            class="shadow text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm"
             :class="[`${currentThemeColor.r} ${currentThemeColor.hlr} ${currentThemeColor.dxl}`]"
           >
             Send

@@ -1,10 +1,10 @@
 <template>
     <div class="flex flex-col">
-        <div class="flex flex-wrap gap-2 mb-4">
-          <div class="relative rounded-full w-30 bg-white">
+        <div class="flex flex-wrap gap-2 md:gap-3 mb-3 md:mb-4">
+          <div class="relative rounded-full bg-white flex-1 min-w-24 md:w-35 md:flex-none">
             <select
                 v-model="category"
-                class="px-3 py-2 appearance-none w-full rounded-full border border-slate-200 bg-transparent focus:outline-none focus:ring-2"
+                class="px-2 md:px-3 py-2 appearance-none w-full rounded-full border border-slate-200 bg-transparent focus:outline-none focus:ring-2 text-xs md:text-sm"
                 :class="[`${currentThemeColor.fblr} ${currentThemeColor.frxl}` ]"
             >
                 <option value="">Category</option>
@@ -13,7 +13,7 @@
                 </option>
             </select>
 
-            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs">
+            <div class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-xs">
               ▼
             </div>
           </div>
@@ -22,18 +22,18 @@
                 v-model="amount"
                 type="number"
                 placeholder="Amount"
-                class="rounded-full px-3 py-2 w-30 border border-slate-200 bg-white focus:outline-none focus:ring-2"
+                class="rounded-full px-2 md:px-3 py-2 flex-1 min-w-24 md:w-auto md:flex-none border border-slate-200 bg-white focus:outline-none focus:ring-2 text-xs md:text-sm"
                 :class="[`${currentThemeColor.fblr} ${currentThemeColor.frxl}`]"
             />
             <input
                 v-model="note"
                 placeholder="Note"
-                class="rounded-full px-3 py-2 flex-1 min-w-30 border border-slate-200 bg-white focus:outline-none focus:ring-2"
+                class="rounded-full px-2 md:px-3 py-2 flex-1 min-w-20 border border-slate-200 bg-white focus:outline-none focus:ring-2 text-xs md:text-sm"
                 :class="[`${currentThemeColor.fblr} ${currentThemeColor.frxl}`]"
             />
             <button
                 @click="showDatePicker = true"
-                class="shadow text-white px-4 py-2 rounded-full"
+                class="shadow text-white px-2 md:px-4 py-2 rounded-full text-xs md:text-sm whitespace-nowrap"
                 :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
             >
                 {{isToday(selectedDate) ? 'Today' : formattedDate(selectedDate)}}
@@ -41,13 +41,13 @@
             <button
                 v-if="initial && initial.id"
                 @click="$emit('cancel')"
-                class="shadow bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-400"
+                class="shadow bg-gray-500 text-white px-2 md:px-4 py-2 rounded-full hover:bg-gray-400 text-xs md:text-sm"
             >
                 Cancel
             </button>
             <button
                 @click="submit"
-                class="shadow text-white px-4 py-2 rounded-full"
+                class="shadow text-white px-2 md:px-4 py-2 rounded-full text-xs md:text-sm"
                 :class="[`${currentThemeColor.r} ${currentThemeColor.hlr}`]"
             >
                 {{ initial && initial.id ? 'Update' : 'Add' }}

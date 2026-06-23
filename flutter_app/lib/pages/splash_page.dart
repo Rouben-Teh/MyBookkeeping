@@ -36,8 +36,7 @@ class _SplashPageState extends State<SplashPage> {
       final appState = Provider.of<AppState>(context, listen: false);
 
       final res = await APIService().validation();
-
-      if (res != null && res['ok']) {
+      if (!res['ok']) {
         final prefs = await SharedPreferences.getInstance();
 
         NetService().setToken('');

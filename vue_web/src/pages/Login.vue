@@ -1,21 +1,21 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-100 relative">
-    <header class="mx-auto px-6 py-6 flex items-center justify-between top-0 left-0 z-10 absolute">
+  <div class="min-h-screen lg:flex items-center justify-center bg-slate-100 lg:relative md:flex-row">
+    <header class="mx-auto px-6 py-6 flex items-center justify-between top-0 left-0 z-10 lg:absolute">
       <router-link to="/" class="text-slate-900 hover:opacity-80 transition">
         <h1 class="text-3xl font-bold text-red-500">MyBookkeeping</h1>
       </router-link>
     </header>
 
-    <main class="flex container mx-auto px-6 items-center justify-center">
-      <div class="flex-1 px-30 items-center justify-between">
+    <main class="flex container mx-auto px-6 pt-10 md:pt-0 items-center justify-center">
+      <div class="flex-1 px-30 items-center justify-between hidden md:inline">
         <img 
               src="@/assets/images/landing-illustration.png" 
               alt="Illustration" 
-              class=" w-350 h-auto object-contain"
+              class="w-350 h-auto object-contain"
             />
       </div>
 
-      <div class="flex-1">
+      <div class="flex md:flex-1">
         <div class="w-full max-w-md">
           <div class="bg-white rounded-3xl shadow p-8 space-y-6">
             <div>

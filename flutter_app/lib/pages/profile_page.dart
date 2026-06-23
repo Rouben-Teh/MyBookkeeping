@@ -214,19 +214,19 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Padding(
                   padding: EdgeInsets.all(16),
                   child: GridView.count(
-                    crossAxisCount: 3,
-                    childAspectRatio: 1.2,
+                    crossAxisCount: 2,
+                    childAspectRatio: 1.9,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
-                      // 获取后端的数据并同步至本地数据库
-                      _SmallCard(
-                          title: 'Fetch Backup',
-                          icon: Icons.backup_outlined,
-                          function: () async => {
-                                await APIService().fetchTransactionsAndSync(),
-                                await APIService().fetchPlansAndSync()
-                              }),
+                      // // 获取后端的数据并同步至本地数据库
+                      // _SmallCard(
+                      //     title: 'Fetch Backup',
+                      //     icon: Icons.backup_outlined,
+                      //     function: () async => {
+                      //           await APIService().fetchTransactionsAndSync(),
+                      //           await APIService().fetchPlansAndSync()
+                      //         }),
 
                       // 获取后端未同步的数据同步至本地数据库
                       _SmallCard(
@@ -235,7 +235,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           function: () async => {
                                 await APIService().fetchUnsyncTransactions(),
                                 APIService().fetchLocalMonthTransactions(
-                                    Global.appState.currentMonth)
+                                    Global.appState.currentMonth),
+                                await APIService().fetchUnsyncPlans(),
+                                await APIService().fetchSettingsAndSync(),
                               }),
 
                       // 同步本地数据至后端

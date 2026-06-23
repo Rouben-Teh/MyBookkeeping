@@ -3,7 +3,7 @@
       <li
         v-for="tx in transactions.filter(tx => tx.deleted !== 1)"
         :key="tx.id || tx.created_at + tx.note"
-        class="shadow rounded p-3 bg-white relative group"
+        class="shadow rounded p-3 md:p-4 bg-white relative group text-sm md:text-base"
         :class="{ 'bg-slate-100': menuMode && activeItemMenu === tx.id }"
         @click="isMobile ? toggleMenu(tx.id) : null"
       >
@@ -18,25 +18,25 @@
         </div>
 
         <div v-else>
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between gap-2 md:gap-3 mb-2 flex-wrap">
             <!-- icon + name -->
             <div class="flex items-center gap-2">
               <component
                 :is="categoryMap[tx.category]?.icon"
-                class="w-5 h-5"
+                class="w-4 md:w-5 h-4 md:h-5"
                 :class="[`${currentThemeColor.tr}`]"
               />
-              <span class="font-medium">{{ categoryMap[tx.category]?.name || 'Unknown' }}</span>
+              <span class="font-medium text-xs md:text-sm">{{ categoryMap[tx.category]?.name || 'Unknown' }}</span>
             </div>
             <!-- amount + time -->
-            <div class="flex items-center gap-4">
-              <span class="font-medium" :class="[`${currentThemeColor.tb}`]">{{currentCurrency}}{{ tx.amount }}</span>
-              <span class="text-sm text-slate-500">{{ formattedDate(tx.timestamp) }}</span>
+            <div class="flex items-center gap-2 md:gap-4">
+              <span class="font-medium text-xs md:text-sm" :class="[`${currentThemeColor.tb}`]">{{currentCurrency}}{{ tx.amount }}</span>
+              <span class="text-xs text-slate-500">{{ formattedDate(tx.timestamp) }}</span>
 
               <button
                 @click.stop="toggleUpdate(tx)"
                 :class="[
-                  'absolute right-20 bottom-3 shadow text-white bg-green-500 px-2 py-1 rounded-full hover:bg-green-400 transition-opacity duration-150',
+                  'absolute right-16 md:right-20 bottom-2 md:bottom-3 shadow text-white bg-green-500 px-2 py-1 rounded-full hover:bg-green-400 transition-opacity duration-150 text-xs md:text-sm',
                   menuMode && activeItemMenu === tx.id
                     ? 'opacity-100 pointer-events-auto'
                     : 'opacity-0 pointer-events-none',
@@ -49,7 +49,7 @@
               <button
                 @click.stop="removeTransaction(tx)"
                 :class="[
-                  'absolute right-3 bottom-3 shadow text-white bg-red-500 px-2 py-1 rounded-full hover:bg-red-400 transition-opacity duration-150',
+                  'absolute right-2 md:right-3 bottom-2 md:bottom-3 shadow text-white bg-red-500 px-2 py-1 rounded-full hover:bg-red-400 transition-opacity duration-150 text-xs md:text-sm',
                   menuMode && activeItemMenu === tx.id
                     ? 'opacity-100 pointer-events-auto'
                     : 'opacity-0 pointer-events-none',
@@ -60,7 +60,7 @@
               </button>
             </div>
           </div>
-          <p class="text-slate-600 h-6 overflow-hidden">{{ tx.note }}</p>
+          <p class="text-slate-600 h-6 overflow-hidden text-xs md:text-sm">{{ tx.note }}</p>
         </div>
 
       </li>
