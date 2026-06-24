@@ -36,30 +36,48 @@ class _SplashPageState extends State<SplashPage> {
       final appState = Provider.of<AppState>(context, listen: false);
 
       final res = await APIService().validation();
-      if (!res['ok']) {
-        final prefs = await SharedPreferences.getInstance();
+      if (res != null && !res['ok']) {
+        if (res['reason'] == 'revoked') {
+          final prefs = await SharedPreferences.getInstance();
 
-        NetService().setToken('');
+          NetService().setToken('');
 
-        appState.setTransactions([]);
-        appState.setPlans([]);
-        appState.clearSummaryCache();
-        appState.clearProfileStats();
-        appState.setMessage([]);
+          appState.setTransactions([]);
+          appState.setPlans([]);
+          appState.clearSummaryCache();
+          appState.clearProfileStats();
+          appState.setMessage([]);
 
-        await prefs.remove('token');
-        await prefs.remove('userId');
-        await prefs.remove('email');
+          await prefs.remove('token');
+          await prefs.remove('userId');
+          await prefs.remove('email');
 
-        final db = Global.appDatabase;
-        await db.delete(db.transactions).go(); // 清空表
+          final db = Global.appDatabase;
+          await db.delete(db.transactions).go(); // 清空表
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => LoginPage()),
-        );
-        return;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => LoginPage()),
+          );
+          return;
+        }
       }
+
+      if (res != null && res['token'] != null) {
+        print('token renew: ${res['token']}');
+        NetService().setToken('');
+        token = res['token'];
+        NetService().setToken(token!);
+        await prefs.setString('token', token);
+      }
+
+      if (res == null || !res['ok']) {
+        if (res == null || res['reason'] == 'Server offline') {
+          //TODO: show offline notification if want
+        }
+      }
+
+      // print('res: ? $res');
 
       appState.login(token, userId ?? '', email ?? '');
 

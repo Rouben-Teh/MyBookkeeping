@@ -73,6 +73,19 @@ CREATE TABLE IF NOT EXISTS settings (
 )
 ");
 
+// faq table
+$db->exec("
+CREATE TABLE IF NOT EXISTS faq (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category TEXT,
+    title TEXT,
+    content TEXT,
+    created_at TEXT DEFAULT (datetime('now','localtime')),
+    last_updated TEXT DEFAULT (datetime('now','localtime')),
+    disable INTEGER DEFAULT 0
+)
+");
+
 // contact table
 $db->exec("
 CREATE TABLE IF NOT EXISTS contacts (

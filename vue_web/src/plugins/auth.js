@@ -87,7 +87,11 @@ function getAuthToken() {
 }
 
 function isAuthenticated() {
-  return !!getAuthToken();
+  const authenticated = !!getAuthToken();
+  if (!authenticated) {
+    removeCookie();
+  }
+  return authenticated;
 }
 
 export default {

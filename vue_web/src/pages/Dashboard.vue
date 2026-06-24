@@ -78,7 +78,7 @@
 
       <Feedback
         v-else-if="selectedTab === 'feedback'"
-        :settings="settings"
+        :faqData="faqData"
       />
 
       <Records
@@ -145,6 +145,7 @@ export default {
       dateFromSummary: dayjs().subtract(6, 'month').valueOf(),
       dateToSummary: dayjs().valueOf(),
       summaryData: [],
+      faqData: [],
     };
   },
   setup() {
@@ -177,6 +178,7 @@ export default {
     this.fetchCount();
     this.fetchStreak();
     this.handleFetchSummaryData();
+    this.faq();
   },
   methods: {
     async validation() {
@@ -189,6 +191,10 @@ export default {
         if(!data.ok){
           auth.removeCookie();
           this.$router.replace({ name: 'Login' });
+        }
+
+        if(data.reason == 'expired') {
+          //TODO: renew token if want stay login status
         }
 
       } catch (error) {
@@ -331,6 +337,18 @@ export default {
       const dd = String(date.getDate()).padStart(2, '0')
 
       return `${yyyy}-${mm}-${dd}`
+    },
+    async faq(){
+      try {
+        const res = await httpPost('faq', {});
+        const data = res.data;
+        if (data.faq) {
+          this.faqData = data.faq;
+          console.log(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
   watch: {

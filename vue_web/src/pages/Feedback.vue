@@ -56,6 +56,34 @@
         <p class="text-sm md:text-base text-slate-600">If your issue is urgent, please email support@mybookkeeping.app or use the contact form on the landing page.</p>
       </div>
     </div>
+
+    <div class="bg-white rounded-2xl md:rounded-3xl shadow p-4 md:p-6">
+      <h2 class="text-lg md:text-xl font-semibold mb-2 md:mb-3">Frequently asked questions</h2>
+      <div class="space-y-3">
+        <div
+          v-for="(faq, index) in faqData"
+          :key="index"
+          class="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+        >
+          <button
+            type="button"
+            @click="toggleFaq(index)"
+            class="flex w-full items-start justify-between text-left gap-4"
+          >
+            <span class="font-semibold text-slate-900">{{ faq.title }}</span>
+            <span class="text-slate-500 text-xl leading-none">
+              {{ openFaq[index] ? '−' : '+' }}
+            </span>
+          </button>
+          <p
+            v-if="openFaq[index]"
+            class="mt-3 text-sm md:text-base text-slate-600 whitespace-pre-line"
+          >
+            {{ faq.content }}
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -66,6 +94,9 @@ import { themeOptions, currencyOptions } from '../enum/enum.js';
 
 export default {
   name: 'Feedback',
+  props: {
+    faqData: { type: Array, required: true },
+  },
   data() {
     return {
       subject: '',
@@ -73,6 +104,7 @@ export default {
       priority: 'Normal',
       isSending: false,
       isSent: false,
+      openFaq: [],
     };
   },
   setup() {
@@ -85,6 +117,12 @@ export default {
     },
   },
   methods: {
+    initFaqState() {
+      this.openFaq = this.faqData.map(() => false);
+    },
+    toggleFaq(index) {
+      this.openFaq.splice(index, 1, !this.openFaq[index]);
+    },
     async sendFeedback() {
       if (!this.message.trim()) {
         return;
@@ -110,6 +148,14 @@ export default {
         this.isSending = false;
         console.error(error);
       }
+    },
+  },
+  mounted() {
+    this.initFaqState();
+  },
+  watch: {
+    faqData(newData) {
+      this.openFaq = newData.map(() => false);
     },
   },
 };

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_bookkeeping/pages/contact_page.dart';
+import 'package:my_bookkeeping/pages/faq_page.dart';
 import 'package:my_bookkeeping/pages/login_page.dart';
 import 'package:my_bookkeeping/pages/setttings_page.dart';
 import 'package:my_bookkeeping/service/api_service.dart';
@@ -271,6 +272,31 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
               },
               child: Text('Feedback',
+                  style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+          ),
+
+          SizedBox(height: 12),
+
+          // faq
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                alignment: Alignment.centerLeft,
+                backgroundColor: appState.selectedLightColor,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => FAQPage()),
+                );
+              },
+              child: Text('FAQ',
                   style: TextStyle(fontSize: 16, color: Colors.black)),
             ),
           ),

@@ -35,6 +35,9 @@ class AppState extends ChangeNotifier {
   int totalStreak = 0;
   int totalEntries = 0;
 
+  //faq
+  List faqCache = [];
+
   //chatbot
   List messages = [];
   bool isLoading = false;
@@ -262,6 +265,11 @@ class AppState extends ChangeNotifier {
     this.streak = 0;
     this.totalStreak = 0;
     this.totalEntries = 0;
+  }
+
+  void setFAQ(List data) {
+    faqCache = data;
+    notifyListeners();
   }
 
   void setMessage(List data) {

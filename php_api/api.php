@@ -92,7 +92,7 @@ if ($action === 'login') {
     }
     
     $token = bin2hex(random_bytes(32));
-    $deviceType = $body['device_type'] ?? 'UNKNOWN';
+    $device_type = $body['device_type'] ?? 'UNKNOWN';
 
     $stmt = $db->prepare("
     INSERT INTO tokens (user_id, token, device_type, expired_at)
@@ -102,14 +102,26 @@ if ($action === 'login') {
     $stmt->execute([
         ':user_id' => $user['id'],
         ':token' => $token,
-        ':device_type' => $deviceType // 'WEB' or 'APP'
+        ':device_type' => $device_type // 'WEB' or 'APP'
     ]);
 
-    // 如果同一个 user_id 的登录 token 超过 3 个，则保留最新 3 个，其余标记为已撤销
-    $revokeStmt = $db->prepare("UPDATE tokens SET is_revoked = 1 WHERE user_id = :user_id AND id NOT IN (
-        SELECT id FROM tokens WHERE user_id = :user_id ORDER BY datetime(created_at) DESC LIMIT 3
-    )");
-    $revokeStmt->execute([':user_id' => $user['id']]);
+    // 如果同一个 user_id 同一种设备类型的登录 token 超过 3 个，则保留最新 3 个，其余标记为已撤销
+    $revokeStmt = $db->prepare("UPDATE tokens
+        SET is_revoked = 1
+        WHERE user_id = :user_id
+        AND device_type = :device_type
+        AND id NOT IN (
+            SELECT id FROM (
+                SELECT id
+                FROM tokens
+                WHERE user_id = :user_id
+                AND device_type = :device_type
+                ORDER BY datetime(created_at) DESC
+                LIMIT 3
+            )
+        )
+    ");
+    $revokeStmt->execute([':user_id' => $user['id'], ':device_type' => $device_type]);
     
     echo json_encode(['id' => $user['id'], 'token' => $token]);
     exit;
@@ -169,9 +181,26 @@ if ($action === 'validation') {
         !empty($row['expired_at']) &&
         strtotime($row['expired_at']) < time()
     ) {
+        $revokeStmt = $db->prepare("UPDATE tokens
+            SET is_revoked = 1
+            WHERE token = :token
+        ");
+        $revokeStmt->execute([':token' => $token]);
+
+        $new_token = bin2hex(random_bytes(32));
+        $insert = $db->prepare("
+            INSERT INTO tokens (user_id, token, device_type, expired_at)
+            VALUES (:user_id, :token, :device_type, datetime('now','+7 day'))
+        ");
+        $insert->execute([
+            ':user_id' => $row['user_id'],
+            ':token' => $new_token,
+            ':device_type' => $row['device_type']
+        ]);
+
         echo json_encode([
-            'ok' => false,
-            'reason' => 'expired'
+            'ok' => true,
+            'token' => $new_token
         ]);
         exit;
     }
@@ -547,6 +576,14 @@ if($action === 'settings') {
     exit;
 }
 
+if($action === 'faq') {
+    $stmt = $db->query('SELECT * FROM faq');
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    echo json_encode(['faq' => $rows]);
+    exit;
+}
+
 
 if($action === 'chat') {
     $auth = getAuth($db);
@@ -597,13 +634,21 @@ if($action === 'get_chat_history') {
 
     $body = json_decode(file_get_contents('php://input'), true);
 
-    $response = getLLMHistory([
-        'api_key' => 'f8967ad2-9f52-4f50-94e2-db2ec249efe8',
-        'uid' => $auth['user_id'],
-        'enable_filter' => false,
-        ]);
+    $msg = $response['msg'] ?? null;
 
-    echo json_encode(['ok' => true, 'response' => $response['msg']]);
+    if ($msg === null) {
+        echo json_encode([
+            'ok' => false,
+            'reason' => 'LLM Server offline',
+            'response' => []
+        ]);
+        exit;
+    }
+
+    echo json_encode([
+        'ok' => true,
+        'response' => $msg
+    ]);
     exit;
 }
 

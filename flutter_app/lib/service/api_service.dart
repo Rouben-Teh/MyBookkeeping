@@ -10,8 +10,7 @@ import 'package:my_bookkeeping/service/profile_service.dart';
 class APIService {
   Future<dynamic> validation() async {
     try {
-      final res = await NetService()
-          .httpPost('validation', {}).timeout(const Duration(seconds: 2));
+      final res = await NetService().httpPost('validation', {}, timeout: 2);
       final data = json.decode(res.body);
       return data;
     } catch (e) {
@@ -59,7 +58,8 @@ class APIService {
 
   Future<void> fetchUnsyncTransactions() async {
     try {
-      final res = await NetService().httpPost('get-unsync-transactions', {});
+      final res = await NetService()
+          .httpPost('get-unsync-transactions', {}, timeout: 1);
       final data = json.decode(res.body);
 
       final list = List<Map<String, dynamic>>.from(data['transactions']);
@@ -666,9 +666,12 @@ class APIService {
 
   Future<String> chat(String message) async {
     try {
-      final res = await NetService().httpPost('chat', {
-        'message': message,
-      });
+      final res = await NetService().httpPost(
+          'chat',
+          {
+            'message': message,
+          },
+          timeout: 300);
 
       final data = json.decode(res.body);
 
@@ -698,9 +701,7 @@ class APIService {
 
       final data = json.decode(res.body);
 
-      print(data);
-
-      if (!data['ok']) throw new Error();
+      if (!data['ok']) throw data['reason'];
 
       if (data['response']['chat_history'] != null) {
         return data['response']['chat_history'];
