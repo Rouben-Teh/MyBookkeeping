@@ -15,6 +15,8 @@ $db = require 'db.php';
 
 $action = $_GET['action'] ?? '';
 
+$apiKey = parse_ini_file('.env')['LLM_API_KEY'];
+
 // 获取token和对应的user_id
 function getAuth($db) {
     $token = $_GET['token'] ?? $_POST['token'] ?? (isset($_SERVER['HTTP_AUTHORIZATION']) ? str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']) : null);
@@ -606,16 +608,16 @@ if($action === 'chat') {
         $auth['user_id'],
         $db,
         [
-        'api_key' => 'f8967ad2-9f52-4f50-94e2-db2ec249efe8',
+        'api_key' => $apiKey,
         'uid' => $auth['user_id'],
         'message' => $message,
         'configs' => [
             'model_type' => 'complex',
             'prompt' => $prompt,
             'toxic_threshold' => 1.0,
-            'rag_threshold' => 1.0,
-            'rag_samples' => 1,
-            'rag' => 0,
+            'rag_threshold' => 0.6,
+            'rag_samples' => 3,
+            'rag' => 3,
             'enable_filter' => false,
         ]
     ]);
@@ -633,6 +635,12 @@ if($action === 'get_chat_history') {
     }
 
     $body = json_decode(file_get_contents('php://input'), true);
+
+    $response = getLLMHistory([
+        'api_key' => $apiKey,
+        'uid' => $auth['user_id'],
+        'enable_filter' => false,
+        ]);
 
     $msg = $response['msg'] ?? null;
 
