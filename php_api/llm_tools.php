@@ -50,6 +50,7 @@ Rules:
 - Otherwise use type = "chat", and reply something in content to user
 - If tool is used, content must be ""
 - If chat, tool must be {}
+- If chat, do not answer question you do not know
 
 Ledger context:
 {{ledger_context}}

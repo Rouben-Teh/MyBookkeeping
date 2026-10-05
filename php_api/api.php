@@ -618,6 +618,7 @@ if($action === 'chat') {
             'rag_threshold' => 0.6,
             'rag_samples' => 3,
             'rag' => 3,
+            'db_name' => 'Mybookkeeping',
             'enable_filter' => false,
         ]
     ]);
